@@ -1,3 +1,4 @@
+
 (setq inhibit-startup-message t)
 
 (scroll-bar-mode -1)
@@ -11,7 +12,7 @@
 
 (set-face-attribute 'default nil :font "VictorMono Nerd Font" :height 130)
 
-(load-theme 'tango-dark)
+;;(load-theme 'tango-dark)
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
@@ -40,8 +41,13 @@
 		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-
 ;;(use-package command-log-mode)
+
+(use-package counsel
+  :ensure t
+  :config
+  (counsel-mode 1)
+  )
 
 (use-package ivy
   :diminish
@@ -63,11 +69,17 @@
   :config
   (ivy-mode 1))
 
+(global-set-key (kbd "C-<tab>") 'counsel-switch-buffer)
+
+(use-package all-the-icons)
+
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1))
 
-(use-package doom-themes)
+(use-package doom-themes
+  :init
+  (load-theme 'doom-nord t))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -77,4 +89,12 @@
   :diminish which-key-mode
   :config
   (setq which-key-idle-delay 2.5))
+
+(setq initial-frame-alist
+      '((top . 80)    ; sets the initial position on the top
+        (left . 0)   ; sets the initial position on the left
+        (width . 100) ; sets the width in characters
+        (height . 50) ; sets the height in lines
+       ))
+
 
