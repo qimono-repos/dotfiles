@@ -97,4 +97,6 @@
         (height . 50) ; sets the height in lines
        ))
 
-
+(use-package evil
+  :config
+  (evil-mode 1))
