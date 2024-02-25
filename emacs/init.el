@@ -105,19 +105,13 @@
   :ensure t
   :bind
   (:map global-map
-     ;("M-1" . (lambda () 
-     ;             (when (not (equal (current-buffer) treemacs-buffer))
-     ;              (treemacs-toggle-display))))
 	("M-1" . treemacs)
-	;("<C-M-1> . treemacs-select-window>")
 	)
   :config
   (setq treemacs-is-never-other-window t
 	treemacs-position 'right)
   :defer t
   :init
-;  (with-eval-after-load 'winum
-;   (define-key winum-keymap (kbd "M-0")))
   )
 (use-package treemacs-evil
   :after (treemacs evil)
@@ -128,5 +122,9 @@
   (when (and (buffer-p) (not (equal (current-buffer) treemacs-buffer)))
     (delete-buffer treemacs-buffer)))
 
-; (add-hook 'buffer-change-hook 'close-treemacs-on-buffer-change)
-;(add-hook 'treemacs-mode-hook (lambda () (display-line-numbers-mode nil)))
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration 1))
