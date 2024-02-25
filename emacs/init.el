@@ -22,7 +22,7 @@
 			 ("org" . "https://orgmode.org/elpa/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")
 			 ))
-(package-)
+(package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
 
