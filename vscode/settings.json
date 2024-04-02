@@ -1,0 +1,21 @@
+{
+    "workbench.startupEditor": "none",
+    "workbench.sideBar.location": "right",
+    "workbench.colorTheme": "Nord",
+    "editor.minimap.enabled": false,
+    "files.autoSave": "afterDelay",
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    },
+"terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "host-spawn",
+      "args": ["bash"]
+    }
+},
+"editor.fontFamily": "'Caskaydia Cove Nerd Font', 'monospace', monospace"
+}
