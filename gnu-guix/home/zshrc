@@ -7,7 +7,7 @@ alias teams="flatpak run com.github.IsmaelMartinez.teams_for_linux &"
 alias vz='nvim ~/.zshrc'
 alias ez='emacs -q -l ~/.config/emacs/init.el ~/.zshrc'
 alias ei='emacs -q -l ~/.config/emacs/init.el ~/.config/emacs/init.el'
-alias sou='source ~/.zshrc'
+alias sou='source ~/.bashrc'
 alias ll='ls -la'
 alias discord='flatpak run com.discordapp.Discord &'
 alias code='flatpak run com.visualstudio.code'
@@ -19,17 +19,27 @@ alias clj='java -jar $(guix build clojure)/share/java/clojure-1.11.1.jar'
 
 GUIX_PROFILE="$HOME/.config/guix/current"
 . "$GUIX_PROFILE/etc/profile"
-GUIX_PROFILE="$HOME/.guix-profile"
+GUIX_PROFILE="/home/qi/.guix-profile"
 . "$GUIX_PROFILE/etc/profile"
+
+export EDITOR="$HOME/.guix-profile/bin/nvim" 
+export PKG_CONFIG_PATH="/home/qi/.guix-profile/lib/pkgconfig:/home/qi/.guix-profile/share/pkgconfig"
 
 export SDK_ROOT="/home/qi/android-sdk/cmdline-tools/latest/bin"
 
+export ICECAT_SYSTEM_DIR="/home/qi/.guix-profile/lib/icecat"
+export GIT_EXEC_PATH="/home/qi/.guix-profile/libexec/git-core"
+export GUIX_PYTHONPATH="/home/qi/.guix-profile/lib/python3.10/site-packages"
+export JAVA_HOME="$HOME/.guix-profile"
+
+export PATH="$PATH:$JAVA_HOME/bin"
+export PATH="$PATH:$HOME/.guix-profile/bin:$HOME/.guix-profile/sbin" 
 export PATH="$PATH:$HOME/bin" 
 export PATH="$PATH:$HOME/development/gh_2.46.0_linux_amd64/bin"
 export PATH="$PATH:$HOME/bin/VSCode-linux-x64/bin"
-export PATH="${GUIX_PROFILE:-/gnu/store/551yflyffsirx5jm9jnqpwl2izshx3yb-profile}/bin${PATH:+:}$PATH"
 export PATH="$PATH:$(guix build clojure)/share/java"
 export PATH="$PATH:$SDK_ROOT" #be aware of order: other tool can define a previus path, or this can override a new tool setup
+export PATH="${GUIX_PROFILE:-/gnu/store/551yflyffsirx5jm9jnqpwl2izshx3yb-profile}/bin${PATH:+:}$PATH"
 
 
 export EDITOR='$HOME/.guix-profile/bin/nvim'
@@ -43,6 +53,6 @@ eval "$(oh-my-posh init zsh --config 'https://raw.githubusercontent.com/JanDeDob
 # STARTUP
 
 ## tmux
-neofetch --disable uptime
+neofetch
 
 

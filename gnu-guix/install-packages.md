@@ -25,9 +25,12 @@ wget
 unzip
 ungoogled-chromium
 glibc-locales
+htop
 
 clojure
 docker
+
+pkg-config
 
 
 ## FLATPAK PACKAGES

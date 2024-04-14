@@ -4,9 +4,9 @@
 # Export 'SHELL' to child processes.  Programs such as 'screen'
 # honor it and otherwise use /bin/sh.
 export SHELL
-GUIX_PROFILE="$HOME/.config/guix/current"
+GUIX_PROFILE="/home/qi/.config/guix/current"
 . "$GUIX_PROFILE/etc/profile"
-GUIX_PROFILE="$HOME/.guix-profile"
+GUIX_PROFILE="/home/qi/.guix-profile"
 . "$GUIX_PROFILE/etc/profile"
 
 export EDITOR="$HOME/.guix-profile/bin/nvim"
