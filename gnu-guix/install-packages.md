@@ -35,6 +35,7 @@ python-pyparsing
 
 clojure
 docker
+podman
 distrobox
 
 pkg-config
@@ -73,5 +74,7 @@ sudo ./linux-install.sh --prefix /opt/infrastructure/clojure
 ## Distrobox
 sudo sh -c 'echo \'{"default": [{"type":"insecureAcceptAnything"}]\' > /etc/containers/policy.json'
 sudo sh -c 'echo "{}" > /etc/containers/policy.json'
+sudo touch /etc/gshadow
+sudo grpck
 distrobox create -n ubu-box -i quay.io/toolbx/ubuntu-toolbox:latest -Y
 
