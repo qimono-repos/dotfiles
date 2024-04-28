@@ -35,6 +35,7 @@ python-pyparsing
 
 clojure
 docker
+podman
 distrobox
 
 pkg-config
