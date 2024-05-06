@@ -29,6 +29,7 @@ glibc
 glibc-locales
 binutils
 
+
 htop
 python-httplib2
 python-pyparsing
@@ -37,6 +38,7 @@ clojure
 docker
 podman
 distrobox
+iptables
 
 pkg-config
 
