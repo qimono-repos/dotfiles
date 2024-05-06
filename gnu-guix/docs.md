@@ -69,3 +69,14 @@ $ podman exec -it dreamy_cerf /bin/bash
 root@35852ade38a2:/# whoami
 root
 
+- creating the distrobox with a existing image
+
+qi@qimono-host ~  podman ps
+CONTAINER ID  IMAGE                                 COMMAND     CREATED         STATUS         PORTS       NAMES
+35852ade38a2  quay.io/toolbx/ubuntu-toolbox:latest  /bin/bash   26 minutes ago  Up 26 minutes              dreamy_cerf
+qi@qimono-host ~  distrobox-create --name u-box --image quay.io/toolbx/ubuntu-toolbox:latest
+Creating 'u-box' using image quay.io/toolbx/ubuntu-toolbox:latest        [ OK ]
+Distrobox 'u-box' successfully created.
+To enter, run:
+
+distrobox enter u-box
