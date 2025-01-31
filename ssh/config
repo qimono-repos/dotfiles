@@ -1,0 +1,6 @@
+IdentityFile /root/.ssh/id_ed_vir_and
+
+Host sat-lino
+     HostName 172.236.53.122
+     User root
+     
