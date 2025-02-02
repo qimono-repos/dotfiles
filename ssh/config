@@ -1,6 +1,14 @@
 IdentityFile /root/.ssh/id_ed_vir_and
 
 Host sat-lino
-     HostName 172.236.53.122
+     HostName 172.236.61.24
      User root
-     
+
+Host sat-host
+     HostName 147.93.118.174
+     User root
+
+Host sat-digi
+     HostName 134.122.98.12
+     User root
+
