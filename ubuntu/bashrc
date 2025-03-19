@@ -81,7 +81,15 @@ fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-
+alias v='/root/.local/bin/lvim '
+alias so='source /root/.bashrc'
+alias b='/root/.bashrc'
+alias cls='clear && neofetch && echo LINODE Sidney AU'
+alias code='emacs -q -l /root/.config/emacs/init.el'
+alias t='tree -I "node_modules|.gitignore"'
+alias tree='tree -I "node_modules|.gitignore"'
+alias gg="git commit -am '"
+alias rc='$HOME/.local/bin/lvim $HOME/.bashrc'
 # Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
@@ -98,26 +106,57 @@ fi
 #    . /etc/bash_completion
 #fi
 
-# ALIAS
+eval "$(oh-my-posh init bash )"
+# eval "$(oh-my-posh  --config 'https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/catpuccin.omp.json')"
 
-alias v='nvim'
-alias e='emacs -q -l ~/.config/emacs/init.el'
-alias vz='nvim ~/.zshrc'
-alias ez='emacs -q -l ~/.config/emacs/init.el ~/.zshrc'
-alias ei='emacs -q -l ~/.config/emacs/init.el ~/.config/emacs/init.el'
-alias sou='source ~/.bashrc'
-
-export ANDROID_HOME="/root/android-sdk"
-export XDG_CONFIG_HOME="/root/.config"
-
-eval "$(oh-my-posh init bash)"
-
-export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
-
-# STARTUP
-neofetch
-echo UBUNTU LOCAL
-
-# bun
+# EXPORTS
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH=/root/.local/bin:$PATH
+export EDITOR=nvim
+export VISUAL=nvim
+export TMPDIR=$HOME/tmp
+export URL_API_NUGET=https://api.nuget.org/v3/index.json
+
+export DOTNET_ROOT=$HOME/dotnet
+# export JAVA_HOME=/usr/lib/jvm/jdk/jdk-11.0.26+4
+# export ANDROID_HOME=/usr/lib/android-sdk/cmdline-tools/latest  
+
+## PATH
+PATH=$PATH:$HOME/dotnet
+PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools
+# PATH="$JAVA_HOME:$PATH"
+# PATH="$JAVA_HOME/bin:$PATH"
+# PATH="$PATH:$ANDROID_HOME/platform-tools"
+# PATH="$PATH:$ANDROID_HOME/bin"
+
+
+
+## DOTNET COMPLETION
+# autoload -Uz compinit
+# compinit                                                                                                                                                        
+# _dotnet_zsh_complete()
+# {
+#     local completions=("$(dotnet complete "$words")")                                                                                                             
+#       If the completion list is empty, just continue with filename selectione
+#         if [ -z "$completions" ]                                                                                                                                        then
+#             _arguments '*::arguments: _normal'
+#                 return
+#                   fi
+
+#                     # This is not a variable assignment, don't remove spaces!                                                                                                       _values = "${(ps:\n:)completions}"                                                                                                                            }
+
+#                     compdef _dotnet_zsh_complete dotnet                                                                                                                             
+# }
+# )
+# STARTUP       
+
+clear
+neofetch
+echo LINODE Sidney AU 
+
+#cd /root/source/repos/qimono-repos/basic/
+cd /root/source/repos/qimono-repos/graph-baza/ && git fetch && git status
+
+# bun start
+
