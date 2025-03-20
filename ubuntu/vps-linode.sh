@@ -7,7 +7,7 @@ curl -H "Content-Type: application/json" \
     "private_ip": false,
     "region": "au-mel",
     "type": "g6-nanode-1",
-    "label": "sat-nano-au",
+    "label": "sat-lino-au",
     "tags": [
         "saturno"
     ],
