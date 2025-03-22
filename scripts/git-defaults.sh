@@ -8,3 +8,7 @@ git config --global user.name Albert.Gruning
 git config --global init.defaultBranch trunk
 
 git config --global pulll.rebase true
+
+git config --global push.autoSetupRemote true
+
+
