@@ -1,0 +1,94 @@
+
+
+autoload -Uz promptinit
+promptinit
+prompt adam1
+
+setopt histignorealldups sharehistory
+
+# Use emacs keybindings even if our EDITOR is set to vi
+# bindkey -e
+
+HISTSIZE=99000
+SAVEHIST=99000
+HISTFILE=~/.zsh_history
+
+# Use modern completion system
+autoload -Uz compinit
+compinit
+
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=2
+eval "$(dircolors -b)"
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=* l:|=*'
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+
+
+## DOTNET COMPLETION
+### autoload -Uz compinit
+### compinit
+
+_dotnet_zsh_complete()
+{
+  local completions=("$(dotnet complete "$words")")
+
+  # If the completion list is empty, just continue with filename selection
+  if [ -z "$completions" ]
+  then
+    _arguments '*::arguments: _normal'
+    return
+  fi
+
+  # This is not a variable assignment, don't remove spaces!
+  _values = "${(ps:\n:)completions}"
+}
+
+compdef _dotnet_zsh_complete dotnet
+
+
+mkdir -p $HOME/tmp
+chmod 1777 ~/tmp 
+
+## ALIAS 
+alias cls='clear && fastfetch && echo LINODE SIDNEY AU'
+alias rc='nvim $HOME/.zshrc'
+alias code='emacs '
+alias ls='ls -a'
+alias v=$HOME/.local/bin/lvim
+
+## EXPORT
+export JAVA_HOME=/usr/lib/jdk/jvm
+export ANDROID_HOME=/usr/lib/android/sdk
+export ANDROID_SDK_ROOT=$ANDROID_HOME
+export DOTNET_ROOT=/usr/lib/dotnet
+export TMPDIR=$HOME/tmp
+
+## PATH
+export PATH=$JAVA_HOME/bin:$PATH
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+export PATH=$PATH:$DOTNET_ROOT
+export PATH=$PATH:/usr/bin
+export PATH=~/.npm-global/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
+## SETTINGS
+eval "$(ssh-agent -s)"
+ssh-add $HOME/.ssh/id_ed_lino_au
+
+rm -rf $HOME/tmp/*
+eval "$(oh-my-posh init zsh --config /home/sat/.config/oh-my-posh/catppuccin.omp.json)"
+
+## STARTUP
+cls
+
