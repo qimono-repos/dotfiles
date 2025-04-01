@@ -1,0 +1,12 @@
+[Unit]
+Description=Supervivo Baza Web App
+After=network.target
+
+[Service]
+User=sat
+WorkingDirectory=/home/sat/source/repos/qimono-repos/supervivo-baza/supervivo_baza/
+ExecStart=/home/sat/source/repos/qimono-repos/supervivo-baza/qimono-virtual/bin/briefcase run web --host 0.0.0.0 --port 8080
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
