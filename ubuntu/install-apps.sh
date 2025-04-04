@@ -9,3 +9,7 @@ apt install tmux -y
 apt install bat -y
 
 apt install neofetch -y
+
+apt install cmake -y 
+
+
