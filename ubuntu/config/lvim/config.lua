@@ -3,7 +3,7 @@
 -- Video Tutorials: https://www.youtube.com/watch?v=sFA9kX-Ud_c&list=PLhoH5vyxr6QqGu0i7tt_XoVK9v-KvZ3m6
 -- Forum: https://www.reddit.com/r/lunarvim/
 -- Discord: https://discord.com/invite/Xb9B4Ny
---
+
 
 lvim.plugins = {
   { "zbirenbaum/copilot.lua", cmd = "Copilot", event = "InsertEnter" },
@@ -19,6 +19,9 @@ vim.opt.wrap = false
 
 lvim.plugins = {
   { "github/copilot.vim" },
+  { "Hoffs/omnisharp-extended-lsp.nvim" },
+  { "jose-elias-alvarez/null-ls.nvim"},
+  { "b0o/SchemaStore.nvim" },
    -- {
    --   "Pocco81/auto-save.nvim",
    --   config = function()
@@ -45,3 +48,8 @@ lvim.plugins = {
 vim.api.nvim_create_autocmd({ "VimEnter" }, { callback = open_nvim_tree })
  
 vim.keymap.set("n", "<A-;>", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
+
+lvim.keys.insert_mode["jf"] = "<Esc>"
+lvim.keys.insert_mode["fj"] = "<Esc>"
+-- vim.keymap.set("i", "<Caps Lock>", "<Esc>", { noremap = true, silent = true })
+-- vim.keymap.set("n", "<Esc>", ":set invcaplock<CR>", { noremap = true, silent = true })
