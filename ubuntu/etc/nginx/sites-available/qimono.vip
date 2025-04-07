@@ -1,0 +1,20 @@
+server {
+  listen 80;
+
+  server_name qimono.vip www.qimono.vip;
+
+  root /var/www/qimono.vip;
+  index index.html;
+
+  include mime.types;
+      
+   location / {
+    try_files $uri $uri/ /index.html; 
+    add_header Content-Type text/html;
+  }
+
+  location /assets/ {
+        try_files $uri $uri/ =404;
+    }
+}
+
