@@ -39,3 +39,7 @@ Write-Host "STEP 2: After reboot, open a terminal and run these commands to sync
 Write-Host "   gh auth login"
 Write-Host "   gh ssh-key add `"$sshPath\$keyName.pub`" --title `"Yin-Windows-Machine`""
 Write-Host "STEP 3: Clone your dotfiles: gh repo clone qimono-repos/dotfiles" -ForegroundColor Yellow
+
+Write-Host "`nSetup current GIT username..." -ForegroundColor Yellow
+git config --global user.email alberto.gruning.zen@gmail.com
+git config --global user.name "Albert_Gruning__at__Qimono"
