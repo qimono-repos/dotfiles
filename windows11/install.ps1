@@ -43,3 +43,5 @@ Write-Host "STEP 3: Clone your dotfiles: gh repo clone qimono-repos/dotfiles" -F
 Write-Host "`nSetup current GIT username..." -ForegroundColor Yellow
 git config --global user.email alberto.gruning.zen@gmail.com
 git config --global user.name "Albert_Gruning__at__Qimono"
+
+Start-Process powershell.exe -ArgumentList "-File `"$PSScriptRoot\install-ollama.ps1`""
