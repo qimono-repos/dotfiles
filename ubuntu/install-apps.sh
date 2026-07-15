@@ -12,4 +12,7 @@ apt install neofetch -y
 
 apt install cmake -y 
 
+apt install rclone -y
+
+
 
