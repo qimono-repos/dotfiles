@@ -1,0 +1,24 @@
+{
+  "version": 3,
+  "skills": {
+    "microsoft-foundry": {
+      "source": "microsoft/azure-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/microsoft/azure-skills.git",
+      "skillPath": ".github/plugins/azure-skills/skills/microsoft-foundry/SKILL.md",
+      "skillFolderHash": "5ee1d3626382f44f66466fa1f6ba85e77b275387",
+      "installedAt": "2026-07-30T07:47:26.050Z",
+      "updatedAt": "2026-07-30T07:47:26.050Z"
+    },
+    "vega-multi-tv-migration": {
+      "source": "AmazonAppDev/devices-agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/AmazonAppDev/devices-agent-skills.git",
+      "skillPath": "skills/vega-multi-tv-migration/SKILL.md",
+      "skillFolderHash": "95c9e06aef1871797c445ff542f3e808f75790bc",
+      "installedAt": "2026-08-01T04:59:20.017Z",
+      "updatedAt": "2026-08-01T04:59:20.017Z"
+    }
+  },
+  "dismissed": {}
+}
