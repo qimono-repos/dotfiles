@@ -66,3 +66,8 @@ if [ -f "$HOME/.guix-profile/etc/profile" ]; then
   . "$HOME/.guix-profile/etc/profile"
 fi
 
+ export KEPLER_SDK_PATH=$HOME/kepler/sdk/0.23.9221
+ export PATH=$KEPLER_SDK_PATH/bin:$PATH
+
+#Vega CLI
+source "/home/qi/vega/env"

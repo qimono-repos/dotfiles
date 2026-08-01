@@ -1,0 +1,24 @@
+# GNU Stow built-in defaults (basename regexps)
+.+~
+\#.*\#
+^\.git$
+^\.gitignore$
+^\.gitmodules$
+^\.svn$
+^\.hg$
+^CVS$
+^RCS$
+^SCCS$
+^\.cvsignore$
+^_darcs$
+^\.\#.+$
+
+# Auxiliary files in this package, not $HOME dotfiles
+^install-apps\.sh$
+^install-curl-apps\.sh$
+^installed-packages\.md$
+^envinment-variables\.md$
+^vps-linode\.sh$
+
+# System configs target /etc (managed separately, not $HOME)
+^etc$
