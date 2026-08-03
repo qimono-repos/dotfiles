@@ -183,9 +183,9 @@ Smoke tests: `tests/smoke-tests/` · full notes: [docs/quantum-computing.md](./d
 
 Lessons from production Yoga setup: **[docs/LESSONS-guix-browsers.md](./docs/LESSONS-guix-browsers.md)**
 
-**Split checklists** (`- [ ]` / `- [x]`, or print + pen):  
-[Checklist-agent.md](./Checklist-agent.md) · [Checklist-User.md](./Checklist-User.md)  
-**Mandatory:** reboot after Epiphany launches once, then launch Epiphany again.
+**QA (this use case):** [QA/README.md](./QA/README.md) — **Human + AI**  
+[QA/Checklist-agent.md](./QA/Checklist-agent.md) · [QA/Checklist-User.md](./QA/Checklist-User.md)  
+**Mandatory:** reboot after Epiphany once, then Epiphany again (User R1/R2).
 
 **Host AppArmor trap (do this first, survives reboot):**
 

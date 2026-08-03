@@ -10,13 +10,13 @@ End of one sitting:
 4. Guix packages **`epiphany`** + **`firefox`** installed from **substitutes**.  
 5. Shell can find post-pull `guix` and profile bins.  
 6. Snap Firefox / Epiphany removed (if they were present).  
-7. **GUI smoke:** both browsers open a page (see `DAY1-CHECKLIST.md`).
+7. **GUI smoke + reboot QA:** both browsers open a page; Epiphany **after reboot** (see `QA/`).
 
 ## Confidence band (2026-08-03)
 
 | Scenario | Confidence | Why |
 |----------|------------|-----|
-| ProBook **x86_64**, Ubuntu 24.04/26.04-ish, **you + sudo**, network, **≥40 G free**, run hardened `bootstrap.sh` + checklist | **~97–99%** | Yoga-proven path; AppArmor drop-in scripted; weather/disk/wrong-guix hard gates |
+| ProBook **x86_64**, Ubuntu 24.04/26.04-ish, **you + sudo**, network, **≥40 G free**, hardened `bootstrap.sh` + **QA/** Human+AI checklists | **~97–99%** | Yoga-proven path; AppArmor drop-in; weather/disk/wrong-guix gates; reboot QA |
 | Same but skip preflight / ignore source-build watch | **~90–93%** | Human error returns |
 | Arm64 / offline / no sudo / tiny disk | **Low** | Out of scope |
 
@@ -31,14 +31,14 @@ End of one sitting:
 | Hard fail if not post-pull guix | steps 2 + 4 |
 | Hard fail if &lt;40 G free | step 4 |
 | `guix weather firefox` abort on 0% | step 4 |
-| Resume map + GUI smoke text | `bootstrap.sh`, `DAY1-CHECKLIST.md` |
+| Resume map + GUI smoke + reboot | `bootstrap.sh`, `QA/Day1-browsers.md`, `QA/Checklist-User.md` R1/R2 |
 
 ## Failure modes (and mitigations)
 
 | Failure | Likelihood | Mitigation |
 |---------|------------|------------|
 | `guix` still `/usr/local/bin` without nonguix | Low–medium | Hard fail after pull + install if not `…/current/bin/guix` |
-| Firefox source build / disk full | Low if gates honored | Weather + 40 G gate; Ctrl+C culture in checklist |
+| Firefox source build / disk full | Low if gates honored | Weather + 40 G gate; Ctrl+C culture in QA |
 | Epiphany bwrap trap | Low if step 3 runs | Drop-in + verify value `0` |
 | Guix install interactive | Medium | `YES_TO_ALL=1`; you present with sudo |
 | Snap remove needs sudo | Low | Step 6; `--skip-snap` until GUI OK |

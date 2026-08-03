@@ -9,13 +9,13 @@ Machine pack for a **Linux HP ProBook** (Intel, x86_64 expected) in the Qimono /
 
 | Scenario | Confidence | Why |
 |----------|------------|-----|
-| HP ProBook, **x86_64**, Ubuntu 24.04/26.04-ish, **you + sudo**, network, **≥40 G free**, hardened bootstrap + checklist | **~97–99%** first session | Yoga-proven; userns drop-in; weather/disk/wrong-guix gates; vendored nonguix key |
+| HP ProBook, **x86_64**, Ubuntu 24.04/26.04-ish, **you + sudo**, network, **≥40 G free**, hardened bootstrap + **QA/** | **~97–99%** first session | Yoga-proven; userns drop-in; weather/disk/wrong-guix gates; Human+AI reboot QA |
 | Skip preflight / ignore “don’t compile Firefox” | **~90–93%** | Human error |
 | Arm64 / offline / no sudo | **Low** | Different story |
 | “Also full quantum + .NET + uv in same session” | **~50%** | Out of scope |
 
-**Day-1 card:** [DAY1-CHECKLIST.md](./DAY1-CHECKLIST.md) · **Model:** [CONFIDENCE.md](./CONFIDENCE.md)  
-**Split checklists:** [Checklist-agent.md](./Checklist-agent.md) · [Checklist-User.md](./Checklist-User.md) (include **reboot after first Epiphany**)
+**QA (this use case):** [QA/README.md](./QA/README.md) — **Human + AI** checklists · [QA/Day1-browsers.md](./QA/Day1-browsers.md)  
+**Model:** [CONFIDENCE.md](./CONFIDENCE.md)
 
 **Not magic if:** you skip sudo, use old `/usr/local/bin/guix` without pull, or let Firefox **source-build** when weather is 0%.
 
@@ -29,7 +29,7 @@ cd ~/source/repos/qimono-repos/dotfiles/ubuntu-hp-pro   # or wherever you put it
 # sudo snap remove firefox
 # sudo snap remove epiphany   # if present as "epiphany" or gnome-web packaging
 
-# 2) Preflight (see DAY1-CHECKLIST.md) — ≥40G free, network, sudo
+# 2) Preflight — see QA/Day1-browsers.md and QA/Checklist-User.md (≥40G, network, sudo)
 
 # 3) The magic
 ./scripts/bootstrap.sh
@@ -37,12 +37,13 @@ cd ~/source/repos/qimono-repos/dotfiles/ubuntu-hp-pro   # or wherever you put it
 
 Sit near the machine: **sudo** a few times; **guix pull** can take a while; **watch step 4** (no `firefox-*.source` compile).
 
-When it finishes:
+When it finishes — **QA smoke** then **reboot** (see `QA/Checklist-User.md` R1/R2):
 
 ```bash
 source ~/.guix-profile/etc/profile
 epiphany &
 firefox &
+# then reboot and open epiphany again — that is the real QA pass
 ```
 
 ## Layout
@@ -53,8 +54,11 @@ ubuntu-hp-pro/
   CONFIDENCE.md             # risk notes
   docs/LESSONS.md           # pointer to Yoga browser lessons
   guix/channels.scm         # nonguix + default
-  DAY1-CHECKLIST.md         # preflight + ritual + smoke
-  CONFIDENCE.md
+  QA/                       # Human + AI QA (this use case only)
+    README.md               # hub
+    Checklist-agent.md
+    Checklist-User.md       # reboot after first Epiphany
+    Day1-browsers.md
   host-sysctl/99-guix-userns.conf   # → /etc/sysctl.d/ (must install; survives reboot)
   keys/nonguix-signing-key.pub      # vendored; authorize without curl if present
   scripts/bootstrap.sh      # main entry (prints resume map)

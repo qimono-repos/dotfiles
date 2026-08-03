@@ -2,7 +2,7 @@
 # bootstrap.sh — bare Ubuntu HP ProBook → Guix + Epiphany + Firefox
 #
 # Expectation: no Guix / no scientific stack yet. One session, sudo available.
-# Confidence ~97–99% after preflight + these hard gates (see CONFIDENCE.md, DAY1-CHECKLIST.md).
+# Confidence ~97–99% after preflight + hard gates (see CONFIDENCE.md, QA/).
 #
 # Usage:
 #   cd …/dotfiles/ubuntu-hp-pro
@@ -63,7 +63,7 @@ echo "   --from 5  shell PATH + desktop links"
 echo "   --from 6  remove snap browsers"
 echo
 echo " Watch: step 4 must NOT compile firefox-*.source — Ctrl+C if it does."
-echo " Checklist: DAY1-CHECKLIST.md"
+echo " QA: QA/README.md  ·  QA/Day1-browsers.md  ·  QA/Checklist-User.md (reboot!)"
 echo "=============================================="
 
 # Early soft preflight (hard gates live in step scripts)
@@ -105,7 +105,7 @@ echo
 echo "=============================================="
 echo " BOOTSTRAP FINISHED"
 echo "=============================================="
-echo "GUI smoke (mandatory — same sitting):"
+echo "QA smoke (Human Checklist-User — same sitting, then reboot):"
 echo "  source ~/.guix-profile/etc/profile"
 echo "  export PATH=\"\$HOME/.config/guix/current/bin:\$PATH\""
 echo "  which guix epiphany firefox"
@@ -114,7 +114,8 @@ echo "  test -f /etc/sysctl.d/99-guix-userns.conf && echo drop-in-ok"
 echo "  epiphany &   # open https://example.com"
 echo "  firefox &"
 echo
-echo "Bonus: reboot once, re-check userns=0 and Epiphany still launches."
+echo "QA pass requires REBOOT after first Epiphany, then epiphany again (R1/R2)."
+echo "  See: QA/Checklist-User.md  ·  QA/README.md  (Qimono Human + AI QA)"
 echo
 echo "If Epiphany traps: ./scripts/install-host-sysctl.sh"
 echo "If firefox unknown: export PATH=\"\$HOME/.config/guix/current/bin:\$PATH\" && hash guix"

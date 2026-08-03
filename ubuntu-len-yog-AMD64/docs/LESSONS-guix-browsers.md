@@ -78,9 +78,10 @@ test -f /etc/sysctl.d/99-guix-userns.conf && echo drop-in-ok
 epiphany &
 ```
 
-**Checklist discipline:** first launch is not victory. Use pack  
-`Checklist-User.md` items **R1** (reboot after Epiphany once) and **R2** (Epiphany again).  
-Agent: `Checklist-agent.md` — do not mark host gate done until R1+R2.
+**QA discipline (use-case folder `QA/`):** first launch is not victory.  
+Human: `QA/Checklist-User.md` **R1** (reboot) + **R2** (Epiphany again).  
+Agent: `QA/Checklist-agent.md` — no host-gate pass until R1+R2.  
+Hub: `QA/README.md` — **Qimono Human + AI QA**.
 
 Same file + script live in **`ubuntu-hp-pro`** (keep both packs in sync).
 

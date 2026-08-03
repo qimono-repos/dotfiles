@@ -8,13 +8,15 @@ Configuration files for macOS, Linux, and Windows.
 
 | Pack | Machine | Notes |
 |------|---------|-------|
-| [`ubuntu-len-yog-AMD64/`](./ubuntu-len-yog-AMD64/) | Lenovo Yoga 7 14AHP9 (Ryzen / x86_64) | Stow + Guix-first + Qiskit/PennyLane/Q# |
-| [`ubuntu-hp-pro/`](./ubuntu-hp-pro/) | HP ProBook (Intel x86_64) | **bootstrap Guix + Epiphany + Firefox** from bare Ubuntu |
+| [`ubuntu-len-yog-AMD64/`](./ubuntu-len-yog-AMD64/) | Lenovo Yoga 7 14AHP9 (Ryzen / x86_64) | Stow + Guix-first + Qiskit/PennyLane/Q# · [**QA/**](./ubuntu-len-yog-AMD64/QA/) |
+| [`ubuntu-hp-pro/`](./ubuntu-hp-pro/) | HP ProBook (Intel x86_64) | bootstrap Guix + Epiphany + Firefox · [**QA/**](./ubuntu-hp-pro/QA/) |
 | `ubuntu/` | Generic Ubuntu / VPS | apt lists, nginx, server scripts |
 | `gnu-guix/` | Guix recipes & channels | shared across Guix hosts |
 | `fedora/` | Fedora host history | |
 
 **Package manager ranking (Linux laptops):** 1 **guix** · 2 **apt** · 3 **snap** · 4 **podman** · 5 **nix**
+
+**QA is use-case scoped** (not a repo-root folder): each machine pack has its own `QA/` with **Human + AI** checklists (`- [ ]` / `- [x]`, or print + pen). Born from AppArmor/reboot lessons — Qimono celebrates error → process.
 
 Agent-facing host notes live in `$HOME/AGENTS.md` (not project-scoped).
 

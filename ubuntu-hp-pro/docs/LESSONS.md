@@ -31,5 +31,6 @@ epiphany &
 
 Keep `host-sysctl/99-guix-userns.conf` **byte-identical intent** with Yoga pack.
 
-**Checklists:** [Checklist-agent.md](../Checklist-agent.md) · [Checklist-User.md](../Checklist-User.md)  
-User **R1**: reboot after Epiphany once · **R2**: Epiphany after reboot. Agent must not mark victory without those.
+**QA (this use case):** [../QA/README.md](../QA/README.md) · [agent](../QA/Checklist-agent.md) · [user](../QA/Checklist-User.md)  
+User **R1**: reboot after Epiphany once · **R2**: Epiphany after reboot. Agent must not mark victory without those.  
+**Qimono Human + AI QA** — error → process.
