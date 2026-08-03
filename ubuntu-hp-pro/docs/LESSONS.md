@@ -30,3 +30,6 @@ epiphany &
 ```
 
 Keep `host-sysctl/99-guix-userns.conf` **byte-identical intent** with Yoga pack.
+
+**Checklists:** [Checklist-agent.md](../Checklist-agent.md) · [Checklist-User.md](../Checklist-User.md)  
+User **R1**: reboot after Epiphany once · **R2**: Epiphany after reboot. Agent must not mark victory without those.

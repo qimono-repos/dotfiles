@@ -14,7 +14,8 @@ Machine pack for a **Linux HP ProBook** (Intel, x86_64 expected) in the Qimono /
 | Arm64 / offline / no sudo | **Low** | Different story |
 | “Also full quantum + .NET + uv in same session” | **~50%** | Out of scope |
 
-**Day-1 card:** [DAY1-CHECKLIST.md](./DAY1-CHECKLIST.md) · **Model:** [CONFIDENCE.md](./CONFIDENCE.md)
+**Day-1 card:** [DAY1-CHECKLIST.md](./DAY1-CHECKLIST.md) · **Model:** [CONFIDENCE.md](./CONFIDENCE.md)  
+**Split checklists:** [Checklist-agent.md](./Checklist-agent.md) · [Checklist-User.md](./Checklist-User.md) (include **reboot after first Epiphany**)
 
 **Not magic if:** you skip sudo, use old `/usr/local/bin/guix` without pull, or let Firefox **source-build** when weather is 0%.
 

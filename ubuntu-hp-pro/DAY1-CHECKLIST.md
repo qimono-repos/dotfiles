@@ -3,6 +3,15 @@
 **Goal:** Guix **Epiphany + Firefox**, one sitting, you + sudo.  
 **Pack:** `ubuntu-hp-pro` · **Success = both GUIs open a page**, not only `guix package -I`.
 
+**Split work (checkboxes `- [ ]` / `- [x]`, or print + pen):**
+
+| Who | File |
+|-----|------|
+| Agent | [Checklist-agent.md](./Checklist-agent.md) |
+| You (human) | [Checklist-User.md](./Checklist-User.md) |
+
+**Mandatory:** after Epiphany launches once → **reboot** → Epiphany again (User R1/R2). Without that, status is “works this boot only.”
+
 ---
 
 ## Day −1 (Yoga or any proven host) — optional but high value
@@ -85,9 +94,11 @@ firefox &
 - [ ] Epiphany loads a page  
 - [ ] Firefox loads a page  
 
-### Bonus
+### Bonus / mandatory persistence (see Checklist-User R1–R2)
 
-- [ ] Reboot → userns still `0` → Epiphany still works  
+- [ ] **Reboot after Epiphany launched once**
+- [ ] After reboot: userns still `0` + drop-in present
+- [ ] After reboot: Epiphany still works  
 
 ---
 

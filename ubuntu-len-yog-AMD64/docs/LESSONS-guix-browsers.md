@@ -78,6 +78,10 @@ test -f /etc/sysctl.d/99-guix-userns.conf && echo drop-in-ok
 epiphany &
 ```
 
+**Checklist discipline:** first launch is not victory. Use pack  
+`Checklist-User.md` items **R1** (reboot after Epiphany once) and **R2** (Epiphany again).  
+Agent: `Checklist-agent.md` — do not mark host gate done until R1+R2.
+
 Same file + script live in **`ubuntu-hp-pro`** (keep both packs in sync).
 
 ### 4. Firefox must be a **substitute**, never a source build on this laptop
