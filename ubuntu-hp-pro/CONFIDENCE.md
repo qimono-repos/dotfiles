@@ -5,32 +5,44 @@
 End of one sitting:
 
 1. GNU Guix installed and `guix pull` done (nonguix channel).  
-2. Host: unprivileged userns allowed (Epiphany/WebKit).  
-3. Nonguix substitute key authorized.  
+2. Host: unprivileged userns allowed (Epiphany/WebKit) **with drop-in under `/etc/sysctl.d/`**.  
+3. Nonguix substitute key authorized (vendored key preferred).  
 4. Guix packages **`epiphany`** + **`firefox`** installed from **substitutes**.  
 5. Shell can find post-pull `guix` and profile bins.  
-6. Snap Firefox / Epiphany removed (if they were present).
+6. Snap Firefox / Epiphany removed (if they were present).  
+7. **GUI smoke:** both browsers open a page (see `DAY1-CHECKLIST.md`).
 
-## Why ~85–90% on a similar ProBook
+## Confidence band (2026-08-03)
 
-| Factor | Yoga (proven) | ProBook (expected) |
-|--------|---------------|--------------------|
-| Arch | x86_64 | Intel x86_64 → **same substitutes** |
-| RAM | 6.5 GiB tight | “Plenty” → safer pull/install |
-| Disk | 153 G dual-boot, ENOSPC once | “Plenty” → less ENOSPC risk |
-| Guix browsers path | Documented + fixed | Encoded in `bootstrap.sh` |
-| Fresh machine | N/A | Installer scripted from zero Guix |
+| Scenario | Confidence | Why |
+|----------|------------|-----|
+| ProBook **x86_64**, Ubuntu 24.04/26.04-ish, **you + sudo**, network, **≥40 G free**, run hardened `bootstrap.sh` + checklist | **~97–99%** | Yoga-proven path; AppArmor drop-in scripted; weather/disk/wrong-guix hard gates |
+| Same but skip preflight / ignore source-build watch | **~90–93%** | Human error returns |
+| Arm64 / offline / no sudo / tiny disk | **Low** | Out of scope |
+
+**Not 100%:** multi-hour substitute/pull outage, hardware failure, forcing a Firefox source build.
+
+### How we moved ~93% → ~97–99%
+
+| Mitigation | Where |
+|------------|--------|
+| AppArmor userns drop-in (survives reboot) | `install-host-sysctl.sh` + step 3 |
+| Vendored nonguix signing key | `keys/nonguix-signing-key.pub` |
+| Hard fail if not post-pull guix | steps 2 + 4 |
+| Hard fail if &lt;40 G free | step 4 |
+| `guix weather firefox` abort on 0% | step 4 |
+| Resume map + GUI smoke text | `bootstrap.sh`, `DAY1-CHECKLIST.md` |
 
 ## Failure modes (and mitigations)
 
-| Failure | Likelihood | Mitigation in bootstrap |
-|---------|------------|-------------------------|
-| `guix` still `/usr/local/bin` without nonguix | Medium | Force `PATH=…/current/bin`; fail if `guix show firefox` fails |
-| Firefox source build / disk full | Medium on small disks | Use nonguix substitutes only; abort if `source` drv without substitute |
-| Epiphany bwrap trap | High without sysctl **drop-in** | `./scripts/install-host-sysctl.sh` early; `sysctl -w` alone dies on reboot |
-| Guix install script interactive | Medium | `YES_TO_ALL=1` where supported; document password |
-| Snap remove needs sudo | Low | Explicit step; continue if snap missing |
-| Network / substitute 403 | Low–medium | Retry URLs; print authorize key step |
+| Failure | Likelihood | Mitigation |
+|---------|------------|------------|
+| `guix` still `/usr/local/bin` without nonguix | Low–medium | Hard fail after pull + install if not `…/current/bin/guix` |
+| Firefox source build / disk full | Low if gates honored | Weather + 40 G gate; Ctrl+C culture in checklist |
+| Epiphany bwrap trap | Low if step 3 runs | Drop-in + verify value `0` |
+| Guix install interactive | Medium | `YES_TO_ALL=1`; you present with sudo |
+| Snap remove needs sudo | Low | Step 6; `--skip-snap` until GUI OK |
+| Network / substitute 0% | Low–medium | Weather abort; retry later; hotspot |
 
 ## What we do **not** claim for session 1
 
@@ -38,5 +50,6 @@ End of one sitting:
 - .NET 10 / Rust full toolchain  
 - LazyVim / full stow of every app  
 - Bit-identical profile to the Yoga  
+- Private Qimono substitute server (explored; not required for day 1)
 
 Those are session 2+ using the Yoga pack as reference.

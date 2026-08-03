@@ -30,8 +30,16 @@ fi
 echo "using: $(command -v guix)"
 guix describe | head -20
 
+# Hard gate: must be post-pull guix (has nonguix after channels pull)
+if [[ "$(command -v guix)" != *'/.config/guix/current/bin/guix' ]]; then
+  echo "error: not using post-pull guix at ~/.config/guix/current/bin/guix" >&2
+  echo "       got: $(command -v guix)" >&2
+  echo "       fix: export PATH=\"\$HOME/.config/guix/current/bin:\$PATH\" && hash guix" >&2
+  exit 1
+fi
+
 if ! guix show firefox >/dev/null 2>&1; then
   echo "error: firefox still unknown after pull — check channels.scm / network" >&2
   exit 1
 fi
-echo "OK: firefox package visible"
+echo "OK: firefox package visible via post-pull guix"

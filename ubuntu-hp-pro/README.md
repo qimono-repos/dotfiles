@@ -9,13 +9,14 @@ Machine pack for a **Linux HP ProBook** (Intel, x86_64 expected) in the Qimono /
 
 | Scenario | Confidence | Why |
 |----------|------------|-----|
-| HP ProBook, **x86_64**, Ubuntu 24.04/26.04-ish, **sudo**, working network, **≥40 G free**, plenty RAM | **~85–90%** first session | Same arch as Yoga → nonguix Firefox **substitutes**; more RAM/disk than Yoga; pipeline encoded in `bootstrap.sh` |
-| Arm64 / weird Ubuntu spin / offline / no sudo | **Low** | Different story |
-| “Also full quantum + .NET + uv in same session” | **~50%** | Out of scope of this bootstrap (hooks only) |
+| HP ProBook, **x86_64**, Ubuntu 24.04/26.04-ish, **you + sudo**, network, **≥40 G free**, hardened bootstrap + checklist | **~97–99%** first session | Yoga-proven; userns drop-in; weather/disk/wrong-guix gates; vendored nonguix key |
+| Skip preflight / ignore “don’t compile Firefox” | **~90–93%** | Human error |
+| Arm64 / offline / no sudo | **Low** | Different story |
+| “Also full quantum + .NET + uv in same session” | **~50%** | Out of scope |
 
-**Residual ~10–15% risk:** `guix pull` / substitute server hiccups, AppArmor edge cases, first Guix installer prompts, corporate proxy, very full disk.
+**Day-1 card:** [DAY1-CHECKLIST.md](./DAY1-CHECKLIST.md) · **Model:** [CONFIDENCE.md](./CONFIDENCE.md)
 
-**Not magic if:** you skip sudo steps, use old `/usr/local/bin/guix` without pull, or build Firefox from source offline.
+**Not magic if:** you skip sudo, use old `/usr/local/bin/guix` without pull, or let Firefox **source-build** when weather is 0%.
 
 ## Day-one ritual (what you described)
 
@@ -27,11 +28,13 @@ cd ~/source/repos/qimono-repos/dotfiles/ubuntu-hp-pro   # or wherever you put it
 # sudo snap remove firefox
 # sudo snap remove epiphany   # if present as "epiphany" or gnome-web packaging
 
-# 2) The magic
+# 2) Preflight (see DAY1-CHECKLIST.md) — ≥40G free, network, sudo
+
+# 3) The magic
 ./scripts/bootstrap.sh
 ```
 
-Sit near the machine: **sudo password** a few times; **guix pull** can take a while.
+Sit near the machine: **sudo** a few times; **guix pull** can take a while; **watch step 4** (no `firefox-*.source` compile).
 
 When it finishes:
 
@@ -49,14 +52,17 @@ ubuntu-hp-pro/
   CONFIDENCE.md             # risk notes
   docs/LESSONS.md           # pointer to Yoga browser lessons
   guix/channels.scm         # nonguix + default
+  DAY1-CHECKLIST.md         # preflight + ritual + smoke
+  CONFIDENCE.md
   host-sysctl/99-guix-userns.conf   # → /etc/sysctl.d/ (must install; survives reboot)
-  scripts/bootstrap.sh      # main entry
+  keys/nonguix-signing-key.pub      # vendored; authorize without curl if present
+  scripts/bootstrap.sh      # main entry (prints resume map)
   scripts/install-host-sysctl.sh    # AppArmor userns=0 only (sudo)
   scripts/00-host-apt-min.sh
   scripts/10-install-guix.sh
-  scripts/20-guix-pull-channels.sh
+  scripts/20-guix-pull-channels.sh  # hard-fail if not post-pull guix
   scripts/30-browser-prereqs.sh     # userns + nonguix key
-  scripts/40-install-browsers.sh
+  scripts/40-install-browsers.sh    # disk + weather + install
   scripts/50-shell-path.sh
   scripts/60-remove-snap-browsers.sh
   stow-source/shell/        # optional PATH snippets (manual or stow if stow exists)

@@ -2,7 +2,7 @@
 # bootstrap.sh — bare Ubuntu HP ProBook → Guix + Epiphany + Firefox
 #
 # Expectation: no Guix / no scientific stack yet. One session, sudo available.
-# Confidence ~85–90% on x86_64 Ubuntu with free disk + network (see CONFIDENCE.md).
+# Confidence ~97–99% after preflight + these hard gates (see CONFIDENCE.md, DAY1-CHECKLIST.md).
 #
 # Usage:
 #   cd …/dotfiles/ubuntu-hp-pro
@@ -26,7 +26,7 @@ for arg in "$@"; do
       ;;
     [0-9]*) FROM="$arg" ;;
     -h|--help)
-      sed -n '1,25p' "$0"
+      sed -n '1,30p' "$0"
       exit 0
       ;;
   esac
@@ -52,6 +52,25 @@ echo " host: $(hostname)  arch: $(uname -m)"
 echo " goal: Guix + epiphany + firefox (substitutes)"
 echo " skip snap remove: $SKIP_SNAP  from step: $FROM"
 echo "=============================================="
+echo
+echo " Resume map (if interrupted):"
+echo "   --from 0  apt minimum"
+echo "   --from 1  install Guix"
+echo "   --from 2  channels + guix pull"
+echo "   --from 3  userns + nonguix key"
+echo "   --from 4  guix install epiphany firefox"
+echo "   --from 5  shell PATH + desktop links"
+echo "   --from 6  remove snap browsers"
+echo
+echo " Watch: step 4 must NOT compile firefox-*.source — Ctrl+C if it does."
+echo " Checklist: DAY1-CHECKLIST.md"
+echo "=============================================="
+
+# Early soft preflight (hard gates live in step scripts)
+if [[ -r / ]]; then
+  avail_kb="$(df -Pk / | awk 'NR==2{print $4}')"
+  echo "preflight disk free on /: $((avail_kb / 1024 / 1024)) GiB (step 4 needs ≥40)"
+fi
 
 run_step() {
   local n="$1" title="$2" script="$3"
@@ -86,13 +105,18 @@ echo
 echo "=============================================="
 echo " BOOTSTRAP FINISHED"
 echo "=============================================="
-echo "Open a NEW terminal (or: source ~/.zshrc), then:"
+echo "GUI smoke (mandatory — same sitting):"
 echo "  source ~/.guix-profile/etc/profile"
-echo "  which guix          # …/current/bin/guix preferred"
-echo "  epiphany &"
+echo "  export PATH=\"\$HOME/.config/guix/current/bin:\$PATH\""
+echo "  which guix epiphany firefox"
+echo "  sysctl kernel.apparmor_restrict_unprivileged_userns   # must be 0"
+echo "  test -f /etc/sysctl.d/99-guix-userns.conf && echo drop-in-ok"
+echo "  epiphany &   # open https://example.com"
 echo "  firefox &"
 echo
-echo "If Epiphany traps: cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns  # must be 0"
+echo "Bonus: reboot once, re-check userns=0 and Epiphany still launches."
+echo
+echo "If Epiphany traps: ./scripts/install-host-sysctl.sh"
 echo "If firefox unknown: export PATH=\"\$HOME/.config/guix/current/bin:\$PATH\" && hash guix"
 echo "Lessons: ../ubuntu-len-yog-AMD64/docs/LESSONS-guix-browsers.md"
 echo "=============================================="
