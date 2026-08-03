@@ -54,15 +54,31 @@ trace trap (core dumped)
 
 App grid “Web” **opens then spins forever** = WebKit process died the same way.
 
-**Fix (permanent):**
+**Why Guix specifically:** Ubuntu AppArmor ships a userns profile only for **`/usr/bin/bwrap`**.  
+Guix WebKit calls **`/gnu/store/*-bubblewrap-*/bin/bwrap`**, which is not covered, so with  
+`kernel.apparmor_restrict_unprivileged_userns=1` (Ubuntu default) Guix sandboxes die.  
+Host `/usr/bin/bwrap` may still work — that is a false “everything is fine” signal.
+
+**`sysctl -w` alone is not enough** — it is **lost on reboot**. You must install the drop-in.
+
+**Fix (permanent, pack script):**
 
 ```bash
-sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-echo 'kernel.apparmor_restrict_unprivileged_userns=0' | \
-  sudo tee /etc/sysctl.d/99-guix-userns.conf
+./scripts/install-host-sysctl.sh
+# installs host-sysctl/99-guix-userns.conf → /etc/sysctl.d/
+# also: ./scripts/fix-guix-userns-epiphany.sh
+# also: ./scripts/setup-guix-browser-prereqs.sh  (userns + nonguix key)
 ```
 
-Pack file: `host-sysctl/99-guix-userns.conf` + `scripts/setup-guix-browser-prereqs.sh`.
+**Verify (including after reboot):**
+
+```bash
+sysctl kernel.apparmor_restrict_unprivileged_userns   # must be 0
+test -f /etc/sysctl.d/99-guix-userns.conf && echo drop-in-ok
+epiphany &
+```
+
+Same file + script live in **`ubuntu-hp-pro`** (keep both packs in sync).
 
 ### 4. Firefox must be a **substitute**, never a source build on this laptop
 
@@ -148,8 +164,11 @@ Or: `./scripts/setup-guix-browsers-first-try.sh` (orchestrates docs + prereqs + 
 |------|---------|
 | `docs/LESSONS-guix-browsers.md` | This file |
 | `docs/guix-browsers-foreign-distro.md` | Long checklist |
-| `host-sysctl/99-guix-userns.conf` | Drop-in for `/etc/sysctl.d/` |
-| `scripts/setup-guix-browser-prereqs.sh` | sudo userns + nonguix authorize |
+| `host-sysctl/99-guix-userns.conf` | Drop-in for `/etc/sysctl.d/` (must install; not auto) |
+| `scripts/install-host-sysctl.sh` | sudo install drop-in + apply (survives reboot) |
+| `scripts/fix-guix-userns-epiphany.sh` | alias → install-host-sysctl.sh |
+| `scripts/setup-guix-browser-prereqs.sh` | userns + nonguix authorize |
+| `scripts/bootstrap.sh` step 0 | installs userns drop-in if missing |
 | `scripts/setup-guix-browsers-first-try.sh` | Ordered first-try installer |
 | `scripts/link-guix-desktop-apps.sh` | App grid symlinks |
 | `guix/manifests/profile-full.scm` | Includes epiphany + firefox |

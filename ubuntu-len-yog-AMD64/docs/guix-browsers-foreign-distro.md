@@ -49,7 +49,7 @@ guix package -m guix/manifests/profile-full.scm \
 | Symptom | Fix |
 |---------|-----|
 | `firefox: unknown package` | Use `…/current/bin/guix`; `guix pull` with nonguix |
-| `bwrap: setting up uid map` / Epiphany trap | `setup-guix-browser-prereqs.sh` (userns) |
+| `bwrap: setting up uid map` / Epiphany trap | `install-host-sysctl.sh` (or `setup-guix-browser-prereqs.sh`) — drop-in must exist under `/etc/sysctl.d/` |
 | Building `firefox-*.source*` / ENOSPC | Stop; authorize nonguix; free disk; substitute install |
 | App grid missing icons | `link-guix-desktop-apps.sh` + log out/in |
 | `canberra-gtk-module` | Ignore (optional sounds) |

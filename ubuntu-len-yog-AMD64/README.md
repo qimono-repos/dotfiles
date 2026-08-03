@@ -183,8 +183,19 @@ Smoke tests: `tests/smoke-tests/` · full notes: [docs/quantum-computing.md](./d
 
 Lessons from production Yoga setup: **[docs/LESSONS-guix-browsers.md](./docs/LESSONS-guix-browsers.md)**
 
+**Host AppArmor trap (do this first, survives reboot):**
+
 ```bash
-./scripts/setup-guix-browser-prereqs.sh      # sudo once: userns + nonguix key
+./scripts/install-host-sysctl.sh
+# → /etc/sysctl.d/99-guix-userns.conf
+# without it: bwrap uid map Permission denied after every reboot
+sysctl kernel.apparmor_restrict_unprivileged_userns   # must be 0
+```
+
+Also wired into `./scripts/bootstrap.sh` step 0.
+
+```bash
+./scripts/setup-guix-browser-prereqs.sh      # sudo: userns + nonguix key
 ./scripts/setup-guix-browsers-first-try.sh install
 ```
 

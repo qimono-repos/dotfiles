@@ -18,4 +18,5 @@ Planned machine pack for the **AMD mini PC** that currently still shares some st
 
 1. Capture `MACHINE.md` from the mini PC (`hostnamectl`, `lscpu`, disk).  
 2. Copy structure from `ubuntu-len-yog-AMD64/` (not blind copy of paths).  
-3. Share `guix/channels.scm` policy; per-machine manifests where needed.
+3. Share `guix/channels.scm` policy; per-machine manifests where needed.  
+4. **Day-zero host sysctl:** copy `host-sysctl/99-guix-userns.conf` + `scripts/install-host-sysctl.sh` from Yoga/HP packs — Ubuntu AppArmor vs Guix `bwrap` (Epiphany) will bite otherwise.

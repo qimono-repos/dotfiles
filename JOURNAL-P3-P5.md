@@ -156,3 +156,4 @@ kdeconnect-cli -l
 | `ubuntu-len-yog-AMD64/stow-source/podman/` | P4.4 sample |
 
 | 2026-08-03 | LESSONS browsers | Encoded: PATH current guix, userns, nonguix key+substitutes, no source build, first-try scripts |
+| 2026-08-03 | userns reboot trap | After reboot Epiphany died again: only runtime `sysctl -w` had been applied. Pack already had `host-sysctl/99-guix-userns.conf` but **not installed** to `/etc`. Root cause detail: AppArmor allows `/usr/bin/bwrap`, not Guix store bwrap. Added `scripts/install-host-sysctl.sh` on **Yoga + HP Pro**; Yoga `bootstrap.sh` step 0; docs/AGENTS/MACHINE updated. **User must run** `./scripts/install-host-sysctl.sh` once on this host (and on ProBook). |

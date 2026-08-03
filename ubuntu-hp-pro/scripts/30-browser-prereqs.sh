@@ -3,18 +3,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SYSCTL_SRC="$ROOT/host-sysctl/99-guix-userns.conf"
 KEY_TMP="${TMPDIR:-/tmp}/nonguix-signing-key.pub"
 
 echo "==> [1/2] unprivileged userns (Epiphany / WebKit bwrap)"
-sudo cp "$SYSCTL_SRC" /etc/sysctl.d/99-guix-userns.conf
-sudo sysctl -p /etc/sysctl.d/99-guix-userns.conf
-val="$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns)"
-echo "    apparmor_restrict_unprivileged_userns=$val (want 0)"
-if [[ "$val" != "0" ]]; then
-  echo "error: userns still restricted" >&2
-  exit 1
-fi
+"$ROOT/scripts/install-host-sysctl.sh"
 
 echo "==> [2/2] authorize substitutes.nonguix.org (Firefox binaries)"
 curl -fsSL https://substitutes.nonguix.org/signing-key.pub -o "$KEY_TMP"

@@ -19,8 +19,8 @@ A) One-time sudo — Epiphany userns + nonguix Firefox substitutes
 ------------------------------------------------------------
 ./scripts/setup-guix-browser-prereqs.sh
 # or manually:
-# sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-# echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/99-guix-userns.conf
+# ./scripts/install-host-sysctl.sh
+# # (or: sudo sysctl -w … + tee /etc/sysctl.d/99-guix-userns.conf)
 # curl -fsSL https://substitutes.nonguix.org/signing-key.pub -o /tmp/nonguix-signing-key.pub
 # sudo guix archive --authorize < /tmp/nonguix-signing-key.pub
 

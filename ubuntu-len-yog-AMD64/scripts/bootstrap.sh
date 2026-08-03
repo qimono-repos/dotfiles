@@ -19,7 +19,23 @@ if ! command -v guix >/dev/null 2>&1; then
 fi
 
 echo
-echo "[1/4] Guix: python, uv, stow, base tools"
+echo "[0/5] Host sysctl: Guix userns (Epiphany/WebKit bwrap vs AppArmor)"
+# Runtime sysctl -w dies on reboot; pack drop-in must live in /etc/sysctl.d/
+need_sysctl=0
+if [[ ! -f /etc/sysctl.d/99-guix-userns.conf ]]; then
+  need_sysctl=1
+fi
+if [[ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || echo 1)" != "0" ]]; then
+  need_sysctl=1
+fi
+if [[ "$need_sysctl" -eq 1 ]]; then
+  "$ROOT/scripts/install-host-sysctl.sh"
+else
+  echo "    already applied (99-guix-userns.conf + value 0)"
+fi
+
+echo
+echo "[1/5] Guix: python, uv, stow, base tools"
 "$ROOT/scripts/install-guix-python-uv.sh"
 
 # Ensure stow visible
@@ -28,15 +44,15 @@ export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
 source "$GUIX_PROFILE/etc/profile"
 
 echo
-echo "[2/4] Stow: shell + guix-env + quantum"
+echo "[2/5] Stow: shell + guix-env + quantum"
 "$ROOT/scripts/stow-apply.sh"
 
 echo
-echo "[3/4] uv: Qiskit + PennyLane + qsharp workspace"
+echo "[3/5] uv: Qiskit + PennyLane + qsharp workspace"
 "$ROOT/scripts/install-quantum-python.sh"
 
 echo
-echo "[4/4] Q# / .NET checks"
+echo "[4/5] Q# / .NET checks"
 "$ROOT/scripts/install-qsharp.sh" || echo "warn: Q# step had issues (non-fatal)"
 
 echo
@@ -46,5 +62,6 @@ echo " Next:"
 echo "   source ~/.zshrc"
 echo "   cd \"\${QIMONO_QUANTUM_HOME:-\$HOME/source/repos/qimono-repos/quantum-workspace}\""
 echo "   uv run python tests/smoke-tests/run-all.sh"
+echo " Host: sysctl kernel.apparmor_restrict_unprivileged_userns  # must be 0 after reboot"
 echo " RAM note: this Yoga has ~6.5GiB — keep local sims small."
 echo "=============================================="

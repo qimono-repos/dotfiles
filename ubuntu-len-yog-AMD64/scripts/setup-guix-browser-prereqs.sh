@@ -4,18 +4,11 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SYSCTL_SRC="$ROOT/host-sysctl/99-guix-userns.conf"
 KEY_URL="https://substitutes.nonguix.org/signing-key.pub"
 KEY_TMP="${TMPDIR:-/tmp}/nonguix-signing-key.pub"
 
 echo "==> [1/2] Ubuntu userns (Epiphany / WebKit bwrap)"
-if [[ ! -f "$SYSCTL_SRC" ]]; then
-  echo "error: missing $SYSCTL_SRC" >&2
-  exit 1
-fi
-sudo cp "$SYSCTL_SRC" /etc/sysctl.d/99-guix-userns.conf
-sudo sysctl -p /etc/sysctl.d/99-guix-userns.conf
-echo "    apparmor_restrict_unprivileged_userns=$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns) (want 0)"
+"$ROOT/scripts/install-host-sysctl.sh"
 
 echo "==> [2/2] Authorize nonguix substitute signing key (Firefox binaries)"
 curl -fsSL "$KEY_URL" -o "$KEY_TMP"

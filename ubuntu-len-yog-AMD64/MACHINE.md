@@ -2,7 +2,8 @@
 
 Snapshot of the host this pack targets. Refresh after major hardware/OS changes.
 
-**Captured:** 2026-08-02 on `qimono-localhost`.
+**Captured:** 2026-08-02 on `qimono-localhost`.  
+**Host sysctl note:** 2026-08-03 — Guix Epiphany needs `/etc/sysctl.d/99-guix-userns.conf` (see below).
 
 ## Hardware
 
@@ -66,6 +67,26 @@ ls -l /dev/kvm 2>/dev/null || echo "install qemu-kvm; add user to kvm"
 | JS | Bun 1.3.x in `~/.bun`; system `node`/`npm` not on PATH |
 | Extra SDKs | Amazon Vega / Kepler under `~/vega` |
 | User | `qi` (uid 1000), sudo group |
+
+### Required host sysctl (Guix sandboxes)
+
+Ubuntu defaults `kernel.apparmor_restrict_unprivileged_userns=1`. That breaks Guix store  
+`bwrap` (Epiphany/WebKit): `setting up uid map: Permission denied`.
+
+| Item | Path / value |
+|------|----------------|
+| Pack drop-in | `host-sysctl/99-guix-userns.conf` |
+| Installed | `/etc/sysctl.d/99-guix-userns.conf` |
+| Live value | must be **`0`** |
+| Install script | `./scripts/install-host-sysctl.sh` |
+
+```bash
+./scripts/install-host-sysctl.sh
+sysctl kernel.apparmor_restrict_unprivileged_userns   # 0
+# after reboot, same check — if 1, drop-in missing
+```
+
+Sibling pack (same drop-in): `dotfiles/ubuntu-hp-pro/`.
 
 ### Guix packages already installed (user profile)
 

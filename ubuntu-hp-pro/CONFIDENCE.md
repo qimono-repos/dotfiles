@@ -27,7 +27,7 @@ End of one sitting:
 |---------|------------|-------------------------|
 | `guix` still `/usr/local/bin` without nonguix | Medium | Force `PATH=…/current/bin`; fail if `guix show firefox` fails |
 | Firefox source build / disk full | Medium on small disks | Use nonguix substitutes only; abort if `source` drv without substitute |
-| Epiphany bwrap trap | High without sysctl | Install `99-guix-userns.conf` early |
+| Epiphany bwrap trap | High without sysctl **drop-in** | `./scripts/install-host-sysctl.sh` early; `sysctl -w` alone dies on reboot |
 | Guix install script interactive | Medium | `YES_TO_ALL=1` where supported; document password |
 | Snap remove needs sudo | Low | Explicit step; continue if snap missing |
 | Network / substitute 403 | Low–medium | Retry URLs; print authorize key step |

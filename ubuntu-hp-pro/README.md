@@ -49,16 +49,28 @@ ubuntu-hp-pro/
   CONFIDENCE.md             # risk notes
   docs/LESSONS.md           # pointer to Yoga browser lessons
   guix/channels.scm         # nonguix + default
-  host-sysctl/99-guix-userns.conf
+  host-sysctl/99-guix-userns.conf   # → /etc/sysctl.d/ (must install; survives reboot)
   scripts/bootstrap.sh      # main entry
+  scripts/install-host-sysctl.sh    # AppArmor userns=0 only (sudo)
   scripts/00-host-apt-min.sh
   scripts/10-install-guix.sh
   scripts/20-guix-pull-channels.sh
-  scripts/30-browser-prereqs.sh
+  scripts/30-browser-prereqs.sh     # userns + nonguix key
   scripts/40-install-browsers.sh
   scripts/50-shell-path.sh
   scripts/60-remove-snap-browsers.sh
   stow-source/shell/        # optional PATH snippets (manual or stow if stow exists)
+```
+
+### Host must-have (Epiphany)
+
+Without the sysctl drop-in, Guix Epiphany dies after reboot:
+
+`bwrap: setting up uid map: Permission denied`
+
+```bash
+./scripts/install-host-sysctl.sh
+sysctl kernel.apparmor_restrict_unprivileged_userns   # 0
 ```
 
 ## After browsers work (later sessions)
