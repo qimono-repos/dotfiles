@@ -101,6 +101,7 @@ sudo snap remove epiphany
 
 ## Session log
 
+| 2026-08-03 | browsers | epiphany needs userns sysctl=0; firefox via nonguix substitutes.nonguix.org + archive --authorize; see docs/guix-browsers-foreign-distro.md |
 | When | Chunks | Notes |
 |------|--------|-------|
 | 2026-08-03 | journal created | P3 start |

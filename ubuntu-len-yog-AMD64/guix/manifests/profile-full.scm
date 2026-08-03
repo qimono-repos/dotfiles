@@ -45,11 +45,11 @@
   ;; Phone as laptop extension
   "kdeconnect"
 
-  ;; Browsers (Guix; snap epiphany/vivaldi removed 2026-08)
+  ;; Browsers (Guix + nonguix; no snap Firefox)
   "epiphany"
-  ;; After: guix pull with nonguix / search — then uncomment if available:
-  ;; "firefox"
-  ;; Large; free disk/RAM first (or use installing-daily-use-apps.sh heavy):
+  "firefox"                 ; needs: sudo guix archive --authorize nonguix key
+                            ; and substitutes.nonguix.org (see docs/guix-browsers-foreign-distro.md)
+  ;; Optional extra:
   ;; "ungoogled-chromium"
 
   ;; Diagrams (optional — uncomment when needed)

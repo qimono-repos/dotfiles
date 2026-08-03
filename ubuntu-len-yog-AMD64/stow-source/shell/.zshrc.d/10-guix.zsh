@@ -1,11 +1,28 @@
 # Guix profile on PATH (package manager rank #1)
 # Loaded via ~/.zshrc.local
 
+# 1) guix *command* after `guix pull` (channels, new packages like nonguix firefox)
+# MUST win over /usr/local/bin/guix or "firefox: unknown package"
+if [[ -d "$HOME/.config/guix/current/bin" ]]; then
+  path=("$HOME/.config/guix/current/bin" $path)
+  export PATH
+fi
+if [[ -r "$HOME/.config/guix/current/etc/profile" ]]; then
+  # shellcheck disable=SC1091
+  source "$HOME/.config/guix/current/etc/profile"
+fi
+
+# 2) user packages (epiphany, firefox, uv, stow, …)
 export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
 
 if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
   # shellcheck disable=SC1091
   source "$GUIX_PROFILE/etc/profile"
+fi
+
+# Desktop apps (GNOME app grid)
+if [[ -d "$GUIX_PROFILE/share" ]]; then
+  export XDG_DATA_DIRS="$GUIX_PROFILE/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
 fi
 
 # Guix locales on foreign distros (Ubuntu host)
@@ -21,8 +38,6 @@ fi
 #   export LC_ALL=en_US.utf8
 # if host locales conflict with Guix GUI apps.
 
-# Current guix after `guix pull`
-if [[ -r "$HOME/.config/guix/current/etc/profile" ]]; then
-  # shellcheck disable=SC1091
-  source "$HOME/.config/guix/current/etc/profile"
-fi
+# Prefer nonguix substitutes for Firefox etc. (daemon may still need authorize + default URLs)
+export GUIX_SUBSTITUTE_URLS="${GUIX_SUBSTITUTE_URLS:-https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org}"
+
