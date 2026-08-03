@@ -9,6 +9,7 @@ Configuration files for macOS, Linux, and Windows.
 | Pack | Machine | Notes |
 |------|---------|-------|
 | [`ubuntu-len-yog-AMD64/`](./ubuntu-len-yog-AMD64/) | Lenovo Yoga 7 14AHP9 (Ryzen / x86_64) | Stow + Guix-first + Qiskit/PennyLane/Q# |
+| [`ubuntu-hp-pro/`](./ubuntu-hp-pro/) | HP ProBook (Intel x86_64) | **bootstrap Guix + Epiphany + Firefox** from bare Ubuntu |
 | `ubuntu/` | Generic Ubuntu / VPS | apt lists, nginx, server scripts |
 | `gnu-guix/` | Guix recipes & channels | shared across Guix hosts |
 | `fedora/` | Fedora host history | |

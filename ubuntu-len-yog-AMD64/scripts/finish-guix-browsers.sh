@@ -10,31 +10,35 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:-show}"
 
 cat <<'EOF'
-========== CALL IT A DAY: Guix GNOME Web + Firefox ==========
+========== Guix GNOME Web + Firefox (see docs/LESSONS-guix-browsers.md) ==========
 
-A) One-time sudo (copy-paste block) — fix Epiphany bwrap + trust nonguix substitutes
+Preferred first-try orchestrator:
+  ./scripts/setup-guix-browsers-first-try.sh all
+
+A) One-time sudo — Epiphany userns + nonguix Firefox substitutes
 ------------------------------------------------------------
-sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/99-guix-userns.conf
+./scripts/setup-guix-browser-prereqs.sh
+# or manually:
+# sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+# echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/99-guix-userns.conf
+# curl -fsSL https://substitutes.nonguix.org/signing-key.pub -o /tmp/nonguix-signing-key.pub
+# sudo guix archive --authorize < /tmp/nonguix-signing-key.pub
 
-curl -fsSL https://substitutes.nonguix.org/signing-key.pub -o /tmp/nonguix-signing-key.pub
-sudo guix archive --authorize < /tmp/nonguix-signing-key.pub
-
-B) New shell env (or: source ~/.zshrc after stow)
+B) New shell env (post-pull guix MUST win over /usr/local/bin/guix)
 ------------------------------------------------------------
 export PATH="$HOME/.config/guix/current/bin:$PATH"
-hash guix
+hash guix && which guix   # …/current/bin/guix
 export GUIX_PROFILE="$HOME/.guix-profile"
 source "$GUIX_PROFILE/etc/profile"
 
-C) Preferred: full profile including firefox + epiphany
+C) Install browsers — first try: guix install (smaller domain)
 ------------------------------------------------------------
-cd ~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64
-guix package -m guix/manifests/profile-full.scm \
+guix install epiphany firefox \
   --substitute-urls='https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org'
+# If you see firefox-*.source* building → Ctrl+C, re-run prereqs
 
-# OR last-resort add only firefox:
-# guix install firefox --substitute-urls='https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org'
+# Later declarative full profile:
+# guix package -m guix/manifests/profile-full.scm --substitute-urls='…same…'
 
 D) Desktop icons + launch
 ------------------------------------------------------------

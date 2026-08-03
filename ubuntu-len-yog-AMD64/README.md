@@ -178,6 +178,16 @@ Smoke tests: `tests/smoke-tests/` · full notes: [docs/quantum-computing.md](./d
 
 ---
 
+
+## Guix browsers (Epiphany + Firefox) — first try
+
+Lessons from production Yoga setup: **[docs/LESSONS-guix-browsers.md](./docs/LESSONS-guix-browsers.md)**
+
+```bash
+./scripts/setup-guix-browser-prereqs.sh      # sudo once: userns + nonguix key
+./scripts/setup-guix-browsers-first-try.sh install
+```
+
 ## Hardware pointer
 
 Inventory and **AMD-V** teach-in: [MACHINE.md](./MACHINE.md) · [docs/teach-amd-v.md](./docs/teach-amd-v.md)

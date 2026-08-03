@@ -45,10 +45,15 @@
   ;; Phone as laptop extension
   "kdeconnect"
 
-  ;; Browsers (Guix + nonguix; no snap Firefox)
+  ;; Browsers — FIRST TRY use scripts/setup-guix-browsers-first-try.sh
+  ;; Prerequisites (once per machine):
+  ;;   1. guix pull with nonguix (channels.scm)
+  ;;   2. PATH → ~/.config/guix/current/bin/guix  (not /usr/local/bin/guix)
+  ;;   3. ./scripts/setup-guix-browser-prereqs.sh  (userns=0 + nonguix key)
+  ;;   4. Always pass: --substitute-urls='https://substitutes.nonguix.org …'
+  ;;   5. Never source-build Firefox on low disk/RAM (see docs/LESSONS-guix-browsers.md)
   "epiphany"
-  "firefox"                 ; needs: sudo guix archive --authorize nonguix key
-                            ; and substitutes.nonguix.org (see docs/guix-browsers-foreign-distro.md)
+  "firefox"
   ;; Optional extra:
   ;; "ungoogled-chromium"
 

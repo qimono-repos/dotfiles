@@ -154,3 +154,5 @@ kdeconnect-cli -l
 | `ubuntu-len-yog-AMD64/docs/browsers-guix-vs-snap.md` | P4.1 |
 | `ubuntu-len-yog-AMD64/docs/podman-autostart.md` | P4.4 |
 | `ubuntu-len-yog-AMD64/stow-source/podman/` | P4.4 sample |
+
+| 2026-08-03 | LESSONS browsers | Encoded: PATH current guix, userns, nonguix key+substitutes, no source build, first-try scripts |
