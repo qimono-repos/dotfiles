@@ -16,13 +16,27 @@ Snapshot of the host this pack targets. Refresh after major hardware/OS changes.
 | Cores / threads | 6 cores / 12 threads (Zen 4 / Phoenix) |
 | Freq | ~0.4–3.5 GHz (boost) |
 | ISA extras | AVX2, AVX-512 family flags present on this silicon |
-| Virtualization | AMD-V |
+| Virtualization | **AMD-V** (CPU feature; see teach-in below) |
 | GPU | AMD/ATI HawkPoint1 (Radeon 760M iGPU) via Mesa |
 | DRM | `/dev/dri/card1`, `renderD128` |
 | RAM | **~6.5 GiB** total (+ 4 GiB swap) — **tight for big sims** |
 | Storage | Micron NVMe 512 GB (`MTFDKCD512TGE…`) |
 | Partitioning | dual-boot style: EFI + Windows NTFS (~320G) + Ubuntu ext4 **~156G** root |
 | Root FS | `/dev/nvme0n1p5` ext4 ~153G usable; ~75G free at snapshot |
+
+### AMD-V (not Hyper-V)
+
+**AMD-V** is the AMD CPU virtualization extension (peer of Intel **VT-x**).  
+**Hyper-V** is a Microsoft *hypervisor product* that *uses* such extensions on Windows.
+
+On this Ubuntu host, the useful stack for Android / non-conventional-screen emulators (Ying-Yang frontend) is **AMD-V → KVM → QEMU/Android Emulator**, not Hyper-V.
+
+Full teach-in: [docs/teach-amd-v.md](./docs/teach-amd-v.md)
+
+```bash
+lscpu | grep -i virtualization   # expect AMD-V
+ls -l /dev/kvm 2>/dev/null || echo "install qemu-kvm; add user to kvm"
+```
 
 ### Implications for quantum work
 
@@ -63,7 +77,9 @@ Snapshot of the host this pack targets. Refresh after major hardware/OS changes.
 - `fd` 10.2.0  
 - `fzf` 0.67.0  
 
-**Gap:** Guix profile was **not** sourced in the live zsh `PATH` at snapshot (e.g. `java` not found despite OpenJDK in profile). The stow `shell` + `guix-env` packages fix that.
+**Also installed later:** `stow`, `python` 3.11, `uv` (Guix).  
+
+**Gap (historical):** Guix profile was **not** sourced in live zsh `PATH` at first snapshot. Fixed via `stow-source/shell` + `guix-env`.
 
 ### Channels
 

@@ -1,19 +1,23 @@
-;; Guix user profile: core dev tools for ubuntu-len-yog-AMD64
-;; Apply:
-;;   guix package -m guix/manifests/base.scm
+;; Guix user profile: core tools for ubuntu-len-yog-AMD64
+;; Apply:  guix package -m guix/manifests/base.scm
 ;;
-;; Keep this list lean (host has ~6.5GiB RAM). Heavy native build
-;; deps live in quantum-host.scm.
-;; Ranking: Guix is package manager #1 for userland.
+;; Ranking is aspirational (see docs/package-managers.md).
+;; Browsers (firefox, epiphany, ungoogled-chromium) often need
+;; nonguix / community channels — install only after guix pull with channels.scm.
+;; Keep this list lean (~6.5GiB RAM host).
 
 (specifications->manifest
  (list
-  ;; Dotfiles + Python toolchain (required for this pack)
+  ;; Dotfiles + Python toolchain
   "stow"
   "python"
   "uv"
 
-  ;; Everyday CLI (safe to re-declare if already installed)
+  ;; Editors (shared configs via stow-source later)
+  "emacs"
+  "neovim"
+
+  ;; Everyday CLI
   "git"
   "curl"
   "wget"
@@ -22,7 +26,16 @@
   "fzf"
   "tree"
   "htop"
-  "neovim"
 
   ;; Locales (Guix on foreign distro)
-  "glibc-locales"))
+  "glibc-locales"
+
+  ;; Phone as laptop extension (Ying-Yang 2026+)
+  "kdeconnect"
+
+  ;; Browsers — prefer Guix over snap when substitutes work.
+  ;; Uncomment after channels provide them on this pull:
+  ;; "firefox"
+  ;; "epiphany"           ; GNOME Web
+  ;; "ungoogled-chromium" ; or chromium via nonguix
+  ))

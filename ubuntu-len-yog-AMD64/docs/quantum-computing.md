@@ -32,7 +32,7 @@ Target environment for this AMD64 Yoga and other Linux hosts following the same 
 
 ## Install order
 
-1. Guix base (`python`, `uv`, `stow`, build helpers) — `scripts/install-guix-python-uv.sh`  
+1. Guix base (`python`, `uv`, `stow`, build tools) — `scripts/install-guix-python-uv.sh`  
 2. Stow shell hooks — `scripts/stow-apply.sh`  
 3. Python quantum env — `scripts/install-quantum-python.sh`  
 4. Q# / .NET check + sample — `scripts/install-qsharp.sh`  
@@ -128,16 +128,30 @@ print(qsharp.run("Bell()", shots=16))
 
 Store secrets outside git (`~/.secrets/`, env files not stowed with tokens).
 
-## Jupyter
+## Jupyter (localhost — reduce Colab dependency)
 
-Optional, memory-heavy:
+Infrastructure goal: **local** notebooks work without Google Colab. Colab may remain a convenient online option; this session’s responsibility is successful local tooling + browsers.
 
 ```bash
+cd "${QIMONO_QUANTUM_HOME:-$HOME/source/repos/qimono-repos/quantum-workspace}"
 uv add jupyterlab ipykernel
-uv run jupyter lab
+uv run jupyter lab --no-browser
+# then open http://127.0.0.1:8888 in Firefox / GNOME Web / Chromium
 ```
 
-Prefer VS Code / PyCharm notebooks if already open to avoid a second browser.
+### Browsers (Guix-preferred experiment)
+
+| Browser | Goal |
+|---------|------|
+| Firefox | Guix package (may need channels / locale care) |
+| GNOME Web (Epiphany) | Guix |
+| Chromium | Guix + often **nonguix** / community channel |
+
+This host already had Ubuntu Firefox and snap Epiphany/Vivaldi; migrating browsers to Guix is a **P4** task (see `tasks-priority-plan.md`) — uninstall snaps only when Guix browsers are verified.
+
+**RAM:** Jupyter + browser + IDE on 6.5 GiB is tight; close spare apps.
+
+Prefer VS Code notebooks only if that process is already open and you need to save RAM.
 
 ## Podman escape hatch
 
@@ -151,7 +165,9 @@ podman run --rm -it -v "$PWD":/work -w /work python:3.12-bookworm bash
 ## Verification
 
 ```bash
-./examples/quantum-hello/run-all.sh
+./tests/smoke-tests/run-all.sh
 ```
 
 Expect three OK lines (Qiskit, PennyLane, Q#). Failures should print the framework name and traceback.
+
+Math/diagram stack for notebooks and docs (braket, Greek, formulas): **LaTeX** in Markdown/Jupyter; architecture in **Mermaid**; heavier diagrams in **draw.io** (local).

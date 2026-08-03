@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Apply stow packages from this machine pack into $HOME.
+# Source directory is named stow-source/ so the -d flag is self-explanatory.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-STOW_DIR="$ROOT/stow"
+STOW_DIR="$ROOT/stow-source"
 TARGET="${STOW_TARGET:-$HOME}"
 PACKAGES=(shell guix-env quantum)
 
@@ -14,11 +15,10 @@ if ! command -v stow >/dev/null 2>&1; then
 fi
 
 if [[ ! -d "$STOW_DIR" ]]; then
-  echo "error: missing stow dir: $STOW_DIR" >&2
+  echo "error: missing stow-source dir: $STOW_DIR" >&2
   exit 1
 fi
 
-echo "stow → target=$TARGET  packages=${PACKAGES[*]}"
-# --no-folding keeps individual files as symlinks (clearer on mixed $HOME)
+echo "stow → -d stow-source  target=$TARGET  packages=${PACKAGES[*]}"
 stow -d "$STOW_DIR" -t "$TARGET" -v --restow --no-folding "${PACKAGES[@]}"
 echo "OK: stow packages applied. Open a new shell or: source ~/.zshrc"

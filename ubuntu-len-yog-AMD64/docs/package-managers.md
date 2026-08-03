@@ -1,11 +1,19 @@
 # Package manager policy
 
-## Ranking
+## Ranking (aspirational, not law)
 
-1. **Guix** — default for user tooling and language runtimes we control  
-2. **apt** — host OS, drivers, desktop session, things that must integrate with systemd/kernel  
-3. **snap** — GUI apps and vendor channels when Guix/apt are worse  
-4. **podman** — isolation, heavy/conflicting stacks, one-shot experiments  
+This is a **wishable order** when real availability and effort allow — not an authoritative ban list.  
+**Stage 1** (now): Guix *on* Ubuntu. **Later:** Guix *as* OS; apt/snap gone; Podman + Nix experience still valuable.
+
+| Rank | Manager | When it wins |
+|------|---------|--------------|
+| **1** | **GNU Guix** | Userland, manifests, channels, reproducible profiles |
+| **2** | **apt** | Kernel, firmware, desktop, systemd-integrated host bits |
+| **3** | **snap** | Desktop apps while Guix packaging cost is too high |
+| **4** | **podman** | Isolation, CI images, portable services |
+| **5** | **Nix** | Escape hatch (hard packages e.g. some .NET); second pure-functional PM |
+
+Language tools (**uv**, NuGet, Cargo, …) sit *inside* projects and outrank all of the above for app libraries.
 
 ### Decision tree
 
@@ -14,70 +22,67 @@ Need a library for an app I'm writing?
   → language package manager (uv / nuget / cargo / …) inside a project
 
 Need a CLI or runtime on my PATH for many projects?
-  → guix install <pkg>   (or guix package -m manifests/…)
+  → try guix install / guix package -m …
+  → if Guix lacks it or build cost is absurd → apt (host) or nix profile
+  → if GUI vendor app → snap/flatpak temporarily
 
 Is it kernel, firmware, display, audio, printer, bluetooth?
-  → apt
+  → apt (stage 1 host)
 
-Is it a desktop app and Guix build is broken/missing?
-  → snap (or flatpak if already used elsewhere)
+Will it fight the host (pinned distros, dirty SDKs)?
+  → podman (or distrobox)
 
-Will it fight the host (old CUDA, pinned distros, CI images)?
-  → podman run / distrobox
+Guix System later (no apt/snap)?
+  → Guix services + podman + optional Nix
 ```
 
 ## Guix first — practical rules
 
-- Install **stow**, **uv**, **python** via Guix before apt equivalents.
-- Use Guix **manifests** under `guix/manifests/` for reproducible profile sets.
-- Source `~/.guix-profile` in every interactive shell (stow `shell` package).
-- Prefer `guix shell -m manifest.scm` for project-local pure environments when possible.
-- Run `guix pull` intentionally (network + time); pin channels when you need bit-for-bit rebuilds.
+- Prefer **stow**, **uv**, **python**, editors via Guix when substitutes exist.
+- Use **manifests** under `guix/manifests/`.
+- Source `~/.guix-profile` in every interactive shell (`stow-source/shell`).
+- Rely on **`channels.scm`** (nonguix + community as needed) — see `guix/channels.scm`.
+- Referent ecosystem: Emacs/Guix/Scheme educators such as **David Wilson** (System Crafters) for workflow patterns — not a mandatory channel URL, a cultural north star.
+- `guix pull` is intentional (network + time).
 
 ## apt second — host only
 
-Examples that stay on apt:
-
-- `linux-generic`, firmware, Mesa  
-- `podman`, `build-essential` when compiling against host libc is required  
-- Microsoft `code`, `dotnet` packages already on this host  
-- Desktop session packages  
-
-Do **not** `apt install python3-qiskit` style stacks; use **uv**.
+- Kernel, Mesa, firmware, `podman` if host-integrated, Microsoft `dotnet`/`code` already present.
+- Do **not** apt-install Qiskit/PennyLane stacks.
 
 ## snap third
 
-Already used for Firefox, Discord, PyCharm, Obsidian, VLC, etc. Keep it for those. Avoid snaps for CLI developer tools if Guix has them (`ripgrep`, `fd`, `fzf` are already Guix).
+- Migration target: Guix browsers (Firefox, Epiphany, Chromium via channels) when effort allows.
+- Current machine may still have snap browsers; experiment is P4 in the task plan.
 
 ## podman fourth
 
-Use for:
+- Rootless preferred; Quadlet/user systemd for auto-start (see [teach-inits-shepherd.md](./teach-inits-shepherd.md)).
 
-- Full quantum notebook stacks with pinned CUDA/ROCm images (this laptop is AMD iGPU only — CPU/ROCm containers, not NVIDIA)  
-- CI-parity Ubuntu LTS images  
-- Services you do not want on the host (databases, mock QPU gateways)
+## Nix fifth — why add it
 
-Prefer rootless podman. Compose via `podman compose` when needed.
+- Some stacks (historically **.NET** on Guix) are painful; Nixpkgs may unblock **quantum-host** experiments.
+- On Guix System later, Nix remains a useful *other* functional PM; apt/snap will not.
+- Install path (later): multi-user Nix or `guix install nix` patterns — document before enabling.
 
 ## Anti-patterns
 
 | Avoid | Prefer |
 |-------|--------|
-| apt + guix same binary name fighting PATH | one source of truth |
-| pip install --user for global tools | `uv tool install` or project venv |
-| snap install python | Guix python + uv |
-| docker (daemon) for local dev | podman |
-| bloating root FS with many Guix generations | `guix package --delete-generations` + `guix gc` |
+| Treating ranking as religion | Document exceptions |
+| apt + guix same binary fighting PATH | one source of truth |
+| `pip install --user` globals | `uv tool` / project venv |
+| snap python toolchains | Guix python + uv |
+| docker daemon for local dev | podman |
+| Copying `/gnu/store` across CPU arch | rebuild via manifests |
 
 ## Python policy (summary)
 
 ```
-guix install python          # stable 3.11.x for scientific wheels
-guix install uv              # or ensure uv on PATH
-uv venv --python $(guix package -p ~/.guix-profile -I python | …)
-# simpler: point uv at Guix python explicitly
-uv python pin 3.11           # when uv-managed CPython is acceptable
-uv add qiskit pennylane …    # project deps
+guix install python uv
+# project:
+uv python pin 3.12
+uv add qiskit pennylane qdk jupyterlab …
 ```
 
-Host `/usr/bin/python3` is **3.14** — fine for OS scripts, often **too new** for Qiskit/PennyLane wheels. Prefer Guix or uv-managed 3.11/3.12.
+Host `/usr/bin/python3` may be **3.14** — fine for OS scripts; scientific stacks use Guix/uv-managed 3.11/3.12.

@@ -1,4 +1,4 @@
-# .NET / Q# helpers (dotnet usually from apt/Microsoft on this host)
+# .NET / Q# environment tools (dotnet usually from apt/Microsoft on this host)
 
 if [[ -d /usr/lib/dotnet ]]; then
   export DOTNET_ROOT="${DOTNET_ROOT:-/usr/lib/dotnet}"

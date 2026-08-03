@@ -1,7 +1,11 @@
-;; Optional channels for this machine pack.
-;; Install: mkdir -p ~/.config/guix && cp channels.scm ~/.config/guix/
-;; Or stow the guix-env package.
-;; Then: guix pull
+;; channels.scm — Guix channels for this pack / machine
+;; Stow also links a copy via stow-source/guix-env → ~/.config/guix/channels.scm
+;;
+;; We rely on channels for ALL Guix-related work (stage 1 → Guix System).
+;; nonguix: firmware, some browsers, nonfree-adjacent packages.
+;; Community / educational referent: David Wilson (System Crafters) for
+;; Emacs + Guix workflow patterns — add explicit channel URLs here only when
+;; you pin a channel you actually use (avoid cargo-cult empty channels).
 
 (cons* (channel
         (name 'nonguix)

@@ -68,13 +68,13 @@ Frameworks: Qiskit, PennyLane, Q# via qdk (Python).
 Machine policy: Guix for python/uv; never apt for these libs.
 EOF
 
-# Drop smoke tests symlink/copy helper
-EX="$ROOT/examples/quantum-hello"
+# Copy smoke tests into the workspace
+EX="$ROOT/tests/smoke-tests"
 if [[ -d "$EX" ]]; then
-  mkdir -p "$WS/examples"
-  cp -a "$EX/." "$WS/examples/quantum-hello/" 2>/dev/null || true
+  mkdir -p "$WS/tests/smoke-tests"
+  cp -a "$EX/." "$WS/tests/smoke-tests/" 2>/dev/null || true
 fi
 
 echo
 echo "OK: quantum Python env ready at $WS"
-echo "    cd $WS && uv run python examples/quantum-hello/hello_qiskit.py"
+echo "    cd $WS && uv run python tests/smoke-tests/hello_qiskit.py"
