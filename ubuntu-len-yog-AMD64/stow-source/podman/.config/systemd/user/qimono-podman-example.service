@@ -1,0 +1,14 @@
+[Unit]
+Description=Qimono example podman container (disabled sample)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Create once: podman create --name qimono-example docker.io/library/hello-world
+ExecStart=/usr/bin/podman start qimono-example
+ExecStop=/usr/bin/podman stop qimono-example
+
+[Install]
+WantedBy=default.target

@@ -9,9 +9,17 @@ if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
 fi
 
 # Guix locales on foreign distros (Ubuntu host)
+# Needed for Qt apps from Guix (e.g. kdeconnect) — avoids ANSI_X3.4-1968 warnings
 if [[ -d "$GUIX_PROFILE/lib/locale" ]]; then
   export GUIX_LOCPATH="${GUIX_LOCPATH:-$GUIX_PROFILE/lib/locale}"
 fi
+# Prefer UTF-8 for GUI toolkits when unset/broken
+if [[ -z "${LC_ALL:-}" && -z "${LC_CTYPE:-}" ]]; then
+  export LANG="${LANG:-en_US.UTF-8}"
+fi
+# Guix-provided locales: after glibc-locales install you may use:
+#   export LC_ALL=en_US.utf8
+# if host locales conflict with Guix GUI apps.
 
 # Current guix after `guix pull`
 if [[ -r "$HOME/.config/guix/current/etc/profile" ]]; then

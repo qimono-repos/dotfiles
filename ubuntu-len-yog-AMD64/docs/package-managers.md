@@ -22,7 +22,8 @@ Need a library for an app I'm writing?
   → language package manager (uv / nuget / cargo / …) inside a project
 
 Need a CLI or runtime on my PATH for many projects?
-  → try guix install / guix package -m …
+  → edit profile-full.scm then: guix package -m guix/manifests/profile-full.scm
+  → last resort: scripts/installing-daily-use-apps.sh (guix install …)
   → if Guix lacks it or build cost is absurd → apt (host) or nix profile
   → if GUI vendor app → snap/flatpak temporarily
 
@@ -44,6 +45,29 @@ Guix System later (no apt/snap)?
 - Rely on **`channels.scm`** (nonguix + community as needed) — see `guix/channels.scm`.
 - Referent ecosystem: Emacs/Guix/Scheme educators such as **David Wilson** (System Crafters) for workflow patterns — not a mandatory channel URL, a cultural north star.
 - `guix pull` is intentional (network + time).
+
+### How to install Guix packages (Qimono preference order)
+
+| Priority | Method | When |
+|----------|--------|------|
+| **1 — preferred** | `guix package -m guix/manifests/profile-full.scm` | Daily profile; reproducible full set |
+| **2 — last resort** | `scripts/installing-daily-use-apps.sh` (`guix install …`) | Recover one missing app; avoid editing Scheme mid-crisis |
+
+**Why prefer `profile-full.scm`:** one source of truth, one generation, no “forgot to list stow”.  
+**Why `guix install` is last resort:** easy to drift from the manifest; profile and git diverge.
+
+### Critical: `guix package -m` replaces the profile
+
+`guix package -m some.scm` installs **exactly** the packages in that manifest.  
+It does **not** merge with what you already had. Using a slim `quantum-host-rust.scm` alone can remove `emacs`, `uv`, `stow`, etc.
+
+| Pattern | Command |
+|---------|---------|
+| Full intended set (**preferred**) | `guix package -m guix/manifests/profile-full.scm` |
+| Additive emergency | `./scripts/installing-daily-use-apps.sh desktop` |
+| Roll back | `guix package --roll-back` |
+
+Lesson learned 2026-08-03: rust-only `-m` wiped prior profile; restored via `profile-full.scm`.
 
 ## apt second — host only
 
