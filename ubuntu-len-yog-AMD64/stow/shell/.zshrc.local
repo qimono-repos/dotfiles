@@ -1,0 +1,15 @@
+# Machine pack: ubuntu-len-yog-AMD64
+# Sourced from ~/.zshrc when present (stow → ~/.zshrc.local).
+# Keep this file small; put most logic in ~/.zshrc.d/*.zsh
+
+# Load ordered snippets
+if [[ -d "${HOME}/.zshrc.d" ]]; then
+  for _qimono_snippet in "${HOME}"/.zshrc.d/*.zsh(N); do
+    # shellcheck disable=SC1090
+    source "$_qimono_snippet"
+  done
+  unset _qimono_snippet
+fi
+
+# --- package manager ranking reminder (interactive only) ---
+# 1 guix · 2 apt · 3 snap · 4 podman
