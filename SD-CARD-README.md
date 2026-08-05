@@ -101,11 +101,14 @@ mount | grep /mnt/qimono-nomad
 # By default, sudo creates files owned by root; this makes YOU the owner so you can write files
 sudo chown "$USER:$USER" /mnt/qimono-nomad
 
+# Verify ownership so normal users can create files without sudo
+ls -ld /mnt/qimono-nomad
+
 # Create nested folder structure in one command using {comma,separated,paths}
 # source/repos = where your code/repositories live
 # tmp = temporary files | .config = config files (hidden folders start with .)
 # .local = local user data (hidden)
-mkdir -p /mnt/qimono-nomad/{source/repos,tmp,.config,.local}
+mkdir -p /mnt/qimono-nomad/{source/repos/qimono-repos,tmp,.config,.config/nvim,.config/emacs,.local}
 
 # git clone = download the dotfiles repository from a remote server onto the SD card
 # <YOUR_DOTFILES_URL> = REPLACE with your actual git repository URL
