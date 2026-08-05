@@ -12,3 +12,5 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .cpcache/
+SD-CARD-README.md
+.specstory/statistics.json

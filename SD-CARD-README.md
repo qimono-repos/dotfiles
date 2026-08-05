@@ -67,6 +67,9 @@ sudo parted -s "$SD_DEV" mklabel gpt
 # 1MiB 100% = start at 1 megabyte, end at the disk's full size (leaves space for boot sector)
 sudo parted -s "$SD_DEV" mkpart primary ext4 1MiB 100%
 
+# IMPORTANT: only format the partition device, never the whole disk device.
+# Use the partition path ($SD_PART) such as /dev/mmcblk0p1.
+# Running mkfs.ext4 without the partition path can overwrite the wrong device.
 # mkfs.ext4 = format the partition with ext4 filesystem (reliable, Linux standard)
 # -L QIMONO-NOMAD = give this partition a human-readable label you'll see in file managers
 sudo mkfs.ext4 -L QIMONO-NOMAD "$SD_PART"
@@ -88,6 +91,11 @@ sudo mkdir -p /mnt/qimono-nomad
 # $SD_PART = the device we formatted earlier (e.g., /dev/mmcblk0p1)
 # /mnt/qimono-nomad = the local folder where the SD contents become visible
 sudo mount "$SD_PART" /mnt/qimono-nomad
+
+# Verify the mount succeeded before continuing
+# mount | grep /mnt/qimono-nomad should show the device mounted as ext4
+# If this fails, run: dmesg | tail -20 and check the partition/format commands above
+mount | grep /mnt/qimono-nomad
 
 # chown = change owner; "$USER" = your current login name
 # By default, sudo creates files owned by root; this makes YOU the owner so you can write files
