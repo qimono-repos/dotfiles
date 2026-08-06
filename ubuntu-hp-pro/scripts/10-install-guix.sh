@@ -16,6 +16,13 @@ mkdir -p "$TMP"
 wget -q -O "$TMP/guix-install.sh" https://guix.gnu.org/guix-install.sh
 chmod +x "$TMP/guix-install.sh"
 
+# Make sure user namespace mapping tools exist before installing Guix
+if ! command -v newgidmap >/dev/null 2>&1 || ! command -v newuidmap >/dev/null 2>&1; then
+  echo "Installing uidmap so Guix can configure user namespace mappings..."
+  sudo apt-get update -y
+  sudo apt-get install -y uidmap
+fi
+
 # Noninteractive defaults when supported by installer
 export YES_TO_ALL="${YES_TO_ALL:-1}"
 sudo --preserve-env=YES_TO_ALL env YES_TO_ALL=1 "$TMP/guix-install.sh" || {
