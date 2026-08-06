@@ -32,6 +32,7 @@ cd ~/source/repos/qimono-repos/dotfiles/ubuntu-hp-pro   # or wherever you put it
 # 2) Preflight — see QA/Day1-browsers.md and QA/Checklist-User.md (≥40G, network, sudo)
 
 # 3) The magic
+chmod +x ./scripts/bootstrap.sh  # if needed
 ./scripts/bootstrap.sh
 ```
 
