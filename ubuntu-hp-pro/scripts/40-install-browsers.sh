@@ -52,7 +52,10 @@ alt_weather_log=""
 trap 'rm -f "$weather_log" "${alt_weather_log:-}"' EXIT
 parse_weather_percent() {
   local file="$1"
-  grep -oE '[0-9]+(\.[0-9]+)?% substitutes available' "$file" | tail -n1 | sed 's/%.*//'
+  grep -oE '[0-9]+(\.[0-9]+)?% substitutes available' "$file" \
+    | sed 's/%.*//' \
+    | sort -nr \
+    | head -n1
 }
 
 if ! guix weather firefox --substitute-urls="$NONGUIX_URL" 2>&1 | tee "$weather_log"; then
