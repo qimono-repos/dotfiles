@@ -45,22 +45,55 @@ if [[ "${avail_kb:-0}" -lt "$MIN_FREE_KB" ]]; then
   exit 1
 fi
 
-echo "==> guix weather firefox (must have substitutes on nonguix — do NOT compile)"
+echo "==> guix weather firefox (prefer nonguix substitutes — do NOT compile)"
 weather_log="$(mktemp)"
+alt_weather_log=""
 # shellcheck disable=SC2064
-trap 'rm -f "$weather_log"' EXIT
+trap 'rm -f "$weather_log" "${alt_weather_log:-}"' EXIT
+parse_weather_percent() {
+  local file="$1"
+  grep -oE '[0-9]+(\.[0-9]+)?% substitutes available' "$file" | tail -n1 | sed 's/%.*//'
+}
+
 if ! guix weather firefox --substitute-urls="$NONGUIX_URL" 2>&1 | tee "$weather_log"; then
   echo "error: guix weather failed (network / guix?). Retry when online." >&2
   exit 1
 fi
 
-# Expect a line like: "100.0% substitutes available (1 out of 1)"
-if grep -qE '0\.0% substitutes available' "$weather_log"; then
-  echo "error: 0% Firefox substitutes on $NONGUIX_URL" >&2
-  echo "       Do NOT install (would compile for hours / fill disk)." >&2
-  echo "       Retry later, or check nonguix key authorization." >&2
-  exit 1
+initial_pct="$(parse_weather_percent "$weather_log")"
+if [[ -z "$initial_pct" ]]; then
+  if grep -qiE 'substitutes available \(0 out of' "$weather_log"; then
+    echo "error: no Firefox substitutes reported" >&2
+    exit 1
+  fi
+  echo "WARN: could not parse weather % line; continuing carefully…"
+elif [[ "$initial_pct" == "0" || "$initial_pct" == "0.0" ]]; then
+  echo "WARN: 0% Firefox substitutes on $NONGUIX_URL" >&2
+  echo "      Checking other substitute URLs: $SUBST_URLS" >&2
+  alt_weather_log="$(mktemp)"
+  if ! guix weather firefox --substitute-urls="$SUBST_URLS" 2>&1 | tee "$alt_weather_log"; then
+    echo "error: guix weather failed on alternate substitute URLs." >&2
+    exit 1
+  fi
+  alt_pct="$(parse_weather_percent "$alt_weather_log")"
+  if [[ -z "$alt_pct" ]]; then
+    if grep -qiE 'substitutes available \(0 out of' "$alt_weather_log"; then
+      echo "error: no Firefox substitutes reported" >&2
+      exit 1
+    fi
+    echo "WARN: could not parse alternate weather % line; continuing carefully…"
+    weather_log="$alt_weather_log"
+  elif [[ "$alt_pct" == "0" || "$alt_pct" == "0.0" ]]; then
+    echo "error: 0% Firefox substitutes on all substitute URLs" >&2
+    echo "       Do NOT install (would compile for hours / fill disk)." >&2
+    echo "       Retry later, or check network / key authorization." >&2
+    exit 1
+  else
+    echo "WARN: proceeding with alternative substitute servers." >&2
+    weather_log="$alt_weather_log"
+  fi
 fi
+
 if ! grep -qE '[1-9][0-9]*(\.[0-9]+)?% substitutes available' "$weather_log"; then
   # No percentage line found — be strict rather than risk source build
   if grep -qiE 'substitutes available \(0 out of' "$weather_log"; then
