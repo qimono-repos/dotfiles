@@ -116,7 +116,9 @@ guix install epiphany firefox --substitute-urls="$SUBST_URLS"
 
 export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
 # shellcheck disable=SC1091
+set +u
 source "$GUIX_PROFILE/etc/profile"
+set -u
 
 echo "installed:"
 guix package -I | grep -iE 'firefox|epiphany' || true
