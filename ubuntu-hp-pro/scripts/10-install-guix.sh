@@ -23,12 +23,53 @@ if ! command -v newgidmap >/dev/null 2>&1 || ! command -v newuidmap >/dev/null 2
   sudo apt-get install -y uidmap
 fi
 
+# Guix installer runner helpers
+run_guix_installer() {
+  local installer="$1"
+  sudo --preserve-env=YES_TO_ALL env YES_TO_ALL=1 "$installer"
+}
+
+run_guix_installer_with_mirror() {
+  local installer="$1"
+  local mirror="$2"
+  local local_script="$TMP/guix-install-$(echo "$mirror" | sed 's#[/:]#_#g').sh"
+  cp "$installer" "$local_script"
+  sed -i "s#^GNU_URL=.*#GNU_URL=\"${mirror}\"#" "$local_script"
+  chmod +x "$local_script"
+  run_guix_installer "$local_script"
+}
+
+run_guix_installer_with_fallback() {
+  local mode="$1"
+  local mirrors=(
+    "https://ftp.gnu.org/gnu/guix/"
+    "https://mirror.kernel.org/gnu/guix/"
+    "https://ftpmirror.gnu.org/gnu/guix/"
+    "https://mirror.ufs.ac.za/gnu/guix/"
+  )
+  local mirror
+
+  for mirror in "${mirrors[@]}"; do
+    echo "WARN: trying Guix installer with mirror $mirror"
+    if run_guix_installer_with_mirror "$TMP/guix-install.sh" "$mirror"; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 # Noninteractive defaults when supported by installer
 export YES_TO_ALL="${YES_TO_ALL:-1}"
-sudo --preserve-env=YES_TO_ALL env YES_TO_ALL=1 "$TMP/guix-install.sh" || {
-  echo "WARN: noninteractive install returned non-zero; trying interactive…"
-  sudo "$TMP/guix-install.sh"
-}
+if ! run_guix_installer "$TMP/guix-install.sh"; then
+  echo "WARN: noninteractive install returned non-zero; trying fallback mirrors..."
+  if ! run_guix_installer_with_fallback noninteractive; then
+    echo "WARN: all noninteractive fallback mirrors failed; trying interactive fallback mirrors..."
+    if ! run_guix_installer_with_fallback interactive; then
+      echo "ERROR: Guix installation failed on all mirrors"
+      exit 1
+    fi
+  fi
+fi
 
 # Ensure daemon up
 if systemctl list-unit-files 2>/dev/null | grep -q guix-daemon; then
