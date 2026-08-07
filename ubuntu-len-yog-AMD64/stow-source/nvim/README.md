@@ -1,23 +1,28 @@
 # stow package: nvim (LazyVim-oriented)
 
-**Status:** skeleton (feedback F10).
+**Status:** Active & Configured (stow linked).
 
 ## Intent
 
-`~/.config/nvim` for LazyVim (or a thin native config) shared across machines.
+`~/.config/nvim` configured for LazyVim, shared across machines via GNU Stow.
 
-## Next steps
-
-1. Bootstrap LazyVim once on this host (or copy a known-good tree).  
-2. Commit only **user** config (not all of `lazy-lock` noise if undesired).  
-3. Tree layout:
+## Structure
 
 ```text
 stow-source/nvim/.config/nvim/
-  init.lua
-  lua/…
+├── init.lua                  # Entrypoint loading config.lazy
+└── lua/
+    ├── config/
+    │   ├── lazy.lua          # LazyVim bootstrap & spec loader
+    │   ├── options.lua       # Custom options (scrolloff, relative numbers, etc.)
+    │   ├── keymaps.lua       # Custom keybindings (e.g. jf/fj escape)
+    │   └── autocmds.lua      # User autocmds
+    └── plugins/
+        └── example.lua       # Custom plugin overrides (e.g. Tokyonight theme)
 ```
 
-4. Add `nvim` to `stow-apply.sh` when ready.
+## Management
 
-Guix package: `neovim` in `base.scm`.
+- Package manager: Installed via Guix (`guix install neovim stow git ripgrep fd`)
+- Apply symlinks: `./scripts/stow-apply.sh` (or `./scripts/install-neovim-lazyvim.sh`)
+- Target: `$HOME/.config/nvim`

@@ -105,6 +105,7 @@ ubuntu-len-yog-AMD64/
   scripts/
     bootstrap.sh
     install-guix-python-uv.sh
+    install-neovim-lazyvim.sh
     install-quantum-python.sh
     install-qsharp.sh
     stow-apply.sh
@@ -112,7 +113,7 @@ ubuntu-len-yog-AMD64/
     shell/
     guix-env/
     quantum/
-    # planned: emacs/ nvim/ vega/ …
+    nvim/                     # LazyVim setup
   tests/
     smoke-tests/              # was tests/smoke-tests
     stubs/
@@ -128,6 +129,7 @@ cd ~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64
 
 # stepwise
 ./scripts/install-guix-python-uv.sh
+./scripts/install-neovim-lazyvim.sh
 ./scripts/stow-apply.sh
 ./scripts/install-quantum-python.sh
 ./scripts/install-qsharp.sh

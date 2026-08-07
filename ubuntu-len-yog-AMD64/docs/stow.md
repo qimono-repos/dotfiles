@@ -80,6 +80,7 @@ If you ever want a pure Guix/home-managed shell with **no** distro zshrc, a sing
 | `shell` | `.zshrc.d/*`, `.zshrc.local` | PATH, Guix, uv, quantum env |
 | `guix-env` | `.config/guix/…` | channels / packaging |
 | `quantum` | `.config/quantum/…` | framework env defaults |
+| `nvim` | `.config/nvim/…` | LazyVim editor configuration |
 
 ## Apply
 

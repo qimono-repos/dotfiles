@@ -41,3 +41,11 @@ fi
 # Prefer nonguix substitutes for Firefox etc. (daemon may still need authorize + default URLs)
 export GUIX_SUBSTITUTE_URLS="${GUIX_SUBSTITUTE_URLS:-https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org}"
 
+# Ensure SSL CA certificates are found on foreign distros (Ubuntu host)
+if [[ -f "/etc/ssl/certs/ca-certificates.crt" ]]; then
+  export SSL_CERT_FILE="${SSL_CERT_FILE:-/etc/ssl/certs/ca-certificates.crt}"
+  export SSL_CERT_DIR="${SSL_CERT_DIR:-/etc/ssl/certs}"
+  export GIT_SSL_CAINFO="${GIT_SSL_CAINFO:-/etc/ssl/certs/ca-certificates.crt}"
+fi
+
+

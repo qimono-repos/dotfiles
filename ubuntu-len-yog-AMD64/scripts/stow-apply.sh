@@ -6,7 +6,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STOW_DIR="$ROOT/stow-source"
 TARGET="${STOW_TARGET:-$HOME}"
-PACKAGES=(shell guix-env quantum)
+PACKAGES=(shell guix-env quantum nvim)
 
 if ! command -v stow >/dev/null 2>&1; then
   echo "error: stow not on PATH. Install with: guix install stow" >&2
