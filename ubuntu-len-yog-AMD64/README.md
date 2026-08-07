@@ -92,6 +92,7 @@ ubuntu-len-yog-AMD64/
   tasks-priority-plan.md
   docs/
     package-managers.md
+    oh-my-posh-catppuccin.md # Oh My Posh + Catppuccin + Cascaydia Cove
     quantum-computing.md
     stow.md
     teach-inits-shepherd.md   # systemd vs Guix Shepherd
@@ -106,6 +107,7 @@ ubuntu-len-yog-AMD64/
     bootstrap.sh
     install-guix-python-uv.sh
     install-neovim-lazyvim.sh
+    install-oh-my-posh.sh      # oh-my-posh + Catppuccin + font install
     install-quantum-python.sh
     install-qsharp.sh
     stow-apply.sh
@@ -130,6 +132,7 @@ cd ~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64
 # stepwise
 ./scripts/install-guix-python-uv.sh
 ./scripts/install-neovim-lazyvim.sh
+./scripts/install-oh-my-posh.sh
 ./scripts/stow-apply.sh
 ./scripts/install-quantum-python.sh
 ./scripts/install-qsharp.sh
