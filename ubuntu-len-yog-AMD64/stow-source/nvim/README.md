@@ -23,6 +23,7 @@ stow-source/nvim/.config/nvim/
 
 ## Management
 
-- Package manager: Installed via Guix (`guix install neovim stow git ripgrep fd`)
+- Package manager: Installed via Guix (`guix install neovim stow git ripgrep fd gcc-toolchain tree-sitter-cli`)
+- Toolchains: `shfmt` via Guix; `stylua` + `shfmt` self-managed by Mason into `~/.local/share/nvim/mason/bin`
 - Apply symlinks: `./scripts/stow-apply.sh` (or `./scripts/install-neovim-lazyvim.sh`)
 - Target: `$HOME/.config/nvim`

@@ -8,9 +8,9 @@ PACK_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 echo "=== [ubuntu-len-yog-AMD64] Neovim + LazyVim Setup ==="
 
 # 1. Check & install Guix packages
-echo "--> Ensuring Guix packages: neovim, stow, git, ripgrep, fd, gcc-toolchain, tree-sitter"
+echo "--> Ensuring Guix packages: neovim, stow, git, ripgrep, fd, gcc-toolchain, tree-sitter-cli"
 if command -v guix >/dev/null 2>&1; then
-  guix install neovim stow git ripgrep fd gcc-toolchain tree-sitter
+  guix install neovim stow git ripgrep fd gcc-toolchain tree-sitter-cli
 else
   echo "error: guix is not installed or not on PATH" >&2
   exit 1
