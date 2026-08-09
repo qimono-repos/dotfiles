@@ -139,25 +139,39 @@ Infrastructure goal: **local** notebooks work without Google Colab. Colab may re
 stay in the **uv** project; register that venv as a kernelspec so notebooks can
 import Qiskit/PennyLane.
 
-Durable bind settings live in a **Stow-managed** config:
+Durable settings are **split** (public policy vs secrets):
 
 ```text
-~/.jupyter/jupyter_notebook_config.py
+~/.jupyter/jupyter_notebook_config.py     ← Stow / git (ip, port, loads secrets)
   ← stow-source/jupyter/.jupyter/jupyter_notebook_config.py
 
+~/.secrets/jupyter_auth.py                ← machine-local only (password HASH)
+  created by:  scripts/setup-jupyter-auth.sh
+```
+
+Stowed non-secret policy:
+
+```python
 c.ServerApp.ip = "127.0.0.1"
 c.ServerApp.port = 5005
 c.ServerApp.port_retries = 0
+# then optionally exec ~/.secrets/jupyter_auth.py
 ```
 
-The machine default is an **on-demand** systemd user service rather than an
-always-running server (RAM budget on this laptop).
+**Machine policy (this Yoga):** Jupyter is a **login-time user service** —
+enabled so it starts whenever your graphical/login session’s
+`default.target` comes up. That matches a quantum + mobile-frontend daily box
+where notebooks should already be listening on `127.0.0.1:5005`.
+
+It is still a **user service** (not a boot-as-root system daemon). With
+`Linger=no` (default), it starts after you log in, not at the greeter.
 
 ### First-time setup
 
 ```bash
 cd ~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64
-./scripts/install-jupyter.sh           # guix install jupyter + stow config/unit
+./scripts/install-jupyter.sh           # guix + stow + enable --now
+./scripts/setup-jupyter-auth.sh        # password hash → ~/.secrets/jupyter_auth.py
 ./scripts/install-quantum-python.sh    # Qiskit/PennyLane + ipykernel in uv project
 
 # Optional: make the quantum venv selectable in the notebook UI
@@ -165,35 +179,61 @@ cd "${QIMONO_QUANTUM_HOME:-$HOME/source/repos/qimono-repos/quantum-workspace}"
 uv run python -m ipykernel install --user --name=quantum --display-name="Python (quantum)"
 ```
 
-### Start, use, and stop
+### Auth (token vs password) and secret management
+
+Default Jupyter uses a **random token** (shown in `journalctl` / `jupyter notebook list`).
+For daily use, prefer a **password**: only a **hash** is stored on disk; keep the
+passphrase in a password manager.
+
+| Location | Contents | In git? |
+|----------|----------|---------|
+| Password manager | Login passphrase | No |
+| `~/.secrets/jupyter_auth.py` | Password **hash** + `token=""` | No |
+| Stow `jupyter_notebook_config.py` | Bind address/port only | Yes |
+| `journalctl` | May leak old tokens — prefer password + empty token | — |
 
 ```bash
-systemctl --user start qimono-jupyter.service
-systemctl --user status qimono-jupyter.service
-# Read the token URL in the final log line, then open it locally:
-journalctl --user -u qimono-jupyter.service -n 30 --no-pager
-# http://127.0.0.1:5005/tree?token=...
+./scripts/setup-jupyter-auth.sh
+# → ~/.secrets/ (0700) / jupyter_auth.py (0600)
+# → optional restart of qimono-jupyter.service
+```
 
-# When finished (recommended on this 6.5 GiB laptop):
+Then browse **`http://127.0.0.1:5005`** and log in with the password (no token).
+
+Do **not** put plaintext passwords or live tokens in `stow-source/`. Example
+template only: `docs/examples/jupyter_auth.py.example`.
+
+### Daily use
+
+```bash
+systemctl --user status qimono-jupyter.service
+# After setup-jupyter-auth: open http://127.0.0.1:5005 (password)
+# If still on token auth (no secrets file yet):
+journalctl --user -u qimono-jupyter.service -n 30 --no-pager
+
+# Temporary stop (e.g. free RAM for a heavy build):
 systemctl --user stop qimono-jupyter.service
+# Start again without re-enable:
+systemctl --user start qimono-jupyter.service
+
+# Opt out of auto-start at login (policy change):
+systemctl --user disable qimono-jupyter.service
 ```
 
 The unit runs `~/.guix-profile/bin/jupyter notebook`. Address and port come
 from the stowed config (not CLI flags). If port 5005 is busy, the server fails
-rather than silently rebinding. Do not enable the service unless an
-always-running notebook is intentionally wanted:
+rather than silently rebinding.
 
-```bash
-systemctl --user enable qimono-jupyter.service  # optional: start at user login
-```
-
-Foreground one-shot (same config):
+Foreground one-shot (same config; rarely needed when the unit is enabled):
 
 ```bash
 ~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64/scripts/run-jupyter-lab.sh
 ```
 
 The script honours `QIMONO_QUANTUM_HOME` for the working directory.
+
+**RAM:** the idle Notebook process is modest; open kernels + browser tabs are
+what hurt on ~6.5 GiB. Stop kernels you are not using.
 
 ### Browsers (Guix-preferred experiment)
 

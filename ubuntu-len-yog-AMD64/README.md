@@ -163,7 +163,7 @@ Why we stow **snippets** (`.zshrc.d`) instead of a full `.zshrc`: [docs/stow.md]
 | **Qiskit** | Python | uv project |
 | **PennyLane** | Python | same uv env |
 | **Q#** | Q# / .NET | host `dotnet` + Python `qdk` |
-| **Jupyter** | — | Guix package `jupyter` + stowed `~/.jupyter` config; on-demand localhost **5005** |
+| **Jupyter** | — | Guix `jupyter` + stowed config; **user service enabled at login** on **127.0.0.1:5005** |
 
 Smoke tests: `tests/smoke-tests/` · full notes: [docs/quantum-computing.md](./docs/quantum-computing.md)
 

@@ -31,6 +31,8 @@ echo "==> Stow: jupyter package (config + systemd user unit)"
 
 if command -v systemctl >/dev/null 2>&1; then
   systemctl --user daemon-reload || true
+  # Machine policy: quantum + mobile frontend laptop — Notebook at login
+  systemctl --user enable --now qimono-jupyter.service || true
 fi
 
 echo
@@ -38,10 +40,12 @@ echo "OK: Guix jupyter ready"
 command -v jupyter
 jupyter --version 2>/dev/null | head -20 || true
 echo
-echo "Config:  ~/.jupyter/jupyter_notebook_config.py  (127.0.0.1:5005)"
-echo "Start:   systemctl --user start qimono-jupyter.service"
-echo "   or:   $ROOT/scripts/run-jupyter-lab.sh"
-echo "Stop:    systemctl --user stop qimono-jupyter.service"
+echo "Config:   ~/.jupyter/jupyter_notebook_config.py  (127.0.0.1:5005)"
+echo "Auth:     $ROOT/scripts/setup-jupyter-auth.sh  →  ~/.secrets/jupyter_auth.py"
+echo "Policy:   enabled at user login (systemctl --user enable)"
+echo "Status:   systemctl --user status qimono-jupyter.service"
+echo "Stop:     systemctl --user stop qimono-jupyter.service"
+echo "Disable:  systemctl --user disable qimono-jupyter.service"
 echo
 echo "Quantum kernel (optional — Qiskit/PennyLane live in the uv project):"
 echo "  cd \"\${QIMONO_QUANTUM_HOME:-\$HOME/source/repos/qimono-repos/quantum-workspace}\""
