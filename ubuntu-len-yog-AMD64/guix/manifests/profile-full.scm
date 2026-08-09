@@ -27,10 +27,11 @@
   "htop"
   "openjdk"
 
-  ;; Dotfiles + Python + uv
+  ;; Dotfiles + Python + uv + Jupyter Notebook (UI; quantum libs stay in uv)
   "stow"
   "python"
   "uv"
+  "jupyter"
 
   ;; Locales / small libs
   "glibc-locales"

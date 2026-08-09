@@ -8,10 +8,11 @@
 
 (specifications->manifest
  (list
-  ;; Dotfiles + Python toolchain
+  ;; Dotfiles + Python toolchain + Jupyter Notebook (classic UI via Guix)
   "stow"
   "python"
   "uv"
+  "jupyter"
 
   ;; Editors (shared configs via stow-source later)
   "emacs"

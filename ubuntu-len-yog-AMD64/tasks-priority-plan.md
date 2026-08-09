@@ -31,7 +31,7 @@ Companion journal (pending + resume): **`../JOURNAL-P3-P5.md`**
 | T22 | quantum-host .NET/Rust strategy + manifests | `[x]` |
 | T23 | Codeium / VSCodium docs | `[x]` |
 | T24 | KDE Connect doc + Guix install | `[x]` |
-| T25 | JupyterLab via uv | `[x]` |
+| T25 | Jupyter via Guix + stow config (:5005) | `[x]` |
 | T26 | diagrams/math docs | `[x]` |
 
 ## P4 detail

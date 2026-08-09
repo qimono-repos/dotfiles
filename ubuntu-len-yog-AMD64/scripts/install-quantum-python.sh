@@ -33,6 +33,8 @@ uv python install 3.12 || true
 uv python pin 3.12 || true
 
 echo "==> Adding quantum frameworks"
+# Jupyter Notebook UI is Guix-global (package `jupyter`); see scripts/install-jupyter.sh.
+# Keep ipykernel here so this venv can be registered as a kernelspec for Guix Jupyter.
 # qdk is the current Microsoft Quantum Python package (qsharp is deprecated).
 uv add \
   "qiskit>=1.0" \
@@ -40,10 +42,11 @@ uv add \
   "pennylane" \
   "matplotlib" \
   "numpy" \
+  "ipykernel" \
   "qdk" \
   || {
     echo "warn: bulk add failed; retrying core packages individually" >&2
-    uv add qiskit qiskit-aer pennylane numpy matplotlib
+    uv add qiskit qiskit-aer pennylane numpy matplotlib ipykernel
     uv add qdk || uv add qsharp || echo "warn: Q# Python package optional"
   }
 
@@ -65,7 +68,8 @@ uv run pytest
 \`\`\`
 
 Frameworks: Qiskit, PennyLane, Q# via qdk (Python).
-Machine policy: Guix for python/uv; never apt for these libs.
+Machine policy: Guix for python/uv/jupyter; never apt for these libs.
+Jupyter UI: Guix package \`jupyter\` + stow config (see install-jupyter.sh).
 EOF
 
 # Copy smoke tests into the workspace
@@ -78,3 +82,5 @@ fi
 echo
 echo "OK: quantum Python env ready at $WS"
 echo "    cd $WS && uv run python tests/smoke-tests/hello_qiskit.py"
+echo "Optional: register this venv for Guix Jupyter:"
+echo "    uv run python -m ipykernel install --user --name=quantum --display-name='Python (quantum)'"

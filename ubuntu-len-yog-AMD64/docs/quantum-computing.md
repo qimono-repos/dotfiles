@@ -20,11 +20,12 @@ Target environment for this AMD64 Yoga and other Linux hosts following the same 
 ┌─────────────────────────────────────────────────────────┐
 │ Host: Ubuntu 26.04 (apt: kernel, mesa, dotnet, podman)  │
 ├─────────────────────────────────────────────────────────┤
-│ Guix profile: python, uv, stow, git, editors, …         │
+│ Guix profile: python, uv, stow, jupyter, editors, …     │
+│   Notebook UI on 127.0.0.1:5005 (stowed config)         │
 ├─────────────────────────────────────────────────────────┤
 │ uv project: ~/source/repos/.../quantum-workspace        │
 │   qiskit, qiskit-aer, pennylane, pennylane-lightning,   │
-│   matplotlib, jupyter, qdk (Q#)                         │
+│   matplotlib, ipykernel, qdk (Q#)                       │
 ├─────────────────────────────────────────────────────────┤
 │ .NET 10 SDK: Q# projects / Azure Quantum templates      │
 └─────────────────────────────────────────────────────────┘
@@ -34,8 +35,9 @@ Target environment for this AMD64 Yoga and other Linux hosts following the same 
 
 1. Guix base (`python`, `uv`, `stow`, build tools) — `scripts/install-guix-python-uv.sh`  
 2. Stow shell hooks — `scripts/stow-apply.sh`  
-3. Python quantum env — `scripts/install-quantum-python.sh`  
-4. Q# / .NET check + sample — `scripts/install-qsharp.sh`  
+3. Guix Jupyter + stowed config — `scripts/install-jupyter.sh`  
+4. Python quantum env — `scripts/install-quantum-python.sh`  
+5. Q# / .NET check + sample — `scripts/install-qsharp.sh`  
 
 ## Qiskit
 
@@ -132,12 +134,66 @@ Store secrets outside git (`~/.secrets/`, env files not stowed with tokens).
 
 Infrastructure goal: **local** notebooks work without Google Colab. Colab may remain a convenient online option; this session’s responsibility is successful local tooling + browsers.
 
-```bash
-cd "${QIMONO_QUANTUM_HOME:-$HOME/source/repos/qimono-repos/quantum-workspace}"
-uv add jupyterlab ipykernel
-uv run jupyter lab --no-browser
-# then open http://127.0.0.1:8888 in Firefox / GNOME Web / Chromium
+**Jupyter Notebook is Guix-global** (`guix install jupyter` / package name
+`jupyter`). Guix ships classic Notebook (not JupyterLab). Quantum frameworks
+stay in the **uv** project; register that venv as a kernelspec so notebooks can
+import Qiskit/PennyLane.
+
+Durable bind settings live in a **Stow-managed** config:
+
+```text
+~/.jupyter/jupyter_notebook_config.py
+  ← stow-source/jupyter/.jupyter/jupyter_notebook_config.py
+
+c.ServerApp.ip = "127.0.0.1"
+c.ServerApp.port = 5005
+c.ServerApp.port_retries = 0
 ```
+
+The machine default is an **on-demand** systemd user service rather than an
+always-running server (RAM budget on this laptop).
+
+### First-time setup
+
+```bash
+cd ~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64
+./scripts/install-jupyter.sh           # guix install jupyter + stow config/unit
+./scripts/install-quantum-python.sh    # Qiskit/PennyLane + ipykernel in uv project
+
+# Optional: make the quantum venv selectable in the notebook UI
+cd "${QIMONO_QUANTUM_HOME:-$HOME/source/repos/qimono-repos/quantum-workspace}"
+uv run python -m ipykernel install --user --name=quantum --display-name="Python (quantum)"
+```
+
+### Start, use, and stop
+
+```bash
+systemctl --user start qimono-jupyter.service
+systemctl --user status qimono-jupyter.service
+# Read the token URL in the final log line, then open it locally:
+journalctl --user -u qimono-jupyter.service -n 30 --no-pager
+# http://127.0.0.1:5005/tree?token=...
+
+# When finished (recommended on this 6.5 GiB laptop):
+systemctl --user stop qimono-jupyter.service
+```
+
+The unit runs `~/.guix-profile/bin/jupyter notebook`. Address and port come
+from the stowed config (not CLI flags). If port 5005 is busy, the server fails
+rather than silently rebinding. Do not enable the service unless an
+always-running notebook is intentionally wanted:
+
+```bash
+systemctl --user enable qimono-jupyter.service  # optional: start at user login
+```
+
+Foreground one-shot (same config):
+
+```bash
+~/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64/scripts/run-jupyter-lab.sh
+```
+
+The script honours `QIMONO_QUANTUM_HOME` for the working directory.
 
 ### Browsers (Guix-preferred experiment)
 

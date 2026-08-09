@@ -26,6 +26,7 @@
   "python"
   "uv"
   "stow"
+  "jupyter"   ; Notebook UI; Qiskit/PennyLane remain in the uv project
   "git"
   "glibc-locales"
   "pkg-config"

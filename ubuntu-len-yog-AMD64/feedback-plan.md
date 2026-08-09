@@ -24,7 +24,7 @@ Companion: [tasks-priority-plan.md](./tasks-priority-plan.md) (AI-credit orderin
 | F9 | Terminology | Avoid “helper”; use utility/tool/aid |
 | F10 | Stow packages grow | nvim (LazyVim), emacs (init.el/evil), KDE Connect, **vega/mcp** Amazon MCP |
 | F11 | Tests naming | `examples/` → `tests/{stubs,smoke-tests}` |
-| F12 | Jupyter local | First-class with quantum stack; browsers via Guix preferred over snap |
+| F12 | Jupyter local | Guix-global Notebook + stow config; quantum via uv kernel; browsers Guix-first |
 | F13 | Related trees → locations | Fix misleading heading; clarify `ubuntu/` = archive/recopilation |
 | F14 | Hardware teach-in | AMD-V vs Hyper-V / VT-x; mobile emulator value for Ying-Yang screens |
 | F15 | Portable `$HOME` | Teach + plan SD-card home (`qimono-nomad`); multi-arch caveats |

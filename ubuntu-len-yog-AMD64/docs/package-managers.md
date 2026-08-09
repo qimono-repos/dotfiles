@@ -106,7 +106,8 @@ Lesson learned 2026-08-03: rust-only `-m` wiped prior profile; restored via `pro
 guix install python uv
 # project:
 uv python pin 3.12
-uv add qiskit pennylane qdk jupyterlab …
+uv add qiskit pennylane qdk ipykernel …
+# Jupyter Notebook UI: guix install jupyter (see scripts/install-jupyter.sh)
 ```
 
 Host `/usr/bin/python3` may be **3.14** — fine for OS scripts; scientific stacks use Guix/uv-managed 3.11/3.12.

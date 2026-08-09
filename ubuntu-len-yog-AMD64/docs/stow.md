@@ -81,6 +81,7 @@ If you ever want a pure Guix/home-managed shell with **no** distro zshrc, a sing
 | `guix-env` | `.config/guix/…` | channels / packaging |
 | `quantum` | `.config/quantum/…` | framework env defaults |
 | `nvim` | `.config/nvim/…` | LazyVim editor configuration |
+| `jupyter` | `.jupyter/jupyter_notebook_config.py`, `.config/systemd/user/qimono-jupyter.service` | Guix Notebook on `127.0.0.1:5005` |
 
 ## Apply
 
