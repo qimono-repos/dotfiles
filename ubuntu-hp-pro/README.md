@@ -71,7 +71,17 @@ ubuntu-hp-pro/
   scripts/40-install-browsers.sh    # disk + weather + install
   scripts/50-shell-path.sh
   scripts/60-remove-snap-browsers.sh
-  stow-source/shell/        # optional PATH snippets (manual or stow if stow exists)
+  stow-source/shell/        # .zshrc.d snippets (guix, history, oh-my-posh)
+  scripts/stow-apply.sh     # stow -d stow-source -t $HOME shell
+```
+
+### Shell history (fleet baseline)
+
+`stow-source/shell/.zshrc.d/15-history.zsh` keeps **≥1000** commands (`HISTSIZE`/`SAVEHIST`) and shares history across sessions. Apply with:
+
+```bash
+./scripts/stow-apply.sh
+# then: source ~/.zshrc
 ```
 
 ### Host must-have (Epiphany)

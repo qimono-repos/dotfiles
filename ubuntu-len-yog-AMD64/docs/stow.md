@@ -47,8 +47,10 @@ So we stow **small composable snippets** and a thin **`~/.zshrc.local`** that th
 
 ```text
 ~/.zshrc.d/10-guix.zsh
+~/.zshrc.d/15-history.zsh      # HISTSIZE/SAVEHIST >= 1000 (fleet baseline)
 ~/.zshrc.d/20-uv-python.zsh
 ~/.zshrc.d/30-dotnet-quantum.zsh
+~/.zshrc.d/40-oh-my-posh.zsh
 ```
 
 ### Mental model (not a daemon)
