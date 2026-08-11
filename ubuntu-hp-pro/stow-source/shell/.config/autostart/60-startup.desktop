@@ -1,0 +1,11 @@
+# Stow: shell → ~/.config/autostart/60-startup.desktop
+# Single entry point at login: launches firefox (guarded, capped log) and
+# opens a Ptyxis terminal in the dotfiles repo via scripts/startup-login.sh.
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Startup shell fragment
+Comment=Launch firefox and open a terminal in the dotfiles repo at login
+Exec=/home/qi/source/repos/qimono-repos/dotfiles/ubuntu-hp-pro/scripts/startup-login.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true

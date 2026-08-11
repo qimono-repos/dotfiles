@@ -43,3 +43,23 @@ if ! guix show firefox >/dev/null 2>&1; then
   exit 1
 fi
 echo "OK: firefox package visible via post-pull guix"
+
+# --- qimono: persisted Guix profile via manifest (single source of truth) ---
+# Persisted in guix/profile-manifest.scm so a fresh machine reproduces the
+# whole profile: firefox, epiphany, jupyter, and vscodium (patched). CAUTION:
+# `guix package --manifest` REPLACES the profile with exactly the manifest
+# contents — keep every Guix-installed package in profile-manifest.scm.
+# vscodium is #:substitutable? #f in nonguix (no substitutes), but its build
+# only repackages the prebuilt GitHub release tarball — fast, no compilation.
+# Idempotent: skips if vscodium already installed.
+MANIFEST_SRC="$ROOT/guix/profile-manifest.scm"
+# nonguix packages (firefox) need substitutes.nonguix.org — not in the default
+# server list — else the install falls back to a source build.
+SUBST_URLS='https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org'
+if guix package -I 2>/dev/null | grep -qE '^vscodium([[:space:]]|$)'; then
+  echo "OK: vscodium already installed"
+else
+  echo "==> guix package --manifest=$MANIFEST_SRC"
+  guix package --manifest="$MANIFEST_SRC" --substitute-urls="$SUBST_URLS"
+  echo "OK: profile installed (see ~/.guix-profile/bin/{firefox,codium})"
+fi
