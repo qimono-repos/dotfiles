@@ -72,7 +72,10 @@ ubuntu-hp-pro/
   scripts/50-shell-path.sh
   scripts/60-remove-snap-browsers.sh
   stow-source/shell/        # .zshrc.d snippets (guix, history, oh-my-posh)
-  scripts/stow-apply.sh     # stow -d stow-source -t $HOME shell
+  stow-source/jupyter/      # Notebook config + user unit (127.0.0.1:5005)
+  scripts/stow-apply.sh     # stow -d stow-source -t $HOME shell jupyter
+  scripts/install-jupyter.sh
+  scripts/setup-jupyter-auth.sh
 ```
 
 ### Shell history (fleet baseline)
@@ -83,6 +86,16 @@ ubuntu-hp-pro/
 ./scripts/stow-apply.sh
 # then: source ~/.zshrc
 ```
+
+### Jupyter Notebook (same as Yoga)
+
+```bash
+./scripts/install-jupyter.sh      # guix + stow + enable --now
+./scripts/setup-jupyter-auth.sh   # once: password → ~/.secrets/jupyter_auth.py
+# → http://127.0.0.1:5005
+```
+
+See [docs/jupyter.md](./docs/jupyter.md).
 
 ### Host must-have (Epiphany)
 
