@@ -4,7 +4,10 @@
 # HUMAN: interactive getpass. Do not run from an unattended agent.
 set -euo pipefail
 
-export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
+# Always the *user packages* profile. Interactive shells often export
+# GUIX_PROFILE=~/.config/guix/current (the `guix` command after pull),
+# which does not contain jupyter-notebook.
+export GUIX_PROFILE="${HOME}/.guix-profile"
 if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
   set +u
   # shellcheck disable=SC1091
@@ -16,7 +19,10 @@ SECRETS_DIR="${QIMONO_SECRETS_DIR:-$HOME/.secrets}"
 AUTH_FILE="${SECRETS_DIR}/jupyter_auth.py"
 
 if ! command -v jupyter-notebook >/dev/null 2>&1; then
-  echo "error: jupyter-notebook not on PATH. Run scripts/apply-profile.sh first." >&2
+  echo "error: jupyter-notebook not on PATH after sourcing $GUIX_PROFILE" >&2
+  echo "       which jupyter-notebook: $(command -v jupyter-notebook || echo missing)" >&2
+  echo "       GUIX_PROFILE=$GUIX_PROFILE" >&2
+  echo "       Run apply-profile.sh if the package is missing; then retry." >&2
   exit 1
 fi
 
