@@ -1,0 +1,71 @@
+# Flatpak from Guix (ubuntu-mini-pc)
+
+Thin probe: Guix owns the **client**, Flathub owns the **apps**, Ubuntu
+still owns the **kernel / AppArmor / portals**. Not a second OS.
+
+Official recipe: <https://flathub.org/en/setup/GNU%20Guix>
+
+## What we did (2026-08-16)
+
+1. Added `"flatpak"` to `guix/manifests/profile-full.scm` (never a lone `-m`).
+2. `./scripts/apply-profile.sh` → Guix `flatpak` **1.16.0**.
+3. `flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`
+4. `flatpak --user -y install flathub com.jeffser.Alpaca` (v9.2.5, GNOME Platform 50).
+
+`which flatpak` is `~/.guix-profile/bin/flatpak`. There is **no** apt `flatpak`.
+
+## The AppArmor gate (foreign-distro only)
+
+Ubuntu 26.04 has `kernel.apparmor_restrict_unprivileged_userns=1` and
+path-pins the capable profile to **`/usr/bin/bwrap`**.
+
+Guix Flatpak’s own bubblewrap lives under `/gnu/store/…/bin/bwrap`. First
+`flatpak run` without an override:
+
+```
+bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
+error: ldconfig failed, exit status 256
+```
+
+Kernel audit: `apparmor="DENIED" … profile="unprivileged_userns" comm="bwrap"`
+(`setpcap`, `net_admin`).
+
+**Workaround on this Ubuntu host** (does not transfer to a future Guix System):
+
+```bash
+export FLATPAK_BWRAP=/usr/bin/bwrap
+flatpak --user run com.jeffser.Alpaca
+```
+
+That launched Alpaca 9.2.5 (window stayed up). Stow applies the same
+variable in:
+
+- `stow-source/shell/.zshrc.d/30-flatpak.zsh` (terminals)
+- `stow-source/shell/.config/environment.d/10-qimono-flatpak.conf` (GNOME after login)
+
+A GTK warning about `org.freedesktop.portal.Flatpak` is expected: Ubuntu’s
+xdg-desktop-portal does not auto-wire Guix Flatpak’s portal. File pickers
+may be limited; chat still starts.
+
+## Ops
+
+```bash
+# never sudo, never system remotes
+flatpak --user list
+flatpak --user update
+flatpak --user run com.jeffser.Alpaca
+```
+
+GNOME overview may not list Alpaca until the next login (XDG exports +
+`environment.d`). Meanwhile: the command above, or
+`gtk-launch com.jeffser.Alpaca` after sourcing `~/.zshrc`.
+
+## What this proves for a future Guix System
+
+| Transfers | Does not |
+|-----------|----------|
+| `guix` package `flatpak` in the profile | Ubuntu AppArmor path-pin |
+| `--user` remotes / no root | Need for `FLATPAK_BWRAP=/usr/bin/bwrap` |
+| Flathub as the gap-filler store | GNOME Software discovering the apps |
+
+Do **not** `apt install flatpak`. Two clients is the actual box-in-a-box.

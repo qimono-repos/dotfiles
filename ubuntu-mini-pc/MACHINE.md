@@ -45,14 +45,16 @@ a ceiling, but day-1 work does not need cloud QPUs.
 | Auth | `~/.secrets/jupyter_auth.py` mode 600 (hash only) |
 | Shared Qiskit | `~/source/repos/qimono-repos/quantum-workspace` — qiskit 2.5.2 + aer 0.17.2 on Guix CPython |
 | Kernel spec | `Python (quantum)` → workspace `.venv` |
+| Flatpak | Guix 1.16.0 client; Flathub user remote; Alpaca 9.2.5. Run via `FLATPAK_BWRAP=/usr/bin/bwrap` (Ubuntu AppArmor) |
 
 ## Pack policy
 
 | Rank | Manager | Role |
 |------|---------|------|
-| 1 | GNU Guix | Developer python, uv, jupyter, stow, native libs |
+| 1 | GNU Guix | Developer python, uv, jupyter, stow, native libs, **flatpak client** |
 | 2 | apt | Kernel, desktop, `#!/usr/bin/python3` for Ubuntu tools |
 | 3 | snap | Existing desktop apps (do not touch on day-1) |
+| 3.5 | Flathub | Vendor GUI gaps via Guix `flatpak --user` — see [docs/flatpak-guix.md](./docs/flatpak-guix.md) |
 | 4 | podman | Escape hatch later |
 
 See [docs/python-path.md](./docs/python-path.md) and [docs/quantum.md](./docs/quantum.md).

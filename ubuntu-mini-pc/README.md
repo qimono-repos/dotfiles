@@ -61,6 +61,7 @@ ubuntu-mini-pc/
   docs/quantum.md
   docs/python-path.md
   docs/jupyter.md
+  docs/flatpak-guix.md
   guix/manifests/profile-full.scm
   scripts/
   stow-source/shell/          # .zshrc.local + .zshrc.d (no full .zshrc)

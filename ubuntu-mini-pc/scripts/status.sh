@@ -42,6 +42,7 @@ need_pkg zlib
 need_pkg openssl
 need_pkg pkg-config
 need_pkg glibc-locales
+need_pkg flatpak
 
 echo
 PY="$(command -v python3 2>/dev/null || true)"
@@ -112,6 +113,28 @@ if [[ -f "$HOME/.local/share/jupyter/kernels/quantum/kernel.json" ]]; then
   ok "kernel Python (quantum)" "kernelspec present"
 else
   warn "kernel Python (quantum)" "run ./scripts/install-quantum-python.sh"
+fi
+
+FP="$(command -v flatpak 2>/dev/null || true)"
+case "$FP" in
+  */.guix-profile/bin/flatpak|/gnu/store/*)
+    ok "flatpak on PATH" "$FP ($($FP --version 2>&1))"
+    ;;
+  *)
+    bad "flatpak on PATH" "${FP:-missing} (want Guix flatpak)"
+    ;;
+esac
+
+if command -v flatpak >/dev/null 2>&1 && flatpak remotes --columns=name,options 2>/dev/null | grep -q '^flathub'; then
+  ok "flathub user remote" "present"
+else
+  warn "flathub user remote" "flatpak --user remote-add --if-not-exists flathub …"
+fi
+
+if command -v flatpak >/dev/null 2>&1 && flatpak --user info com.jeffser.Alpaca >/dev/null 2>&1; then
+  ok "alpaca user app" "com.jeffser.Alpaca"
+else
+  warn "alpaca user app" "not installed"
 fi
 
 echo

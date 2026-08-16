@@ -9,6 +9,9 @@
 ;;
 ;; Day-1 quantum workstation: python + uv + jupyter + native libs for wheels.
 ;; Browsers / rust / kdeconnect stay off this list until deliberately added.
+;;
+;; Flatpak: Guix-owned *client* only. Apps live in ~/.local/share/flatpak
+;; (user remotes). Do not apt install a second flatpak.
 
 (specifications->manifest
  (list
@@ -27,4 +30,7 @@
   "openssl"
   "pkg-config"
   "glibc-locales"
+
+  ;; Desktop escape hatch (Flathub user remotes). See docs/flatpak-guix.md.
+  "flatpak"
   ))
