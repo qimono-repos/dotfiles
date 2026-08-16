@@ -108,5 +108,15 @@ else
   bad "quantum-workspace" "missing ($WS)"
 fi
 
+if [[ -f "$HOME/.local/share/jupyter/kernels/quantum/kernel.json" ]]; then
+  ok "kernel Python (quantum)" "kernelspec present"
+else
+  warn "kernel Python (quantum)" "run ./scripts/install-quantum-python.sh"
+fi
+
 echo
-echo "Auth is WAIT until you run setup-jupyter-auth.sh (interactive)."
+if [[ -f "$HOME/.secrets/jupyter_auth.py" ]]; then
+  echo "Open http://127.0.0.1:5005 (password login; hash in ~/.secrets)."
+else
+  echo "Auth is WAIT until you run setup-jupyter-auth.sh (interactive)."
+fi

@@ -30,9 +30,10 @@ journalctl --user -u qimono-jupyter.service -n 30 --no-pager
 systemctl --user restart qimono-jupyter.service
 ```
 
-The unit runs `~/.guix-profile/bin/jupyter notebook` with
-`LD_LIBRARY_PATH` pointed at the Guix profile `lib/` so later Aer kernels
-can `dlopen` `libz` / `libstdc++`.
+The unit runs `~/.guix-profile/bin/jupyter notebook` **without**
+`LD_LIBRARY_PATH` (that would leak into `!ls` and break Ubuntu coreutils).
+NumPy / Aer wheels get Guix `libz` / `libstdc++` from the venv
+`sitecustomize.py` installed by `install-quantum-python.sh`.
 
 It is a **user** service (not root, not at the greeter). With default
 `Linger=no` it starts after you log in.

@@ -42,6 +42,9 @@ Deferred: PennyLane, `qdk` / Q#, IBM tokens.
 Guix Python does not search `/usr/lib`. NumPy / Aer wheels still `dlopen`
 `libz` and `libstdc++`. **Do not** put `$GUIX_PROFILE/lib` on
 `LD_LIBRARY_PATH` in the interactive shell — Ubuntu `ls` then loads Guix
-`libm` and dies (`GLIBC_2.43 not found`). Set that path only around `uv`
-/`python` that load wheels (see `install-quantum-python.sh`). Same lesson
-as `qu/qiskit/env.sh`, scoped to the process that needs it.
+`libm` and dies (`GLIBC_2.43 not found`).
+
+`install-quantum-python.sh` copies `scripts/sitecustomize-guix-native.py`
+into the venv so notebooks and `uv run python` preload those sonames
+without exporting the path. Same lesson as `qu/qiskit/env.sh`, scoped to
+the interpreter that needs it.

@@ -33,6 +33,19 @@ a ceiling, but day-1 work does not need cloud QPUs.
 | Extra SDKs | Kepler / Vega under `~/kepler` and `~/vega` (leave them) |
 | Browser | Google Chrome via APT; several browser snaps |
 
+## Software (after day-1, 2026-08-16)
+
+| Layer | Actual |
+|-------|--------|
+| Kernel | `7.0.0-29-generic` |
+| Guix user profile | generation 3: emacs, stow, python 3.11.14, uv 0.6.12, jupyter 1.0.0, gcc-toolchain, zlib, openssl, pkg-config, glibc-locales |
+| Developer `python3` | `~/.guix-profile/bin/python3` (3.11.14) |
+| Apt `python3` | `/usr/bin/python3` (3.14.4) still present |
+| Jupyter | `qimono-jupyter.service` enabled+active, http://127.0.0.1:5005 |
+| Auth | `~/.secrets/jupyter_auth.py` mode 600 (hash only) |
+| Shared Qiskit | `~/source/repos/qimono-repos/quantum-workspace` — qiskit 2.5.2 + aer 0.17.2 on Guix CPython |
+| Kernel spec | `Python (quantum)` → workspace `.venv` |
+
 ## Pack policy
 
 | Rank | Manager | Role |

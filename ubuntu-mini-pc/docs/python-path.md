@@ -54,8 +54,11 @@ unset LD_LIBRARY_PATH
 source ~/.zshrc
 ```
 
-Wheels that need `libz` / `libstdc++` get that path only in the Jupyter
-user unit and in `install-quantum-python.sh`, not in every prompt.
+Wheels that need `libz` / `libstdc++` are preloaded by the venv
+`sitecustomize.py` (copied from `scripts/sitecustomize-guix-native.py`).
+`install-quantum-python.sh` also wraps `uv add` / `uv run` with
+`LD_LIBRARY_PATH` for the child only. The login shell and the Jupyter
+unit stay clean.
 
 ## Wrong `GUIX_PROFILE`
 
