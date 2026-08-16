@@ -6,9 +6,9 @@
       "sourceType": "github",
       "sourceUrl": "https://github.com/microsoft/azure-skills.git",
       "skillPath": ".github/plugins/azure-skills/skills/microsoft-foundry/SKILL.md",
-      "skillFolderHash": "5ee1d3626382f44f66466fa1f6ba85e77b275387",
+      "skillFolderHash": "3be788a7ea2c7229492943502e6fe499f50fa984",
       "installedAt": "2026-07-30T07:47:26.050Z",
-      "updatedAt": "2026-07-30T07:47:26.050Z"
+      "updatedAt": "2026-08-16T13:26:48.713Z"
     },
     "vega-multi-tv-migration": {
       "source": "AmazonAppDev/devices-agent-skills",
