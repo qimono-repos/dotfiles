@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Host shim. Flatpak keeps the real `alpaca` binary inside the sandbox.
+# Snap used to plant /snap/bin/alpaca; we do not.
+set -euo pipefail
+
+if [[ -x /usr/bin/bwrap ]]; then
+  export FLATPAK_BWRAP="${FLATPAK_BWRAP:-/usr/bin/bwrap}"
+fi
+
+FP="${HOME}/.guix-profile/bin/flatpak"
+if [[ ! -x "$FP" ]]; then
+  echo "error: Guix flatpak missing at $FP (apply profile-full.scm)" >&2
+  exit 127
+fi
+
+exec "$FP" --user run com.jeffser.Alpaca "$@"

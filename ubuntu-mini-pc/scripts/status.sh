@@ -137,6 +137,12 @@ else
   warn "alpaca user app" "not installed"
 fi
 
+if [[ -x "$HOME/.local/bin/alpaca" ]]; then
+  ok "alpaca host shim" "$HOME/.local/bin/alpaca"
+else
+  warn "alpaca host shim" "stow ~/.local/bin/alpaca"
+fi
+
 echo
 if [[ -f "$HOME/.secrets/jupyter_auth.py" ]]; then
   echo "Open http://127.0.0.1:5005 (password login; hash in ~/.secrets)."

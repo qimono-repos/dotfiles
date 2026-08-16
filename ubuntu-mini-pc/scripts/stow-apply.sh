@@ -22,4 +22,5 @@ fi
 
 echo "stow → -d stow-source  target=$TARGET  packages=${PACKAGES[*]}"
 stow -d "$STOW_DIR" -t "$TARGET" -v --restow --no-folding "${PACKAGES[@]}"
+"$ROOT/scripts/link-flatpak-exports.sh" || true
 echo "OK: stow applied. Open a new shell or: source ~/.zshrc"

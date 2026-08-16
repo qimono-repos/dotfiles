@@ -47,18 +47,41 @@ A GTK warning about `org.freedesktop.portal.Flatpak` is expected: Ubuntu’s
 xdg-desktop-portal does not auto-wire Guix Flatpak’s portal. File pickers
 may be limited; chat still starts.
 
+## `alpaca` on the host PATH
+
+Flatpak does **not** install a host `alpaca` binary. The name exists only
+inside the sandbox (`--command=alpaca`). Snap used to fake this with
+`/snap/bin/alpaca`.
+
+This pack stows `~/.local/bin/alpaca` (already on PATH from `~/.zshrc`):
+
+```bash
+alpaca &
+# extra args go through, e.g.  alpaca --quick-ask
+```
+
+The shim sets `FLATPAK_BWRAP` and `exec`s Guix `flatpak --user run`.
+
+## Icons (gear vs the animal)
+
+The animal logo **is** in the Flatpak export
+(`com.jeffser.Alpaca.svg`). A window launched via raw `flatpak run`
+from a session that never saw those icons gets the generic gear.
+
+`scripts/link-flatpak-exports.sh` (also run from `stow-apply.sh`)
+symlinks desktop files + icons into `~/.local/share/{applications,icons}`,
+which GNOME always searches. Close the geared window and launch again
+with `alpaca &` or the Overview tile. A login still helps the session
+pick up `environment.d`.
+
 ## Ops
 
 ```bash
 # never sudo, never system remotes
 flatpak --user list
 flatpak --user update
-flatpak --user run com.jeffser.Alpaca
+alpaca &
 ```
-
-GNOME overview may not list Alpaca until the next login (XDG exports +
-`environment.d`). Meanwhile: the command above, or
-`gtk-launch com.jeffser.Alpaca` after sourcing `~/.zshrc`.
 
 ## What this proves for a future Guix System
 
