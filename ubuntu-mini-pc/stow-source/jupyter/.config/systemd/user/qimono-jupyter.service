@@ -6,7 +6,8 @@ Documentation=file://%h/source/repos/qimono-repos/dotfiles/ubuntu-mini-pc/docs/j
 Type=simple
 Environment=GUIX_PROFILE=%h/.guix-profile
 Environment=PATH=%h/.guix-profile/bin:%h/.guix-profile/sbin:/usr/local/bin:/usr/bin:/bin
-Environment=LD_LIBRARY_PATH=%h/.guix-profile/lib
+# No LD_LIBRARY_PATH: it would leak into !ls in notebooks (GLIBC_2.43).
+# Guix jupyter has its own RUNPATH. Aer wheels: set env on the kernel later.
 WorkingDirectory=%h/source/repos/qimono-repos/quantum-workspace
 ExecStart=%h/.guix-profile/bin/jupyter notebook
 KillSignal=SIGINT

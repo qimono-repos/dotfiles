@@ -40,6 +40,23 @@ uv python pin "$(readlink -f "$HOME/.guix-profile/bin/python3")"
 Host `~/.local/bin/uv` (0.12.x) may still exist; after `10-guix.zsh` the
 Guix binary is first.
 
+## Do not put Guix `lib/` on `LD_LIBRARY_PATH` in the shell
+
+Guix glibc is newer than Ubuntu’s. If `LD_LIBRARY_PATH` contains
+`~/.guix-profile/lib`, host binaries (`ls`, `cat`, `date`) load Guix
+`libm.so.6` and fail with `GLIBC_2.43 not found`.
+
+Immediate repair in a broken session:
+
+```bash
+unset LD_LIBRARY_PATH
+# then, after this pack’s 10-guix.zsh is updated:
+source ~/.zshrc
+```
+
+Wheels that need `libz` / `libstdc++` get that path only in the Jupyter
+user unit and in `install-quantum-python.sh`, not in every prompt.
+
 ## Wrong `GUIX_PROFILE`
 
 The old zshrc sets `GUIX_PROFILE=~/.config/guix/current` (the *guix

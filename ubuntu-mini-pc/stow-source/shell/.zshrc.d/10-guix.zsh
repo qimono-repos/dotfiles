@@ -27,9 +27,21 @@ if [[ -d "$GUIX_PROFILE/lib/locale" ]]; then
   export GUIX_LOCPATH="${GUIX_LOCPATH:-$GUIX_PROFILE/lib/locale}"
 fi
 
-# Wheels (NumPy, Aer) dlopen libz / libstdc++ from the Guix profile
-if [[ -d "$GUIX_PROFILE/lib" ]]; then
-  export LD_LIBRARY_PATH="$GUIX_PROFILE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+# Do NOT export LD_LIBRARY_PATH=$GUIX_PROFILE/lib here.
+# Ubuntu coreutils (ls, date, …) then load Guix libm and die:
+#   version `GLIBC_2.43' not found
+# Aer/NumPy wheels get those libs from the jupyter unit / uv wrappers, not
+# from the interactive shell. Strip a leftover from older snippet versions.
+if [[ -n "${LD_LIBRARY_PATH:-}" ]]; then
+  _qimono_gp_lib="$GUIX_PROFILE/lib"
+  LD_LIBRARY_PATH="${LD_LIBRARY_PATH//:${_qimono_gp_lib}/}"
+  LD_LIBRARY_PATH="${LD_LIBRARY_PATH//${_qimono_gp_lib}:/}"
+  if [[ "$LD_LIBRARY_PATH" == "$_qimono_gp_lib" || -z "$LD_LIBRARY_PATH" ]]; then
+    unset LD_LIBRARY_PATH
+  else
+    export LD_LIBRARY_PATH
+  fi
+  unset _qimono_gp_lib
 fi
 
 if [[ -f "/etc/ssl/certs/ca-certificates.crt" ]]; then
