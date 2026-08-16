@@ -61,6 +61,16 @@ alpaca &
 ```
 
 The shim sets `FLATPAK_BWRAP` and `exec`s Guix `flatpak --user run`.
+GTK chatter goes to **`/tmp/alpaca-log.txt`** (last 1000 lines kept), same
+pattern as HP Pro’s `/tmp/firefox-log.txt`.
+
+```bash
+alpaca &                          # clean tty; log in /tmp
+tail -f /tmp/alpaca-log.txt       # peek when something is weird
+ALPACA_LOG=- alpaca               # rare: keep stderr on the tty
+# one-shot without the shim default:
+alpaca >/dev/null 2>&1 &          # throw away
+```
 
 ## Icons (gear vs the animal)
 
