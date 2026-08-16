@@ -7,8 +7,10 @@ WS="${QIMONO_QUANTUM_HOME:-$HOME/source/repos/qimono-repos/quantum-workspace}"
 
 export GUIX_PROFILE="${HOME}/.guix-profile"
 if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
+  set +u
   # shellcheck disable=SC1091
   source "$GUIX_PROFILE/etc/profile"
+  set -u
 fi
 
 if [[ -d "$GUIX_PROFILE/lib" ]]; then

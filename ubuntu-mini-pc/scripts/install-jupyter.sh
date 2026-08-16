@@ -7,8 +7,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 export GUIX_PROFILE="${HOME}/.guix-profile"
 if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
+  set +u
   # shellcheck disable=SC1091
   source "$GUIX_PROFILE/etc/profile"
+  set -u
 fi
 
 if ! command -v jupyter >/dev/null 2>&1; then

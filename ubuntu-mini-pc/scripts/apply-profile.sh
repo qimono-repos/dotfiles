@@ -15,8 +15,11 @@ echo "    This replaces ~/.guix-profile to match the file EXACTLY."
 guix package -m "$MANIFEST"
 
 export GUIX_PROFILE="${HOME}/.guix-profile"
+# Guix profile uses ${VAR:+:} $VAR; nounset (set -u) dies on first unset VAR.
+set +u
 # shellcheck disable=SC1091
 source "$GUIX_PROFILE/etc/profile"
+set -u
 
 echo
 echo "OK: profile applied"

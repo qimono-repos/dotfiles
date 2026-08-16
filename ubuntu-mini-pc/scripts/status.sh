@@ -8,8 +8,10 @@ warn() { printf '  %-42s WAIT  %s\n' "$1" "$2"; }
 
 export GUIX_PROFILE="${HOME}/.guix-profile"
 if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
+  set +u
   # shellcheck disable=SC1091
   source "$GUIX_PROFILE/etc/profile"
+  set -u
 fi
 
 echo "=== ubuntu-mini-pc status ($(hostname)) ==="

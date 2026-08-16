@@ -6,8 +6,10 @@ set -euo pipefail
 
 export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
 if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
+  set +u
   # shellcheck disable=SC1091
   source "$GUIX_PROFILE/etc/profile"
+  set -u
 fi
 
 SECRETS_DIR="${QIMONO_SECRETS_DIR:-$HOME/.secrets}"
