@@ -1,0 +1,11 @@
+# Machine pack: ubuntu-mini-pc
+# Sourced from ~/.zshrc when present (stow → ~/.zshrc.local).
+# Keep this file small; put most logic in ~/.zshrc.d/*.zsh
+
+if [[ -d "${HOME}/.zshrc.d" ]]; then
+  for _qimono_snippet in "${HOME}"/.zshrc.d/*.zsh(N); do
+    # shellcheck disable=SC1090
+    source "$_qimono_snippet"
+  done
+  unset _qimono_snippet
+fi

@@ -1,22 +1,78 @@
 # ubuntu-mini-pc
 
-**Status:** scaffold only (feedback 2026-08).
+Machine pack for **`qi-mini-pc-ubu-rr`** — the AMD desktop mini-PC in the
+Qimono / Ying-Yang fleet. This is a **quantum workstation** pack.
 
-Planned machine pack for the **AMD mini PC** that currently still shares some stow history with the archive tree `dotfiles/ubuntu/`.
+Yoga (`ubuntu-len-yog-AMD64`) and HP (`ubuntu-hp-pro`) are **references**.
+This tree is not a copy of either.
 
-## Intent
+| Field | Value |
+|-------|-------|
+| Host | `qi-mini-pc-ubu-rr` |
+| Hardware | AMD Ryzen 7 7730U + Radeon Vega 8, ~14.5 GiB RAM |
+| OS | Ubuntu 26.04 LTS (Resolute) |
+| Role | Qiskit / QML daily box |
+| Sibling refs | `ubuntu-len-yog-AMD64` (fullest pack), `ubuntu-hp-pro` (Jupyter 5005) |
 
-- Same **Ying-Yang Project 2026/2027** as `ubuntu-len-yog-AMD64`
-- Rewrite stow using lessons from the Yoga pack (`stow-source/`, Guix manifests, smoke tests)
-- Arch expected: **x86_64** (confirm on box before assuming substitutes)
+## Expected vs Actual
 
-## Do not
+Run the live probe any time:
 
-- Treat `dotfiles/ubuntu/` as this machine’s live product pack — it is a recopilation of many VPS/old hosts plus mini-PC residue.
+```bash
+./scripts/status.sh
+```
 
-## Next (when prioritized)
+Day-1 target (what “green” means):
 
-1. Capture `MACHINE.md` from the mini PC (`hostnamectl`, `lscpu`, disk).  
-2. Copy structure from `ubuntu-len-yog-AMD64/` (not blind copy of paths).  
-3. Share `guix/channels.scm` policy; per-machine manifests where needed.  
-4. **Day-zero host sysctl:** copy `host-sysctl/99-guix-userns.conf` + `scripts/install-host-sysctl.sh` from Yoga/HP packs — Ubuntu AppArmor vs Guix `bwrap` (Epiphany) will bite otherwise.
+| Check | Expected |
+|-------|----------|
+| Guix user profile | `python`, `uv`, `jupyter`, `emacs`, `stow`, `gcc-toolchain`, `zlib`, `openssl`, `pkg-config`, `glibc-locales` |
+| Developer `python3` | `~/.guix-profile/bin/python3` (Guix 3.11). Apt `/usr/bin/python3` stays for Ubuntu shebangs. |
+| `uv` | Guix `uv` first on PATH |
+| Jupyter UI | Guix `jupyter` on **127.0.0.1:5005** |
+| Config | `~/.jupyter/jupyter_notebook_config.py` (stow) |
+| Unit | `qimono-jupyter.service` enabled at user login |
+| Auth | `~/.secrets/jupyter_auth.py` (hash only, not git) |
+| Shared Qiskit | `~/source/repos/qimono-repos/quantum-workspace` using **Guix python** |
+
+## Day-one ritual
+
+```bash
+cd ~/source/repos/qimono-repos/dotfiles/ubuntu-mini-pc
+chmod +x scripts/*.sh
+./scripts/bootstrap.sh          # profile + stow + jupyter unit; STOPS before auth
+./scripts/setup-jupyter-auth.sh # YOU: password once
+./scripts/install-quantum-python.sh
+./scripts/status.sh
+```
+
+Then open **http://127.0.0.1:5005**.
+
+`guix package -m` **replaces** the user profile. The only safe manifest is
+[`guix/manifests/profile-full.scm`](./guix/manifests/profile-full.scm).
+If you `guix install` something extra, add it to that file before the next `-m`.
+
+## Layout
+
+```
+ubuntu-mini-pc/
+  README.md
+  MACHINE.md
+  docs/quantum.md
+  docs/python-path.md
+  docs/jupyter.md
+  guix/manifests/profile-full.scm
+  scripts/
+  stow-source/shell/          # .zshrc.local + .zshrc.d (no full .zshrc)
+  stow-source/jupyter/
+  QA/
+  tests/smoke-tests/
+```
+
+## What this pack will not do (day-1)
+
+- Uninstall apt `python3`
+- `uv python install 3.12` (second CPython)
+- Stow a replacement `~/.zshrc` (Kepler / Vega live there)
+- Guix browsers, Rust, Q#, PennyLane, snap removal
+- Create `qu/qiskit/.venv` — that waits until this chart is green

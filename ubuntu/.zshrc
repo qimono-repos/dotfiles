@@ -71,3 +71,6 @@ fi
 
 #Vega CLI
 source "/home/qi/vega/env"
+
+# Machine-pack snippets (ubuntu-mini-pc stow → ~/.zshrc.local → ~/.zshrc.d)
+[[ -r "${HOME}/.zshrc.local" ]] && source "${HOME}/.zshrc.local"

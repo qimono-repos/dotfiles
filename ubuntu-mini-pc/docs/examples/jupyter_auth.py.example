@@ -1,0 +1,16 @@
+# Example: copy to ~/.secrets/jupyter_auth.py (mode 600), never commit.
+#
+#   mkdir -p ~/.secrets && chmod 700 ~/.secrets
+#   # Prefer the helper (hashes interactively; does not store plaintext):
+#   ./scripts/setup-jupyter-auth.sh
+#
+# Manual template only — prefer setup-jupyter-auth.sh so you never paste a
+# plaintext password into a file yourself.
+
+# Hashed password only (argon2 / sha1 style string from notebook.auth.passwd)
+c.ServerApp.password = "argon2:REPLACE_WITH_HASH_FROM_setup-jupyter-auth.sh"
+c.NotebookApp.password = c.ServerApp.password
+
+# Once a password is set, disable the random token (stops journalctl leaks)
+c.ServerApp.token = ""
+c.NotebookApp.token = ""
