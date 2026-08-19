@@ -53,3 +53,25 @@ Copy the config and apply:
 sudo cp etc/vconsole.conf /etc/vconsole.conf
 sudo setfont Lat2-TerminusBold32x16
 ```
+
+## Emergency Reboot
+
+When the machine is hung and nothing else works:
+
+```bash
+too        # force reboot — no password, no confirmation, no graceful shutdown
+powerofff  # force poweroff — same guarantees
+```
+
+**These are opinionated procedures.** They skip graceful shutdown, ignore
+GNOME inhibitor locks, and will lose all unsaved work. That is intentional —
+the halting problem tells us you cannot always know when a machine is truly
+stuck, so the escape hatch must always work with zero friction.
+
+**Requires:** `sudo ./scripts/install-passwordless-power.sh` (run once).
+
+**When to use:** Display frozen, process in `D` state, compositor crashed,
+OOM thrashing, or any situation where the machine is not recoverable normally.
+
+**What you lose:** Unsaved buffers, open terminals, in-flight transactions.
+This is inevitable. See [README_TOO.md](README_TOO.md) for full rationale.
