@@ -57,7 +57,7 @@ The halting problem tells us: there is no algorithm that can always decide
 whether a running program will finish. When the answer is "it won't,"
 `too` is the only answer that always works.
 
-## Proposed: `too --info` (Diagnostic Before Destruction)
+## Proposal: `too --info` (Diagnostic Before Destruction)
 
 Before invoking the nuclear option, `too --info` reports what is stuck,
 writes it to disk, and then reboots:
@@ -113,7 +113,7 @@ journalctl -b -1 -p err          # kernel logs from the previous boot
 If the filesystem is too hung to write, the write silently fails and
 `too` reboots anyway. **The machine always moves forward.**
 
-### Future: SSH broadcast
+## Proposal: SSH broadcast
 
 When SSH server is configured, `too --info` could broadcast the halt-info
 to a known remote host before rebooting:
@@ -129,6 +129,51 @@ This requires:
 - The backup host must be reachable at the time of halt
 
 Until then, `/home/halt-info.txt` is the local record.
+
+## Proposal: Git emergency-save
+
+By convention, all git repos live in `~/source/repos/qimono-repos/`.
+Before rebooting, `too` could scan for uncommitted work and attempt to
+preserve it — best-effort, never blocking the reboot.
+
+**How it works:**
+
+1. Walk every subdirectory under `~/source/repos/qimono-repos/`
+2. Run `git status --porcelain` — if clean, skip
+3. If dirty, create branch `emergency-reboot-branch-yyyy-mm-dd-hh-MM`
+   - **No seconds** — intentional. Keeps branches minimally human-controllable,
+     prevents pollution of bot-made error-reset branches
+4. Stage all changes (`git add -A`), commit with message:
+   `emergency: uncommitted work before forced reboot`
+5. Attempt `git push origin <branch>` — if network is available
+6. If push fails (no network, no remote, auth broken), log the failure
+   and **continue the reboot anyway**
+
+**This is a nice to have, not a requirement.** The reboot always proceeds.
+The git save is a last attempt to send uncommitted work to origin — if it
+works, great; if not, the work was already considered lost by the nature
+of `too`.
+
+```zsh
+# Future proposal — not yet implemented
+REPOS_DIR="$HOME/source/repos/qimono-repos"
+BRANCH="emergency-reboot-branch-$(date +%Y-%m-%d-%H-%M)"
+
+for repo in "$REPOS_DIR"/*/; do
+  [[ -d "$repo/.git" ]] || continue
+  cd "$repo" || continue
+
+  if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+    echo "Dirty: $(basename "$repo")"
+    git checkout -b "$BRANCH" 2>/dev/null || continue
+    git add -A 2>/dev/null
+    git commit -m "emergency: uncommitted work before forced reboot" 2>/dev/null || continue
+    git push origin "$BRANCH" 2>/dev/null && \
+      echo "Pushed: $(basename "$repo")" || \
+      echo "Push failed: $(basename "$repo") (network or auth issue)"
+  fi
+done
+```
 
 ### Implementation sketch
 
