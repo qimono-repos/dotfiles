@@ -13,3 +13,4 @@
 {"ts": "2026-08-21T12:28:55", "model": "gemma4:e2b", "q": "how do I put 2 qbits entangled?", "pass": false, "latency_s": 96.6}
 {"ts": "2026-08-21T14:03:09", "model": "gemma4:e2b", "q": "how do I put 2 qbits in entanglement state?", "pass": false, "latency_s": 38.0}
 {"ts": "2026-08-21T14:04:05", "model": "gemma4:e2b", "q": "how do I put 1 qbit in superposition?", "pass": true, "latency_s": 33.0}
+{"ts": "2026-08-21T19:40:30", "model": "gemma4:e2b", "q": "How do I put a qubit in superposition?", "pass": true, "latency_s": 75.9}
