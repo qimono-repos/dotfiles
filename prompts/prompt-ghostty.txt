@@ -1,0 +1,102 @@
+ qi@qimono-localhost ~ guix search ghostty
+ qi@qimono-localhost ~ guix install flatpak
+guix install: warning: Your Guix installation is 18 days old.
+guix install: warning: Consider running 'guix pull' followed by
+'guix package -u' to get up-to-date packages and security updates.
+
+The following package will be upgraded:
+   flatpak 1.16.6 (dependencies or package changed)
+
+The following derivation will be built:
+  /gnu/store/fbxdbd9l6l1jn3rgvj5j949pcwbwkgcb-profile.drv
+
+building CA certificate bundle...
+
+listing Emacs sub-directories...
+building fonts directory...
+generating GdkPixbuf loaders cache...
+generating GLib schema cache...
+creating GTK+ icon theme cache...
+building cache files for GTK+ input methods...
+building directory of Info manuals...
+building TeX Live font maps...
+building XDG desktop file cache...
+building XDG MIME database...
+building profile with 24 packages...
+----
+
+now the prompt
+
+I want to install Ghostty on this Ubuntu + Guix machine.
+
+CURRENT STATE:
+- Ubuntu desktop.
+- StumpWM is already installed and working as an X11 session.
+- GNOME/Wayland remains installed and working.
+- Guix is my package manager for this experiment.
+- I just installed/updated Flatpak through Guix with:
+    guix install flatpak
+- I prefer NOT to run random downloaded binaries.
+- I prefer package-managed or sandboxed applications.
+- Ghostty is NOT available in the official Guix package repository, so use Flatpak/Flathub as the preferred workaround.
+- Do NOT compile Ghostty from source unless there is no reasonable alternative.
+- Do NOT use an AppImage unless Flatpak is impossible.
+- Do NOT manually download and execute a binary.
+- Do NOT use containers/Podman for Ghostty unless absolutely necessary; Ghostty needs normal desktop integration.
+
+GOAL:
+Install the Ghostty terminal emulator using Flatpak, with Flatpak itself already managed by Guix.
+
+DESIRED STACK:
+
+    Guix
+      ↓
+    Flatpak
+      ↓
+    Flathub
+      ↓
+    Ghostty
+
+IMPORTANT:
+- Keep GNOME and StumpWM untouched.
+- Do not change my default desktop session.
+- Do not modify my login manager.
+- Do not remove any existing terminal emulator.
+- Ghostty should simply become another available terminal.
+- Make sure Ghostty integrates with the graphical desktop and can be launched from the application menu.
+- If StumpWM needs anything special to launch Ghostty, explain it, but don't modify my StumpWM configuration automatically.
+
+WORKFLOW:
+1. First check that Flatpak works:
+       flatpak --version
+
+2. Check whether Flathub is already configured:
+       flatpak remotes
+
+3. If Flathub is missing, add the official Flathub remote:
+       flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+4. Search Flathub for Ghostty:
+       flatpak search ghostty
+
+5. Identify the official/current Ghostty Flatpak application ID.
+
+6. Before installing, show me the exact package/application ID you intend to install.
+
+7. Install Ghostty through Flatpak.
+
+8. Verify the installation with:
+       flatpak list | grep -i ghostty
+
+9. Launch Ghostty once and verify that it works.
+
+IMPORTANT SAFETY RULE:
+Do this incrementally. Do NOT blindly execute the whole procedure.
+
+Start by checking:
+
+    flatpak --version
+    flatpak remotes
+    flatpak search ghostty
+
+Then show me the results and tell me the exact Ghostty package you recommend before installing it.
