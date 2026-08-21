@@ -1,0 +1,11 @@
+# Stow: shell → ~/.config/autostart/60-startup.desktop
+# Single entry point at login: launches Ghostty (in the dotfiles repo),
+# Firefox (Guix), and Alpaca via scripts/startup-login.sh (guarded, capped logs).
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Startup shell fragment
+Comment=Launch Ghostty, Firefox, and Alpaca at login
+Exec=/home/qi/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-AMD64/scripts/startup-login.sh
+Terminal=false
+X-GNOME-Autostart-enabled=true
