@@ -113,3 +113,16 @@ sysctl kernel.apparmor_restrict_unprivileged_userns   # 0
 - Guix python/uv: see Yoga pack manifests  
 - .NET: host Microsoft packages or docs in `ubuntu-len-yog-AMD64/docs/quantum-host-dotnet-rust.md`  
 - Full profile: copy/adapt `profile-full.scm` once `which guix` is `…/current/bin/guix`
+
+## Local LLM (offline, fleet standard)
+
+Ollama + **`gemma4:e2b`** — install/probe with the shared tool (idempotent,
+skips whatever is already present; mini-pc already has Ollama):
+
+```bash
+~/source/repos/qimono-repos/dotfiles/llm/install-ollama-stack.sh --dry-run
+~/source/repos/qimono-repos/dotfiles/llm/install-ollama-stack.sh --smoke
+```
+
+Sizing table vs this machine's RAM and measured results:
+[`../llm/docs/local-llm.md`](../llm/docs/local-llm.md)

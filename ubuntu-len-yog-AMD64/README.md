@@ -169,6 +169,23 @@ Smoke tests: `tests/smoke-tests/` · full notes: [docs/quantum-computing.md](./d
 
 ---
 
+## Local LLM (offline)
+
+Fleet standard: **Ollama + `gemma4:e2b`** — installed here 2026-08-21
+(measured: ~26–29 tok/s CPU; **close Chrome before loading** or the loader
+gets OOM-killed on this 6.5 GiB box).
+
+Install/probe/smoke from the shared tool:
+
+```bash
+~/source/repos/qimono-repos/dotfiles/llm/install-ollama-stack.sh --dry-run
+```
+
+Full sizing table, measurements, and run/unload commands:
+[`../llm/docs/local-llm.md`](../llm/docs/local-llm.md)
+
+---
+
 ## Related locations and files
 
 | Path | Meaning |

@@ -143,6 +143,26 @@ else
   warn "alpaca host shim" "stow ~/.local/bin/alpaca"
 fi
 
+# --- Local LLM stack (fleet standard: ollama + gemma4:e2b, see llm/docs/local-llm.md) ---
+OLLAMA_MODEL="${OLLAMA_MODEL:-gemma4:e2b}"
+
+OL="$(command -v ollama 2>/dev/null || true)"
+if [[ -n "$OL" ]]; then
+  ok "ollama binary" "$OL ($($OL --version 2>&1 | head -1))"
+  if systemctl is-active ollama.service >/dev/null 2>&1; then
+    ok "ollama.service" "active"
+  else
+    bad "ollama.service" "$(systemctl is-active ollama.service 2>/dev/null || echo 'no unit file')"
+  fi
+  if $OL list 2>/dev/null | awk '{print $1}' | grep -qx -- "$OLLAMA_MODEL"; then
+    ok "model ${OLLAMA_MODEL}" "pulled"
+  else
+    warn "model ${OLLAMA_MODEL}" "not pulled — see dotfiles/llm/install-ollama-stack.sh"
+  fi
+else
+  bad "ollama binary" "not installed — see dotfiles/llm/install-ollama-stack.sh"
+fi
+
 echo
 if [[ -f "$HOME/.secrets/jupyter_auth.py" ]]; then
   echo "Open http://127.0.0.1:5005 (password login; hash in ~/.secrets)."

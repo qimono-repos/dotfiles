@@ -66,6 +66,7 @@ ls -l /dev/kvm 2>/dev/null || echo "install qemu-kvm; add user to kvm"
 | Editors | VS Code (`code`), Guix emacs 30.2, Guix neovim 0.11.5, PyCharm snap |
 | JS | Bun 1.3.x in `~/.bun`; system `node`/`npm` not on PATH |
 | Extra SDKs | Amazon Vega / Kepler under `~/vega` |
+| Local LLM | **Ollama 0.32.15** (`/usr/local/bin/ollama`), service enabled+boot; model **`gemma4:e2b`** pulled 2026-08-21 — fleet standard, see `../llm/docs/local-llm.md` |
 | User | `qi` (uid 1000), sudo group |
 
 ### Required host sysctl (Guix sandboxes)
