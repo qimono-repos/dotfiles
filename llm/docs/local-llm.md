@@ -49,6 +49,60 @@ ollama stop gemma4:e2b       # unload immediately; frees RAM
                              # (auto-unloads ~5 min after last use otherwise)
 ```
 
+## Harness: `gemma.py` (2026-08-21)
+
+Raw `ollama run` is the low-level path. The fleet-standard way to *use* the
+model is the deterministic harness in this folder
+(**Agent = Model + Harness**: gemma only writes text; the harness does all
+control flow). Built after `gemma-4-prompts.txt` showed e2b failing agentic
+tool loops (hallucinated `pennylane.jl`, "please provide a task" drift)
+while passing direct Q&A.
+
+```bash
+./gemma.py doctor                              # probe whole stack
+./gemma.py ask "how do I put a qubit in superposition?"
+./gemma.py search "bell state"                 # retrieval preview, no model call
+./gemma.py verify snippet.py                   # quality-gate any python file
+./gemma.py eval                                # regression suite, 7 prompts
+./gemma.py chat                                # REPL with auto-compaction
+```
+
+Architecture (all stdlib-only):
+
+| Piece | Role |
+|-------|------|
+| `skills/*.md` | curated knowledge packs (quantum/python/qiskit basics) |
+| `corpus/` | scraped docs: Qiskit course ch.1 + guides + PennyLane intro (`tools/scrape_docs.py`, run online) |
+| `index/corpus.db` | SQLite FTS5 keyword index, 224 KiB — zero model RAM; rebuild with `./gemma.py index` |
+| `modelfile/GemmaQ` | system prompt injected per-call via API (no derived model copy) |
+| `.venv/` | uv venv with qiskit + qiskit-aer used by the verification gate |
+| `mcp/gemma-tools-server.py` | stdio MCP server (docs_search / run_snippet / get_skill) for big-model clients like opencode — **not** for e2b itself |
+| `eval/prompts.txt` | regression suite incl. the two originally-failing prompts |
+
+Generation is schema-constrained (`format={"answer","code"}`, temperature
+0.2, seed 7); generated snippets execute in `.venv` and failures feed the
+traceback back for at most 2 repairs.
+
+Measured first run (Yoga, CPU): 7/7 eval PASS; latency 34–53 s per prompt;
+3 of 4 code answers executed clean (VERIFIED ✓).
+
+Known minor issues:
+
+- Rare JSON-escape leak when the model double-wraps its JSON (eval prompt 7);
+  answer still parses as PASS but displays raw. Cosmetic.
+- RAM guard refuses to start under 3 GiB free, but continues if the model is
+  already resident (`/api/ps`) — keepalive keeps it loaded ~5 min.
+- Offline rebuilds are impossible by design: refresh corpus while online
+  (`tools/scrape_docs.py && ./gemma.py index`), then go offline.
+
+## Usage
+
+```bash
+ollama run gemma4:e2b        # interactive chat (loads model into RAM)
+ollama stop gemma4:e2b       # unload immediately; frees RAM
+                             # (auto-unloads ~5 min after last use otherwise)
+```
+
 CPU-only expectation on fleet AMD laptops: roughly 8–15 tokens/s class.
 No CUDA in fleet; ROCm iGPU support is not assumed.
 

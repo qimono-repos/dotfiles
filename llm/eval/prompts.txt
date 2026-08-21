@@ -1,0 +1,11 @@
+# gemma harness regression suite — one prompt per line, '#' comments out.
+# Lines 1-2 are the prompts that FAILED in the raw-agent transcript
+# (dotfiles/llm/gemma-4-prompts.txt); they must PASS through the harness.
+
+what is the python pennylane library?
+what is the python qiskit library?
+how do I install python qiskit library with pip?
+how do I put a qbit in superposition with python qiskit?
+show a complete Bell state example in qiskit and print the counts
+what does the Hadamard gate do?
+how do I simulate a circuit with AerSimulator in qiskit 1.x?
