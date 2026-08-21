@@ -7,17 +7,23 @@ if [[ -d "$HOME/.config/guix/current/bin" ]]; then
   path=("$HOME/.config/guix/current/bin" $path)
   export PATH
 fi
-if [[ -r "$HOME/.config/guix/current/etc/profile" ]]; then
-  # shellcheck disable=SC1091
-  source "$HOME/.config/guix/current/etc/profile"
-fi
 
 # 2) user packages (epiphany, firefox, uv, stow, …)
 export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
 
-if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
-  # shellcheck disable=SC1091
-  source "$GUIX_PROFILE/etc/profile"
+# Profile files are sourced ONLY outside a project `guix shell`: inside one,
+# the project profile must stay first on PATH. NB: current/etc/profile
+# prepends "${GUIX_PROFILE}/bin" — with the inherited GUIX_PROFILE value it
+# would silently re-add the default profile ahead of the project's python3.
+if [[ -z "${GUIX_ENVIRONMENT:-}" ]]; then
+  if [[ -r "$HOME/.config/guix/current/etc/profile" ]]; then
+    # shellcheck disable=SC1091
+    source "$HOME/.config/guix/current/etc/profile"
+  fi
+  if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
+    # shellcheck disable=SC1091
+    source "$GUIX_PROFILE/etc/profile"
+  fi
 fi
 
 # Desktop apps (GNOME app grid)
