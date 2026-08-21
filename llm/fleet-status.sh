@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# AMSTERPLAN fleet probe — is every node's Ollama reachable over Tailscale?
+# RAMageddon fleet probe — is every node's Ollama reachable over Tailscale?
 #
 # Usage:
 #   ./fleet-status.sh                     # probe the default known nodes
@@ -7,7 +7,7 @@
 #   FLEET_PORT=11434 ./fleet-status.sh    # override port
 #
 # A node answers UP only if its Ollama API is exposed beyond 127.0.0.1
-# (see llm/AMSTERPLAN.md "Exposing Ollama to the tailnet").
+# (see llm/RAMageddon.md "Exposing Ollama to the tailnet").
 
 set -uo pipefail
 
@@ -35,5 +35,5 @@ for host in ${FLEET_HOSTS}; do
 done
 
 echo
-(( FAIL )) && echo "hint: missing nodes need tailscale up + the OLLAMA_HOST drop-in (AMSTERPLAN P1/P2)" >&2
+(( FAIL )) && echo "hint: missing nodes need tailscale up + the OLLAMA_HOST drop-in (RAMageddon P1/P2)" >&2
 exit "$FAIL"

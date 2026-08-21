@@ -1,4 +1,4 @@
-# AMSTERPLAN — five small brains instead of one big upgrade
+# RAMageddon — five small brains instead of one big upgrade
 
 > Strategy against the 2026 memory crisis ("RAMageddon"): DRAM contract prices
 > rose 90–95% QoQ in Q1 2026 (TrendForce) and AI datacenters now consume ~70%
