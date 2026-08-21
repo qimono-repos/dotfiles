@@ -1,0 +1,48 @@
+I want to install and experiment with StumpWM on this Ubuntu machine.
+
+IMPORTANT CONTEXT:
+- I currently use the default Ubuntu GNOME Wayland session.
+- I want to KEEP my existing GNOME/Wayland setup intact and reversible.
+- I do NOT want to replace GNOME or modify my current default session permanently.
+- I want StumpWM available as an additional login/session option.
+- After installation, I expect to log out of GNOME, select "StumpWM" from the login screen/session selector, and log in to a StumpWM X11 session.
+- I am specifically interested in StumpWM because it is a Common Lisp window manager and its configuration is actual Common Lisp.
+- I am NOT trying to use Guix for this. This machine is Ubuntu and I want the Ubuntu-native installation first.
+- I already have Ghostty installed and like it. Keep Ghostty as my terminal emulator.
+- Do not install Emacs or replace my shell/editor. This experiment is specifically about StumpWM.
+- I am comfortable with Linux and development tools, but for this installation phase I want a simple, safe, incremental procedure.
+
+GOAL:
+1. Determine my Ubuntu version and current display/login manager.
+2. Check whether StumpWM is available through apt.
+3. Install StumpWM and only the necessary dependencies.
+4. Verify that an X11 StumpWM session entry exists for the login screen.
+5. Do NOT switch my default session automatically.
+6. Do NOT remove GNOME, GNOME Shell, Wayland, or any existing desktop packages.
+7. Create a minimal StumpWM configuration if needed.
+8. Make sure I can log out and select StumpWM from the graphical login/session selector.
+9. Explain exactly how to switch back to my normal GNOME Wayland session.
+10. After installation, give me a tiny first ~/.stumpwmrc or ~/.config/stumpwm configuration whose only purpose is to prove that the Lisp configuration works.
+
+SAFETY:
+- Before changing anything, inspect the current system.
+- Prefer apt packages over compiling from source.
+- Do not manually modify glibc, Xorg, system libraries, or the display manager unless absolutely necessary.
+- Do not disable Wayland globally.
+- Do not replace the login manager.
+- Do not modify my existing GNOME configuration.
+- If something is uncertain, STOP and show me the command/output you need rather than guessing.
+- Work incrementally: give me a small number of commands, let me execute them, then inspect the result before proceeding.
+
+FIRST STEP:
+Do NOT install anything yet.
+
+First inspect:
+- Ubuntu version
+- desktop environment
+- session type (Wayland/X11)
+- display/login manager
+- whether StumpWM is available through apt
+- whether an X11 session directory exists
+
+Then tell me what you found and propose the minimal installation command.
