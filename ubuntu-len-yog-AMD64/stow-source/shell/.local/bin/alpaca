@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Host shim. Flatpak keeps the real `alpaca` binary inside the sandbox.
+# Snap used to plant /snap/bin/alpaca; we do not.
+set -euo pipefail
+
+if [[ -x /usr/bin/bwrap ]]; then
+  export FLATPAK_BWRAP="${FLATPAK_BWRAP:-/usr/bin/bwrap}"
+fi
+
+FP="${HOME}/.guix-profile/bin/flatpak"
+if [[ ! -x "$FP" ]]; then
+  echo "error: Guix flatpak missing at $FP (apply profile-full.scm)" >&2
+  exit 127
+fi
+
+# Same idea as ubuntu-hp-pro /tmp/firefox-log.txt: keep the terminal clean.
+# Override: ALPACA_LOG=- alpaca    (stay on the tty)
+#           ALPACA_LOG=/tmp/other.log alpaca
+LOG="${ALPACA_LOG:-/tmp/alpaca-log.txt}"
+if [[ "$LOG" == "-" ]]; then
+  exec "$FP" --user run com.jeffser.Alpaca "$@"
+fi
+if [[ -f "$LOG" ]]; then
+  tail -n 1000 "$LOG" >"$LOG.tmp" 2>/dev/null && mv "$LOG.tmp" "$LOG"
+fi
+exec "$FP" --user run com.jeffser.Alpaca "$@" >>"$LOG" 2>&1
