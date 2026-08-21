@@ -49,6 +49,42 @@ flatpak --user install -y https://adonm.github.io/ghostty-flatpak/ghostty.flatpa
    `.config/environment.d/10-qimono-flatpak.conf`). This host already has
    `apparmor_restrict_unprivileged_userns=0` persisted, and client ops worked
    without it — kept anyway for fleet parity.
+5. **D-Bus activation gap (2026-08-21)**: Guix owns the client, so its helper
+   daemons live in `$GUIX_PROFILE/share/dbus-1/services/` — invisible to the
+   systemd user bus (`XDG_DATA_DIRS` there lacks the Guix profile; 10-guix.zsh
+   only fixes interactive shells). Sandboxed terminals die instantly:
+   `Flatpak.HostCommand failed … ServiceUnknown → error.FlatpakSpawnFail`
+   (GNOME tile "does nothing"; also NO `ghostty` on PATH — Flatpak apps ship
+   no binary). Fix, all idempotent via `stow-apply.sh`:
+   - `scripts/link-flatpak-host-services.sh` writes activation files to
+     `~/.local/share/dbus-1/services/` pointing at stable
+     `~/.guix-profile/libexec/flatpak-{session-helper,portal}` symlinks.
+     dbus hot-reloads the dir — no logout needed (verified live).
+   - `stow-source/shell/.local/bin/ghostty` shim (alpaca pattern) for CLI use.
+   - Config `command` runs **ON THE HOST** already (the build spawns it via
+     the portal: "started subcommand on host via flatpak API"). So use a
+     plain absolute path: `command = /usr/bin/zsh -l`. Do NOT wrap in
+     `flatpak-spawn --host` — that binary exists only inside runtimes, so
+     the host-side `/bin/sh -c` fails (`flatpak-spawn: not found`), ghostty
+     falls back to a login `/bin/sh`, and dash then chokes on any
+     `source` in `~/.profile` (`/bin/sh: 31: source: not found`). Absolute
+     path matters because activation env may carry a minimal PATH.
+     Probe: `pgrep -fa 'zsh -l'` must show the shell under the app scope.
+   - **GNOME clicks use D-Bus activation, never Exec** (desktop file has
+     `DBusActivatable=true`): Shell asks the bus for name `com.mitchellh.ghostty`,
+     and if no activation file is visible it fails SILENTLY ("tile does
+     nothing") while direct `flatpak run` works fine — classic misleading
+     symptom. Flatpak exports the needed file under
+     `exports/share/dbus-1/services/`, which the bus also can't scan.
+     `link-flatpak-host-services.sh` therefore symlinks ALL exported app
+     service files into `~/.local/share/dbus-1/services/` (through stable
+     `current/active` paths so they survive app updates). New files may need
+     `systemctl --user reload dbus` (or relogin) to become activatable;
+     verify with `gdbus call --session --dest org.freedesktop.DBus \
+     --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.ListActivatableNames`.
+     Click-path probe without GNOME: `gtk-launch com.mitchellh.ghostty`.
+   Fleet note: mini-pc will hit this too if it ever installs a terminal-emulator
+   Flatpak; plain GUI apps (Alpaca) never need HostCommand and are unaffected.
 
 ## Ops
 

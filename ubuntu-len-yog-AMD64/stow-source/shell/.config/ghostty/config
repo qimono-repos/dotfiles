@@ -14,14 +14,19 @@ font-thicken = true
 # ── Theme & Colors ────────────────────────────────────
 theme = Catppuccin Mocha
 background-opacity = 0.95
-background-blur-radius = 20
+background-blur = 20
 
 # ── Cursor ────────────────────────────────────────────
 cursor-style = bar
 cursor-style-blink = true
 
 # ── Shell ─────────────────────────────────────────────
-command = /usr/bin/zsh
+# The flatpak build executes `command` ON THE HOST already (spawn portal,
+# "subcommand on host via flatpak API") — no flatpak-spawn wrapper wanted
+# (that binary only exists inside runtimes; wrapping breaks host exec and
+# ghostty then falls back to a login /bin/sh, which trips on ~/.profile).
+# Absolute path: the spawned sh may run with a minimal PATH.
+command = /usr/bin/zsh -l
 
 # ── Window ────────────────────────────────────────────
 window-padding-x = 8
