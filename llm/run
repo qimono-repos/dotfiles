@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Quantum sandbox runner: Guix libs on LD_LIBRARY_PATH so wheels
+# (NumPy, Qiskit Aer, PennyLane) can load libz / libstdc++.
+#
+# Examples:
+#   ./run python                # >>> REPL with qiskit + pennylane
+#   ./run python snippet.py     # run an LLM-generated snippet
+set -euo pipefail
+cd "$(dirname "$0")"
+
+# Never let uv swap .venv to its own CPython (segfaults under Guix libs).
+export UV_PYTHON_PREFERENCE=only-system
+export UV_PYTHON_DOWNLOADS=never
+
+export LD_LIBRARY_PATH="${GUIX_PROFILE:-$HOME/.guix-profile}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec uv run "$@"
