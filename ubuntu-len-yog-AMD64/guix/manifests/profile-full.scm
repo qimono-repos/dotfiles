@@ -33,11 +33,12 @@
   "uv"
   "jupyter"
 
-  ;; Locales / small libs
-  "glibc-locales"
-  "pkg-config"
-  "openssl"
-  "zlib"
+   ;; Locales / small libs
+   "glibc-locales"
+   "pkg-config"
+   "openssl"
+   "zlib"
+   "tree-sitter"
 
   ;; Rust (quantum-host)
   "rust"
@@ -45,6 +46,10 @@
 
   ;; Phone as laptop extension
   "kdeconnect"
+
+  ;; Desktop escape hatch — Guix-owned *client* only; apps from Flathub
+  ;; user remotes (e.g. ghostty). See ubuntu-mini-pc/docs/flatpak-guix.md.
+  "flatpak"
 
   ;; Browsers — FIRST TRY use scripts/setup-guix-browsers-first-try.sh
   ;; Prerequisites (once per machine):
