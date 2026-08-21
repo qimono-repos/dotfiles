@@ -27,6 +27,14 @@ NOT fontconfig/GUI fonts. GUI font tools are irrelevant here.
 | `/etc/vconsole.conf` | `systemd-vconsole-setup` at boot | ✅ use this |
 | `/etc/default/console-setup` | legacy `setupcon`/console-setup.sh (`FONTFACE`/`FONTSIZE`) | leave defaults |
 
+**Ubuntu foreign-distro reality check (2026-08-21, Yoga):** Ubuntu 26.04
+ships **no `systemd-vconsole-setup` unit** — `console-setup.service`
+(`setupcon`, reading `/etc/default/console-setup`) owns the boot font and
+will revert to stock every boot. `vconsole.conf` alone is decorative
+there; the installer must sync BOTH files (`FONT="…"` in console-setup,
+which wins over `FONTFACE`/`FONTSIZE`). Verify with:
+`systemctl list-unit-files | grep -E 'vconsole|console-setup'`.
+
 Minimal working `vconsole.conf`:
 
 ```
@@ -83,4 +91,4 @@ back to session. Full proof lands at next boot.
 | Node | Panel | Status |
 |---|---|---|
 | mini-pc | 1920×1080 | done — TerminusBold32x16 |
-| Yoga (localhost) | 1920×1200 | pending — still stock `Fixed 8x16` (microscopic); fonts already on disk |
+| Yoga (localhost) | 1920×1200 | done 2026-08-21 — TerminusBold32x16, persisted via vconsole.conf + synced console-setup (Ubuntu has no systemd-vconsole-setup unit) |

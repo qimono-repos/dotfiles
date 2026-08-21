@@ -66,10 +66,28 @@ else
   echo "NOTE: setfont skipped (running from GUI is expected); takes effect at boot/VT switch"
 fi
 
-# Restart systemd-vconsole-setup if available
+# Restart systemd-vconsole-setup if available (Guix System / other distros)
 if systemctl list-unit-files | grep -q systemd-vconsole-setup; then
   systemctl restart systemd-vconsole-setup 2>/dev/null || true
   echo "--> Restarted systemd-vconsole-setup"
+fi
+
+# Ubuntu persistence trap (2026-08-21): this distro ships NO
+# systemd-vconsole-setup unit — console-setup.service (setupcon) owns the
+# boot-time font via /etc/default/console-setup and would revert us to
+# Fixed 8x16 every boot. Keep both files agreeing on the same font.
+CS_DST="/etc/default/console-setup"
+if [[ -f "$CS_DST" ]]; then
+  cp -n "$CS_DST" "$CS_DST.bak" || true
+  if grep -q '^FONT=' "$CS_DST"; then
+    sed -i "s|^FONT=.*|FONT=\"$FONT\"|" "$CS_DST"
+  else
+    printf '\n# qimono fleet: keep in sync with /etc/vconsole.conf\nFONT="%s"\n' "$FONT" >> "$CS_DST"
+  fi
+  # FONT= wins over FONTFACE/FONTSIZE, but comment them out so nothing
+  # disagrees later.
+  sed -i 's/^FONTFACE=/#FONTFACE=/; s/^FONTSIZE=/#FONTSIZE=/' "$CS_DST"
+  echo "--> Synced $CS_DST (console-setup.service applies $FONT at boot)"
 fi
 
 echo "Done. Font takes effect on next TTY login or reboot."
