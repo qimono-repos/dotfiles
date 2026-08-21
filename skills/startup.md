@@ -68,6 +68,26 @@ the desktop file itself.
 | Tool-session timeouts | SIGKILL process group → use setsid for detached tests |
 | Scope-table checks | flatpak argv invisible to host pgrep; trust systemd units |
 
+## SSH agent on every session type (GUI + bare-metal TTY)
+
+`ssh-agent` (key holder for outgoing git pushes) is NOT `sshd` — that
+server daemon is separate and always on. Fleet wiring, Yoga pattern:
+
+- `ssh-agent.socket` (systemd --user, enabled) listens on
+  `/run/user/$UID/openssh_agent` in **every** session type; its
+  ExecStartPost exports `SSH_AUTH_SOCK` manager-wide.
+- **Trap:** GNOME's `gcr-ssh-agent.socket` overwrites the manager-wide
+  `SSH_AUTH_SOCK` at graphical login with `/run/user/$UID/gcr/ssh`, a path
+  that only exists inside the GUI session. TTY shells then inherit a dead
+  socket → "Could not open a connection to your authentication agent".
+- Fix: `.zshrc.d/25-ssh-agent.zsh` re-pins every shell to `openssh_agent`
+  whenever it exists. Deterministic > whichever agent won the race.
+- Non-default key names are invisible to ssh without config: stow
+  `.ssh/config` mapping `Host github.com → IdentityFile …/id_ed_key…`,
+  `IdentitiesOnly yes`.
+- Verify from a TTY: `zsh -ic 'echo $SSH_AUTH_SOCK; ssh-add -l'` then
+  `ssh -T git@github.com` (rc=1 + "Hi <user>!" = success).
+
 ## Reference implementations
 
 - `ubuntu-len-yog-AMD64/scripts/startup-login.sh` (ghostty + firefox + alpaca)

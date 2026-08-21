@@ -40,9 +40,16 @@ Installing or debugging ANY Flatpak app on a foreign-distro machine
    binary exists only inside runtimes; wrapping breaks host exec and ghostty
    falls back to login `/bin/sh`, which trips on `source` in `~/.profile`.
 7. **bwrap must be the Ubuntu one:** `FLATPAK_BWRAP=/usr/bin/bwrap`
-   (AppArmor blesses only that path on this host; set via
+    (AppArmor blesses only that path on this host; set via
    `.config/environment.d/10-qimono-flatpak.conf`). Session-level env belongs
    in environment.d — the user manager never reads zshrc.
+   **TRAP:** `${XDG_DATA_DIRS}` (or any pam/gnome-session-provided var)
+   expands to EMPTY inside environment.d — the user manager starts before
+   anything populates it. An "append" is really replace-and-wipe; wiping
+   `/usr/share` kills GSettings schema lookup and GNOME sessions abort on
+   login ("No GSettings schemas are installed on the system", 2026-08-21
+   Yoga login loop). environment.d values must be ABSOLUTE and
+   self-contained.
 8. **New D-Bus service files may need** `systemctl --user reload dbus`
    (or relogin) before they become activatable.
 
@@ -81,6 +88,7 @@ systemctl --user list-units 'app-flatpak*' --no-legend   # scope stays 'running'
 | Shell falls back to plain `sh` prompt inside terminal emulator | command path not found by spawned sh | absolute path, law 6 |
 | "directories not in XDG_DATA_DIRS" note every login shell | session env lacks exports dirs | environment.d entry (law 7) |
 | `ldconfig` exit 256 / bwrap exec denied | store-path bwrap blocked by AppArmor | law 7 |
+| GDM accepts password then loops back; journal: `gnome-session-manager … No GSettings schemas … core-dump` | environment.d "appended" to empty `${XDG_DATA_DIRS}`, wiping `/usr/share` | law 7 trap — hardcode absolute list |
 
 ## Debug toolkit
 
