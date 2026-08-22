@@ -1,0 +1,43 @@
+# Ghostty terminal config — hp-pro (ubuntu-hp-pro)
+# Ported from ubuntu-len-yog-AMD64 pack (2026-08-22); filename fixed to `config`
+# (ghostty reads ~/.config/ghostty/config, NOT config.ghostty).
+# Theme: Catppuccin Mocha | Font: CaskaydiaCove Nerd Font
+
+# ── Font ──────────────────────────────────────────────
+font-family = CaskaydiaCove Nerd Font
+font-family-bold = CaskaydiaCove Nerd Font Bold
+font-family-italic = CaskaydiaCove Nerd Font Italic
+font-family-bold-italic = CaskaydiaCove Nerd Font Bold Italic
+font-size = 14
+font-thicken = true
+
+# ── Theme & Colors ────────────────────────────────────
+theme = Catppuccin Mocha
+background-opacity = 0.95
+background-blur = 20
+
+# ── Cursor ────────────────────────────────────────────
+cursor-style = bar
+cursor-style-blink = true
+
+# ── Shell ─────────────────────────────────────────────
+# The flatpak build executes `command` ON THE HOST already (spawn portal,
+# "subcommand on host via flatpak API") — no flatpak-spawn wrapper wanted
+# (that binary only exists inside runtimes; wrapping breaks host exec and
+# ghostty then falls back to a login /bin/sh, which trips on ~/.profile).
+# Absolute path: the spawned sh may run with a minimal PATH.
+command = /usr/bin/zsh -l
+
+# ── Window ────────────────────────────────────────────
+window-padding-x = 8
+window-padding-y = 4
+window-decoration = auto
+window-save-state = always
+confirm-close-surface = false
+
+# ── Keybindings ───────────────────────────────────────
+keybind = ctrl+shift+t=new_tab
+keybind = ctrl+shift+w=close_surface
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+zero=reset_font_size

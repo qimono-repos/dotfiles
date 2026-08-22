@@ -1,0 +1,192 @@
+{
+  "$schema_note": "Session plan for porting ubuntu-len-yog-AMD64 (reference pack) onto this HP ProBook. Companion docs: README.md, CONFIDENCE.md, MACHINE.md, QA/. Fleet laws: never apply a partial `guix package -m` manifest; no false victory before reboot QA; agent cannot sudo.",
+  "session": {
+    "date": "2026-08-22",
+    "goal": "Apply the best settings, programs, and workflows learned on the Lenovo Yoga (ubuntu-len-yog-AMD64) to this machine — full parity",
+    "machine": "ubuntu-hp-pro",
+    "hostname_caveat": "Static hostname is 'qimono-localhost' which docs assign to the Yoga SSH server; ssh qimono-localhost from here resolves to itself until renamed",
+    "decisions": [
+      { "topic": "Guix package scope", "choice": "Full parity incl. rust+cargo, kdeconnect, flatpak" },
+      { "topic": "Autostart apps", "choice": "Keep Firefox+Ptyxis+VSCodium AND port Ghostty (unofficial adonm flatpak + D-Bus wiring)" },
+      { "topic": "Local LLM", "choice": "gemma4:e2b (fleet standard); 30 GiB RAM allows e4b/12b later" }
+    ]
+  },
+  "phases": [
+    {
+      "name": "Phase 1 — pack updates (agent, no sudo)",
+      "status": "done",
+      "tasks": [
+        {
+          "id": "P1.1",
+          "task": "Extend guix/profile-manifest.scm to full Yoga parity (neovim, emacs, git, ripgrep, fd, fzf, tree, htop, openjdk, stow, python, uv, glibc-locales, pkg-config, openssl, zlib, tree-sitter, rust+cargo, kdeconnect, flatpak) while keeping hp-pro-specific vscodium-fixed",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.2",
+          "task": "Port shell snippets into stow-source/shell/.zshrc.d/: 22-uv-python.zsh (Python-policy guard; renumbered from Yoga's 20- to avoid clash with this pack's 20-aliases), 25-ssh-agent.zsh (gcr socket trap), 30-dotnet-quantum.zsh, 35-flatpak.zsh (FLATPAK_BWRAP)",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.3",
+          "task": "Port stow-source/shell/.config/environment.d/10-qimono-flatpak.conf (absolute self-contained XDG_DATA_DIRS — GDM login-loop trap) and zprofile-guix-snippet.zsh reference",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.4",
+          "task": "Fix live ~/.zshrc.local duplicated loader block (was sourced twice)",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.5",
+          "task": "Fix live ~/.zprofile literal '$MARKER' artifact; canonicalized with Guix PATH + ~/.local/bin blocks",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.6",
+          "task": "Port Ghostty infra: .config/ghostty/config (Catppuccin Mocha, host-side /usr/bin/zsh -l command), .local/bin/ghostty CLI shim, scripts/link-flatpak-exports.sh, link-flatpak-host-services.sh, link-ghostty-appdir.sh",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.7",
+          "task": "Port TTY console font: etc/vconsole.conf (Lat2-TerminusBold32x16) + scripts/install-vconsole.sh (Ubuntu console-setup persistence trap handled)",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.8",
+          "task": "Write MACHINE.md hardware snapshot (i7-1255U, 30 GiB RAM + 24G swap, Iris Xe, WD Green SN350 1TB, VT-x/kvm present, Ubuntu 26.04)",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.9",
+          "task": "Update scripts/stow-apply.sh to wire the three flatpak/ghostty link scripts after restow",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P1.10",
+          "task": "Correct llm/docs/local-llm.md sizing table: hp-pro column assumed small RAM ('tight/no'); live capture shows 30 GiB — e2b/e4b/12b all OK here",
+          "owner": "agent",
+          "status": "done"
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 — live apply (agent, no sudo)",
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "P2.1",
+          "task": "Apply extended manifest: guix package -m guix/profile-manifest.scm --substitute-urls='nonguix bordeaux ci'",
+          "owner": "agent",
+          "status": "in_progress",
+          "notes": "First attempt killed by tool-session timeout mid-download -> corrupt substitute leftovers in /gnu/store (libgccjit, llvm, possibly more); each retry clears one. Automated retry loop running (8 attempts). LESSON: run long guix transactions via setsid nohup detached, never under a killable timeout."
+        },
+        {
+          "id": "P2.2",
+          "task": "Run ./scripts/stow-apply.sh once stow is installed by P2.1 (proper symlinks for new snippets, environment.d, ghostty shim/config)",
+          "owner": "agent",
+          "status": "pending"
+        },
+        {
+          "id": "P2.3",
+          "task": "Verify shell guards in fresh zsh: python3 refusal message, rg/fd/fzf/htop present, GUIX_LOCPATH set, SSH_AUTH_SOCK pinned to openssh_agent",
+          "owner": "agent",
+          "status": "pending"
+        },
+        {
+          "id": "P2.4",
+          "task": "Ghostty: flatpak --user install com.mitchellh.ghostty from adonm repo (+ Flathub runtime), systemctl --user reload dbus, verify gtk-launch + tile click path",
+          "owner": "agent",
+          "status": "pending",
+          "notes": "Requires flatpak client from P2.1. Follow skills/ubuntu-guix-flatpak-combo.md first-run checklist exactly."
+        },
+        {
+          "id": "P2.5",
+          "task": "Jupyter user unit: FIXED this session — CHDIR failure was missing ~/source/repos/qimono-repos/quantum-workspace; created dir, unit active, HTTP 302 on 127.0.0.1:5005",
+          "owner": "agent",
+          "status": "done"
+        },
+        {
+          "id": "P2.6",
+          "task": "Ollama model pull gemma4:e2b + smoke (hello-llm.sh) — blocked until service is enabled (needs sudo, see Phase 3)",
+          "owner": "agent",
+          "status": "pending"
+        },
+        {
+          "id": "P2.7",
+          "task": "Update JOURNAL-P3-P5.md session log + record measured results (manifest apply, LLM tok/s if run)",
+          "owner": "agent",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "name": "Phase 3 — human steps (sudo / reboot / hardware)",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "H1",
+          "task": "Enable Ollama service: sudo systemctl enable --now ollama.service (binary already at /usr/local/bin/ollama, service inactive)",
+          "owner": "human",
+          "status": "pending"
+        },
+        {
+          "id": "H2",
+          "task": "TTY console font: sudo ./scripts/install-vconsole.sh (installs etc/vconsole.conf + syncs /etc/default/console-setup; test Ctrl+Alt+F3)",
+          "owner": "human",
+          "status": "pending"
+        },
+        {
+          "id": "H3",
+          "task": "SSH client onboarding per README_SSH_CLIENT.md: ssh-keygen ed25519, Tailscale join, ssh-copy-id to Yoga server, then server operator runs install-ssh-hardening.sh --client-tested. NOTE hostname caveat: pick a MagicDNS name that does not collide with qimono-localhost",
+          "owner": "human",
+          "status": "pending"
+        },
+        {
+          "id": "H4",
+          "task": "Decide hostname rename (e.g. hostnamectl hostname hp-pro) so fleet naming stops colliding with the Yoga; update docs afterwards",
+          "owner": "human",
+          "status": "pending"
+        },
+        {
+          "id": "H5",
+          "task": "Reboot QA (R1/R2 discipline): reboot, then verify userns sysctl still 0 + drop-in present, Epiphany opens, autostart fires Firefox/Ptyxis/VSCodium, Ghostty tile opens a shell",
+          "owner": "human",
+          "status": "pending"
+        },
+        {
+          "id": "H6",
+          "task": "Optional snap cleanup: snap list, remove browser snaps if any remain (none expected)",
+          "owner": "human",
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "name": "Session 2+ backlog (from CONFIDENCE.md / journal)",
+      "status": "pending",
+      "tasks": [
+        { "id": "B1", "task": "Quantum stack: uv workspace + Qiskit/PennyLane (see Yoga quantum-host docs)", "owner": "either", "status": "pending" },
+        { "id": "B2", "task": ".NET 10 host packages or Guix fixed-output strategy (docs/quantum-host-dotnet-rust.md)", "owner": "either", "status": "pending" },
+        { "id": "B3", "task": "LazyVim real tree + canonical emacs init (stow nvim/emacs packages)", "owner": "either", "status": "pending" },
+        { "id": "B4", "task": "Record real gemma4 measurements for hp-pro in llm/docs/local-llm.md", "owner": "either", "status": "pending" },
+        { "id": "B5", "task": "Consider Alpaca flatpak (com.jeffser.Alpaca) + shim now that flatpak wiring exists", "owner": "either", "status": "pending" }
+      ]
+    }
+  ],
+  "qa_reminders": [
+    "Victory rule: Epiphany once = smoke; QA pass = drop-in + sysctl 0 + GUI + REBOOT + Epiphany again",
+    "Agent must not mark host gates complete without User R1+R2",
+    "Never compile Firefox from source; abort on firefox-*.source builds (Ctrl+C)",
+    "guix package -m replaces the profile — always keep profile-manifest.scm complete",
+    "Long guix runs: setsid nohup detached; pkill -f matches its own cmdline (use bracket tricks)"
+  ]
+}

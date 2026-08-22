@@ -23,13 +23,19 @@ Background report: [`llm/gemma4-report.md`](../gemma4-report.md).
 Download sizes are Ollama registry values; RAM figures are runtime estimates
 (measured values marked). Update after measuring on real hardware.
 
-| Tag | Download | Resident RAM | Yoga (6.5 G) | mini-pc (14.5 G) | hp-pro |
+| Tag | Download | Resident RAM | Yoga (6.5 G) | mini-pc (14.5 G) | hp-pro (30 G) |
 |-----|----------|--------------|--------------|------------------|--------|
-| `gemma4:e2b` | 7.2 GB | ~6.7 GB incl. KV cache (mostly file-backed)¹ | solo² | OK | tight |
-| `gemma4:e4b` | 9.6 GB | ~4–5 GiB effective + KV | no | OK | tight |
-| `gemma4:12b` | 7.6 GB* | ~8+ GiB | no | OK | no |
-| `gemma4:26b` MoE | 18 GB | ~20 GiB weights | no | no | no |
-| `gemma4:31b` | 20 GB | ~18 GiB | no | no | no |
+| `gemma4:e2b` | 7.2 GB | ~6.7 GB incl. KV cache (mostly file-backed)¹ | solo² | OK | **OK** |
+| `gemma4:e4b` | 9.6 GB | ~4–5 GiB effective + KV | no | OK | **OK** |
+| `gemma4:12b` | 7.6 GB* | ~8+ GiB | no | OK | **OK** |
+| `gemma4:26b` MoE | 18 GB | ~20 GiB weights | no | no | tight |
+| `gemma4:31b` | 20 GB | ~18 GiB | no | no | tight |
+
+> 2026-08-22 correction: the hp-pro column originally assumed a small-RAM
+> laptop ("tight/no"). Live capture (`ubuntu-hp-pro/MACHINE.md`) shows an
+> i7-1255U with **30 GiB RAM + 24 GiB swap** — the roomiest fleet node.
+> Fleet standard model stays `gemma4:e2b` (chosen 2026-08-22 for parity);
+> e4b/12b are validated upgrades here when needed.
 
 \* 12b ships smaller download than e4b but far larger resident footprint.
 

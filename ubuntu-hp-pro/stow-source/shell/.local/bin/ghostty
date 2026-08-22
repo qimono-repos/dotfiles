@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Host shim. Flatpak keeps the real `ghostty` binary inside the sandbox
+# (com.mitchellh.ghostty from the adonm-ghostty repo — see docs/flatpak-guix.md).
+# Without this, `ghostty` is not on PATH at all; use the shim or
+#   flatpak run com.mitchellh.ghostty
+set -euo pipefail
+
+if [[ -x /usr/bin/bwrap ]]; then
+  export FLATPAK_BWRAP="${FLATPAK_BWRAP:-/usr/bin/bwrap}"
+fi
+
+FP="${HOME}/.guix-profile/bin/flatpak"
+if [[ ! -x "$FP" ]]; then
+  echo "error: Guix flatpak missing at $FP (apply guix/manifests/profile-full.scm)" >&2
+  exit 127
+fi
+
+exec "$FP" --user run --branch=stable --arch=x86_64 \
+  --command=/app/bin/ghostty com.mitchellh.ghostty "$@"

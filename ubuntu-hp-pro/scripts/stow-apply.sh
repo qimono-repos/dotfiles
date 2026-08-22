@@ -21,4 +21,8 @@ fi
 
 echo "stow → -d stow-source  target=$TARGET  packages=${PACKAGES[*]}"
 stow -d "$STOW_DIR" -t "$TARGET" -v --restow --no-folding "${PACKAGES[@]}"
+# Flatpak/Ghostty wiring (idempotent; no-ops until flatpak + apps exist):
+"$ROOT/scripts/link-flatpak-exports.sh" || true
+"$ROOT/scripts/link-ghostty-appdir.sh" || true
+"$ROOT/scripts/link-flatpak-host-services.sh" || true
 echo "OK: stow packages applied. Open a new shell or: source ~/.zshrc"
