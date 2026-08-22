@@ -36,6 +36,12 @@ Download sizes are Ollama registry values; RAM figures are runtime estimates
 > i7-1255U with **30 GiB RAM + 24 GiB swap** — the roomiest fleet node.
 > Fleet standard model stays `gemma4:e2b` (chosen 2026-08-22 for parity);
 > e4b/12b are validated upgrades here when needed.
+>
+> 2026-08-22 measured on hp-pro (i7-1255U, CPU): `gemma4:e2b` smoke PASS —
+> exact marker reply, load ≈ 21 s, **eval ≈ 4.3 tok/s**. Much slower than the
+> Yoga's H-series Ryzen (~26–29 tok/s) — the 15 W U-class chip trades speed
+> for the fleet's largest RAM. Use hp-pro for big-context/low-rate work,
+> Yoga for snappy terminal copilot answers.
 
 \* 12b ships smaller download than e4b but far larger resident footprint.
 

@@ -86,27 +86,28 @@
           "id": "P2.1",
           "task": "Apply extended manifest: guix package -m guix/profile-manifest.scm --substitute-urls='nonguix bordeaux ci'",
           "owner": "agent",
-          "status": "in_progress",
-          "notes": "First attempt killed by tool-session timeout mid-download -> corrupt substitute leftovers in /gnu/store (libgccjit, llvm, possibly more); each retry clears one. Automated retry loop running (8 attempts). LESSON: run long guix transactions via setsid nohup detached, never under a killable timeout."
+          "status": "done",
+          "notes": "SUCCESS on retry loop attempt 1 (24/24 packages incl. vscodium-fixed, rust:cargo output, kdeconnect, flatpak). Earlier attempts hit corrupt /gnu/store leftovers from a tool-session SIGKILL mid-substitute ('mkdir: File exists' + 'corrupt input while restoring archive'); each retry clears one. LESSON: run long guix transactions via setsid nohup detached, never under a killable timeout."
         },
         {
           "id": "P2.2",
           "task": "Run ./scripts/stow-apply.sh once stow is installed by P2.1 (proper symlinks for new snippets, environment.d, ghostty shim/config)",
           "owner": "agent",
-          "status": "pending"
+          "status": "done"
         },
         {
           "id": "P2.3",
-          "task": "Verify shell guards in fresh zsh: python3 refusal message, rg/fd/fzf/htop present, GUIX_LOCPATH set, SSH_AUTH_SOCK pinned to openssh_agent",
+          "task": "Verify shell guards in fresh zsh: python3 refusal policy, rg/fd/fzf/htop present, GUIX_LOCPATH set, SSH_AUTH_SOCK pinned to openssh_agent, FLATPAK_BWRAP=/usr/bin/bwrap",
           "owner": "agent",
-          "status": "pending"
+          "status": "done",
+          "notes": "All green; python3 resolves to Guix 3.12.12 (guard passes Guix-owned interpreters through as designed)"
         },
         {
           "id": "P2.4",
           "task": "Ghostty: flatpak --user install com.mitchellh.ghostty from adonm repo (+ Flathub runtime), systemctl --user reload dbus, verify gtk-launch + tile click path",
           "owner": "agent",
-          "status": "pending",
-          "notes": "Requires flatpak client from P2.1. Follow skills/ubuntu-guix-flatpak-combo.md first-run checklist exactly."
+          "status": "done",
+          "notes": "Ghostty 1.3.1 on org.gnome.Platform 49. CLI shim verified (+version). D-Bus activation live: com.mitchellh.ghostty in ListActivatableNames after re-running link-flatpak-host-services.sh POST-install (exports only exist after first install — rerun both link scripts after any new flatpak app). gtk-launch test: app-flatpak scope active running, no churn. TRAP: flatpak/curl on this box need SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt exported or TLS fails/hangs (no default CA bundle in this env)."
         },
         {
           "id": "P2.5",
@@ -116,15 +117,16 @@
         },
         {
           "id": "P2.6",
-          "task": "Ollama model pull gemma4:e2b + smoke (hello-llm.sh) — blocked until service is enabled (needs sudo, see Phase 3)",
+          "task": "Ollama model pull gemma4:e2b + smoke (hello-llm.sh)",
           "owner": "agent",
-          "status": "pending"
+          "status": "done",
+          "notes": "Model pulled into ~/.ollama/models (6.7G) via temporary user-level `ollama serve` (stopped after). Smoke PASS: exact FLEET-LLM-OK reply, load ≈21 s, eval ≈4.3 tok/s (U-class CPU — slower than Yoga's H-series; recorded in llm/docs/local-llm.md). STILL HUMAN: create the missing system unit (this box had a binary-only install) — see Phase 3 H1 for exact unit."
         },
         {
           "id": "P2.7",
-          "task": "Update JOURNAL-P3-P5.md session log + record measured results (manifest apply, LLM tok/s if run)",
+          "task": "Update JOURNAL-P3-P5.md session log + record measured results",
           "owner": "agent",
-          "status": "pending"
+          "status": "done"
         }
       ]
     },
@@ -134,7 +136,7 @@
       "tasks": [
         {
           "id": "H1",
-          "task": "Enable Ollama service: sudo systemctl enable --now ollama.service (binary already at /usr/local/bin/ollama, service inactive)",
+          "task": "Create the missing ollama system unit (binary-only install — NO unit file exists): copy /etc/systemd/system/ollama.service from another fleet node or run the official installer's unit, set Environment=OLLAMA_MODELS=/home/qi/.ollama/models (models already pulled there, 6.7G), then: sudo systemctl daemon-reload && sudo systemctl enable --now ollama && curl -s http://127.0.0.1:11434/api/tags | grep gemma4",
           "owner": "human",
           "status": "pending"
         },
