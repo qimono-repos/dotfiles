@@ -138,7 +138,8 @@
           "id": "H1",
           "task": "Create the missing ollama system unit (binary-only install — NO unit file exists): copy /etc/systemd/system/ollama.service from another fleet node or run the official installer's unit, set Environment=OLLAMA_MODELS=/home/qi/.ollama/models (models already pulled there, 6.7G), then: sudo systemctl daemon-reload && sudo systemctl enable --now ollama && curl -s http://127.0.0.1:11434/api/tags | grep gemma4",
           "owner": "human",
-          "status": "pending"
+          "status": "done",
+          "notes": "Done 2026-08-22. TRAP for next time: `systemctl edit --force --full` with ONLY an Environment= line saves a section-less unit -> 'bad unit file setting'; the full [Unit]/[Service]/[Install] body is required. Service active, model served from ~/.ollama/models."
         },
         {
           "id": "H2",

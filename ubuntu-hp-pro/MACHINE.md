@@ -32,7 +32,7 @@ Snapshot of the host this pack targets. Refresh after major hardware/OS changes.
 | Guix | post-pull at `~/.config/guix/current/bin/guix` (gen 1, 2026-08-06), channels include **nonguix** |
 | Profile manifest | `guix/profile-manifest.scm` — SINGLE SOURCE OF TRUTH incl. `vscodium-fixed` (license-phase workaround) |
 | Host sysctl | `/etc/sysctl.d/99-guix-userns.conf` installed, live `apparmor_restrict_unprivileged_userns=0` ✓ (browsers reboot-safe) |
-| Ollama | binary at `/usr/local/bin/ollama`; service installed but **inactive** — enable = user sudo step |
+| Ollama | 0.32.x at `/usr/local/bin/ollama`; system unit `/etc/systemd/system/ollama.service` (User=qi, `OLLAMA_MODELS=/home/qi/.ollama/models`), enabled+active since 2026-08-22; model **`gemma4:e2b`** pulled + smoke PASS |
 | .NET | not observed yet (`docs` say host Microsoft packages are session-2+) |
 | User | `qi` (uid 1000), sudo group |
 

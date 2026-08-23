@@ -42,6 +42,15 @@ Download sizes are Ollama registry values; RAM figures are runtime estimates
 > Yoga's H-series Ryzen (~26–29 tok/s) — the 15 W U-class chip trades speed
 > for the fleet's largest RAM. Use hp-pro for big-context/low-rate work,
 > Yoga for snappy terminal copilot answers.
+>
+> 2026-08-22 qualitative eval (hp-pro service live; e2b via opencode/ollama
+> provider, second prompt deliberately **offline**): 2/2 conceptual answers —
+> correct `h(0)` superposition and `h(0)+cx(0,1)` Bell-state sequences with
+> proper math and context use. BUT generated code hallucinated APIs
+> (`qc.get_statevector()`, `qc.job()`, `result.data`) that would not run on
+> real Qiskit. Confirms the harness doctrine: raw model output = draft;
+> run snippets through the verification gate (`gemma.py ask` / `verify`)
+> before trusting them.
 
 \* 12b ships smaller download than e4b but far larger resident footprint.
 
