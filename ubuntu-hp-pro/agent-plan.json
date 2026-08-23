@@ -145,7 +145,8 @@
           "id": "H2",
           "task": "TTY console font: sudo ./scripts/install-vconsole.sh (installs etc/vconsole.conf + syncs /etc/default/console-setup; test Ctrl+Alt+F3)",
           "owner": "human",
-          "status": "pending"
+          "status": "done",
+          "notes": "Done 2026-08-22 — human tested live on VT3 (Ctrl+Alt+F3). Full boot persistence proof lands at next reboot (rides R1)."
         },
         {
           "id": "H3",
