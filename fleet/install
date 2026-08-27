@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# Qimono fleet bootstrap — bash entrypoint (curl | sh).
+#
+#   curl -fsSL https://qimono.online/install | sh
+#   # (raw, pre-DNS):  curl -fsSL https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fleet/install | sh
+#
+# Only Linux/macOS use this path. Windows uses fleet/install.ps1 (irm | iex).
+# This script is deliberately THIN: it detects the OS and dispatches to a
+# per-OS bootstrap in the same fleet/ directory, which are downloaded as a
+# tarball so the whole fleet/ kit lands on-disk for inspection/rerun.
+#
+# Steps (handled downstream):
+#   Linux/Ubuntu -> fleet/guix.sh   (apt prereqs -> clone -> Guix-first -> pack bootstrap)
+#   macOS        -> fleet/brew.sh   (Xcode CLT -> Homebrew -> brew bundle -> clone+stow)
+#
+# Idempotent: safe to re-run anywhere. Never fetches a binary you cannot read.
+
+set -euo pipefail
+
+# ---- config ----------------------------------------------------------------
+REPO="qimono-repos/dotfiles"
+BRANCH="main"
+BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/fleet"
+TARBALL_URL="https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz"
+KIT_DIR="${HOME}/.qimono/fleet"
+DRY_RUN=0
+
+# ---- status helpers (mirrors llm/install-ollama-stack.sh) -----------------
+ok()   { printf '  %-40s OK    %s\n' "$1" "$2"; }
+bad()  { printf '  %-40s MISS  %s\n' "$1" "$2"; }
+warn() { printf '  %-40s WAIT  %s\n' "$1" "$2"; }
+plan() { printf '  %-40s PLAN  %s\n' "$1" "$2"; }
+
+usage() {
+  cat <<'EOF'
+Qimono fleet bootstrap (bash entrypoint)
+
+Usage:
+  curl -fsSL https://qimono.online/install | sh
+  curl -fsSL .../fleet/install | sh -- --dry-run
+
+Options (pass after `| sh --`):
+  --dry-run   Probe only; download the kit but change nothing.
+  --help      Show this help.
+EOF
+  exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1; shift ;;
+    -h|--help) usage ;;
+    *) echo "unknown arg: $1 (see --help)" >&2; exit 2 ;;
+  esac
+done
+
+echo "=== qimono fleet bootstrap — $(date '+%Y-%m-%d %H:%M') ==="
+echo
+
+# ---- require the base tools this script itself needs ----------------------
+MISSING=()
+: "${curl:=}" && command -v curl >/dev/null 2>&1 || MISSING+=(curl)
+: "${tar:=}"  && command -v tar  >/dev/null 2>&1 || MISSING+=(tar)
+: "${uname:=}"&& command -v uname>/dev/null 2>&1 || MISSING+=(uname)
+if (( ${#MISSING[@]} )); then
+  echo "error: this bootstrap needs: ${MISSING[*]}. On Debian/Ubuntu:" >&2
+  echo "  sudo apt update && sudo apt install -y curl tar" >&2
+  exit 2
+fi
+
+# ---- download the fleet kit (whole tree) to $HOME/.qimono/fleet -----------
+echo "--- fetching fleet kit -------------------------------------------------"
+mkdir -p "${KIT_DIR}"
+KIT_TMP="$(mktemp -d)"
+if ! curl -fsSL "$TARBALL_URL" -o "${KIT_TMP}/dotfiles.tar.gz"; then
+  bad "download kit" "$TARBALL_URL"
+  exit 1
+fi
+tar -xzf "${KIT_TMP}/dotfiles.tar.gz" -C "${KIT_TMP}"
+PKG_DIR="$(find "${KIT_TMP}" -maxdepth 1 -type d -name 'dotfiles-*' | head -1)"
+if [[ -z "$PKG_DIR" || ! -d "${PKG_DIR}/fleet" ]]; then
+  bad "fleet dir" "not present in downloaded kit"
+  exit 1
+fi
+cp -f "${PKG_DIR}/fleet"/* "${KIT_DIR}/" 2>/dev/null || true
+chmod +x "${KIT_DIR}/install" "${KIT_DIR}/guix.sh" "${KIT_DIR}/brew.sh" 2>/dev/null || true
+rm -rf "${KIT_TMP}"
+ok "fleet kit" "fetched to ${KIT_DIR}"
+
+# ---- dispatch by OS ---------------------------------------------------------
+OS="$(uname -s)"
+case "$OS" in
+  Linux*)
+    ok "platform" "Linux ($(uname -m))"
+    if (( DRY_RUN )); then
+      plan "run" "bash ${KIT_DIR}/guix.sh"
+    else
+      bash "${KIT_DIR}/guix.sh"
+    fi
+    ;;
+  Darwin*)
+    ok "platform" "macOS ($(uname -m))"
+    if (( DRY_RUN )); then
+      plan "run" "bash ${KIT_DIR}/brew.sh"
+    else
+      bash "${KIT_DIR}/brew.sh"
+    fi
+    ;;
+  *)
+    bad "platform" "$OS — use fleet/install.ps1 on Windows"
+    exit 2
+    ;;
+esac
+
+echo
+echo "=== done. Reopen your shell (or: source ~/.zshrc) and continue from the dotfiles repo. ==="

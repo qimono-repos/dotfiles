@@ -1,0 +1,29 @@
+# Qimono macOS Homebrew manifest (fleet/Brewfile).
+# Applied by fleet/brew.sh:  brew bundle --file=fleet/Brewfile
+# Add daily-use tools here; macOS does not use Guix in this fleet.
+
+# Core dev shells / tools
+brew "git"
+brew "zsh"
+brew "ripgrep"
+brew "fzf"
+brew "tmux"
+brew "jq"
+brew "tree"
+
+# Runtime / package managers used across the fleet
+brew "bun"          # JS runtime + package manager (opencode install via bun)
+brew "uv"           # Python toolchain (mirrors Guix-guix uv usage on Linux)
+
+# Editors
+brew "neovim"
+
+# OpenCode CLI (model-agnostic coding agent)
+brew "anomalyco/tap/opencode"
+
+# Casks (GUI apps) — optional, uncomment as needed
+# cask "ghostty"
+# cask "firefox"
+
+# Keep formulae/casks pinned by git so `brew update` is reviewable
+tap "homebrew/bundle"
