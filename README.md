@@ -9,6 +9,7 @@ Configuration files for macOS, Linux, and Windows.
 | Pack | Machine | Notes |
 |------|---------|-------|
 | [`ubuntu-len-yog-AMD64/`](./ubuntu-len-yog-AMD64/) | Lenovo Yoga 7 14AHP9 (Ryzen / x86_64) | Stow + Guix-first + Qiskit/PennyLane/Q# · [**QA/**](./ubuntu-len-yog-AMD64/QA/) |
+| [`ubuntu-len-yog-ARM64/`](./ubuntu-len-yog-ARM64/) | Lenovo Yoga Slim 7 14Q8X9 (Snapdragon X Elite / aarch64) | Guix-first ARM64 sibling; no x86_64 blobs · JupyterLab via uv · [**QA/**](./ubuntu-len-yog-ARM64/QA/) |
 | [`ubuntu-hp-pro/`](./ubuntu-hp-pro/) | HP ProBook (Intel x86_64) | bootstrap Guix + Epiphany + Firefox · [**QA/**](./ubuntu-hp-pro/QA/) |
 | [`ubuntu-mini-pc/`](./ubuntu-mini-pc/) | `qi-mini-pc-ubu-rr` (Ryzen 7 7730U) | quantum workstation: Guix python/uv/jupyter + 127.0.0.1:5005 · [**QA/**](./ubuntu-mini-pc/QA/) |
 | `ubuntu/` | Generic Ubuntu / VPS | apt lists, nginx, server scripts (archive; not this mini-PC’s live pack) |
