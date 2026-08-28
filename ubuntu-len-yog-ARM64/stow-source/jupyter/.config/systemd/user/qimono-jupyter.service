@@ -1,6 +1,8 @@
 [Unit]
 Description=Qimono local JupyterLab (uv, ARM64)
 Documentation=file://%h/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-ARM64/docs/jupyter-arm64.md
+# Refuse to start (cleanly report) when the quantum workspace is absent.
+ConditionPathIsDirectory=%h/source/repos/qimono-repos/quantum-workspace
 
 [Service]
 Type=simple
@@ -9,9 +11,12 @@ Environment=GUIX_PROFILE=%h/.guix-profile
 Environment=PATH=%h/.guix-profile/bin:%h/.guix-profile/sbin:/usr/local/bin:/usr/bin:/bin
 Environment=UV_PYTHON_PREFERENCE=only-system
 Environment=UV_PYTHON_DOWNLOADS=never
+# ARM64 zlib wheel fix (see shell/20-uv-python.zsh): compiled wheels dlopen
+# libz.so.1 from the Guix profile. Scoped to this service only.
+Environment=LD_LIBRARY_PATH=%h/.guix-profile/lib
 WorkingDirectory=%h/source/repos/qimono-repos/quantum-workspace
 # Bind address/port come from ~/.jupyter/jupyter_notebook_config.py (stow)
-ExecStart=%h/.guix-profile/bin/uv run jupyter lab --no-browser --config=%h/.jupyter/jupyter_notebook_config.py
+ExecStart=%h/.guix-profile/bin/uv run --frozen jupyter lab --no-browser --config=%h/.jupyter/jupyter_notebook_config.py
 KillSignal=SIGINT
 TimeoutStopSec=15
 

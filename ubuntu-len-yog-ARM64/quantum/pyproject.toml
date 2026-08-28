@@ -1,0 +1,36 @@
+# Qimono quantum workspace — canonical, reproducible spec (ubuntu-len-yog-ARM64).
+#
+# This pyproject is the SINGLE SOURCE OF TRUTH for the quantum environment that
+# scripts/install-quantum-python.sh materialises into
+#   ${QIMONO_QUANTUM_HOME:-$HOME/source/repos/qimono-repos/quantum-workspace}
+#
+# Versions are PINNED to the set proven to work on this Snapdragon (aarch64)
+# host (see MACHINE.md / JOURNAL-P3-P5 P6.3):
+#   qiskit 2.5.2 · qiskit-aer 0.17.2 · pennylane 0.45.1 · qdk (Q#) · jupyterlab
+# Keep uv.lock in git (script regenerates via `uv lock` if deps change).
+#
+# ARM64: JupyterLab + the quantum libs come from uv (NOT the Guix monolithic
+# `jupyter`, which has no aarch64 build). Guix provides python + uv.
+
+[project]
+name = "quantum-workspace"
+version = "0.1.0"
+description = "Qimono quantum computing workspace (Qiskit, PennyLane, Q#, JupyterLab)"
+requires-python = ">=3.11"
+dependencies = [
+    "qiskit==2.5.2",
+    "qiskit-aer==0.17.2",
+    "pennylane==0.45.1",
+    "pennylane-lightning>=0.39",
+    "matplotlib>=3.8",
+    "numpy>=1.26",
+    "ipykernel>=6.0",
+    "jupyterlab>=4.0",
+    "notebook>=7.0",
+    "qdk>=0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]

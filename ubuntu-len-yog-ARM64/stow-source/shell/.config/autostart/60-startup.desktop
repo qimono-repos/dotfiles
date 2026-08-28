@@ -1,12 +1,12 @@
 # Stow: shell → ~/.config/autostart/60-startup.desktop
-# Disabled on ubuntu-len-yog-ARM64: the AMD pack's startup-login.sh (Ghostty,
-# Guix Firefox, Alpaca) is not part of this Snapdragon bootstrap yet. Flip to
-# enabled once you opt those in AND add scripts/startup-login.sh to this pack.
+# Single entry point at login for ubuntu-len-yog-ARM64: launches ONLY Ghostty
+# (native Guix aarch64) via scripts/startup-login.sh. Firefox/Alpaca are opened
+# manually — they never autostart.
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Startup shell fragment (ARM64 — disabled)
-Comment=Placeholder; do not autostart missing scripts
-Exec=/bin/true
+Name=Startup shell fragment (Ghostty only)
+Comment=Launch Ghostty at login (native Guix aarch64)
+Exec=/home/qi/source/repos/qimono-repos/dotfiles/ubuntu-len-yog-ARM64/scripts/startup-login.sh
 Terminal=false
-X-GNOME-Autostart-enabled=false
+X-GNOME-Autostart-enabled=true

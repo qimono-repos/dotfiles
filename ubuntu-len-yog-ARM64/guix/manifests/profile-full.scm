@@ -27,11 +27,11 @@
   "htop"
   "openjdk"
 
-  ;; Dotfiles + Python + uv + Jupyter Notebook (UI; quantum libs stay in uv)
+  ;; Dotfiles + Python + uv (quantum libs + JupyterLab stay in the uv workspace:
+  ;; the monolithic Guix `jupyter` package does NOT support aarch64-linux).
   "stow"
   "python"
   "uv"
-  "jupyter"
 
    ;; Locales / small libs
    "glibc-locales"
@@ -47,8 +47,16 @@
   ;; Phone as laptop extension
   "kdeconnect"
 
+  ;; Terminal — Ghostty installed via the saayix external channel (guix
+  ;; upstream & nonguix do NOT carry it). See guix/channels.scm.
+  "ghostty"
+
+  ;; Caskaydia Cove Nerd Font (saayix) — console/app font; autostarted Ghostty.
+  ;; Bare TTY fonts are managed separately via /etc/vconsole.conf (Terminus).
+  "font-nerd-caskaydia"
+
   ;; Desktop escape hatch — Guix-owned *client* only; apps from Flathub
-  ;; user remotes (e.g. ghostty). See ubuntu-mini-pc/docs/flatpak-guix.md.
+  ;; user remotes. See ubuntu-mini-pc/docs/flatpak-guix.md.
   "flatpak"
 
   ;; Browsers — FIRST TRY use scripts/setup-guix-browsers-first-try.sh

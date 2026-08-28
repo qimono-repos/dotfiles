@@ -20,7 +20,7 @@ echo "==> Writing $DROPIN (user=$TARGET_USER)"
 tmp="$(mktemp)"
 printf '%s\n' \
   "# Qimono fleet — passwordless force reboot/poweroff for sole user" \
-  "# Managed by: ubuntu-mini-pc/scripts/install-passwordless-power.sh" \
+  "# Managed by: ubuntu-len-yog-ARM64/scripts/install-passwordless-power.sh" \
   "# Do not hand-edit casually; re-run the install script after changes." \
   "$RULE" \
   >"$tmp"

@@ -47,6 +47,7 @@ ubuntu-len-yog-ARM64/
     install-guix-binary.sh     # sudo: unpack store + build users (aarch64)
     finish-guix-binary.sh      # sudo: /usr/local/bin/guix + keys + daemon
     install-host-sysctl.sh     # sudo: Guix userns (AppArmor)
+    install-passwordless-power.sh  # sudo: too / powerofff (no-password reboot)
     install-guix-python-uv.sh  # guix: stow, python, uv, editors …
     install-quantum-python.sh  # uv: qiskit, pennylane, qdk, jupyterlab
     run-jupyter-lab.sh         # one-shot JupyterLab on 127.0.0.1:5005
@@ -71,6 +72,10 @@ sudo ./scripts/finish-guix-binary.sh      # /usr/local/bin/guix + keys + daemon
 
 # 1) Host sysctl (once): Guix userns for sandboxes
 sudo ./scripts/install-host-sysctl.sh
+
+# 1b) Optional (once): passwordless `too` / `powerofff` force reboot
+#     (no-password sudoers drop-in for sole user)
+sudo ./scripts/install-passwordless-power.sh
 
 # 2) Guix base toolchain (stow, python, uv, editors, zlib)
 ./scripts/install-guix-python-uv.sh

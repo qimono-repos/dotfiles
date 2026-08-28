@@ -42,9 +42,21 @@
   ;; Phone as laptop extension (Ying-Yang 2026+)
   "kdeconnect"
 
-  ;; Browsers — prefer Guix over snap when substitutes work.
-  ;; Uncomment after channels provide them on this pull:
-  ;; "firefox"
-  ;; "epiphany"           ; GNOME Web
-  ;; "ungoogled-chromium" ; or chromium via nonguix
+  ;; Browser NOTE (aarch64): Guix `firefox` has NO aarch64 substitute and would
+  ;; be a multi-hour source build (see LESSONS-guix-browsers.md — never
+  ;; source-build Firefox). This pack therefore installs Firefox via snap
+  ;; (native ARM) — see scripts/install-browser.sh. It is never autostarted;
+  ;; only Ghostty launches at login. Firefox is NOT a Guix profile package here.
+
+  ;; Terminal — native Guix Ghostty via the saayix external channel. This is
+  ;; the machine's console app; macOS/GNOME-autostarted (see startup-login.sh).
+  "ghostty"
+
+  ;; Caskaydia Cove Nerd Font (saayix) — GUI (Ghostty) + app font. TTY console
+  ;; fonts are separate (Terminus Bold via apt /etc/vconsole.conf).
+  "font-nerd-caskaydia"
+
+  ;; Preserved manual install — keep in the single authoritative manifest so a
+  ;; `-m` re-apply does not drop it (per repo "full manifest" policy).
+  "blender"
   ))
