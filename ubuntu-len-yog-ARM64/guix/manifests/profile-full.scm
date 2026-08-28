@@ -60,6 +60,11 @@
   ;; user remotes. See ubuntu-mini-pc/docs/flatpak-guix.md.
   "flatpak"
 
+  ;; Desktop GUI apps — discoverable in the GNOME overview / Super search
+  ;; once the session XDG_DATA_DIRS carries ${HOME}/.guix-profile/share
+  ;; (see stow-source/shell/.config/environment.d/10-qimono-flatpak.conf).
+  "gimp"
+
   ;; Browsers — FIRST TRY use scripts/setup-guix-browsers-first-try.sh
   ;; Prerequisites (once per machine):
   ;;   1. guix pull with nonguix (channels.scm)
