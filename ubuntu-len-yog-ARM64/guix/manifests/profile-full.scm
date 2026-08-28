@@ -65,16 +65,14 @@
   ;; (see stow-source/shell/.config/environment.d/10-qimono-flatpak.conf).
   "gimp"
 
-  ;; Browsers — FIRST TRY use scripts/setup-guix-browsers-first-try.sh
-  ;; Prerequisites (once per machine):
-  ;;   1. guix pull with nonguix (channels.scm)
-  ;;   2. PATH → ~/.config/guix/current/bin/guix  (not /usr/local/bin/guix)
-  ;;   3. ./scripts/setup-guix-browser-prereqs.sh  (userns=0 + nonguix key)
-  ;;   4. Always pass: --substitute-urls='https://substitutes.nonguix.org …'
-  ;;   5. Never source-build Firefox on low disk/RAM (see docs/LESSONS-guix-browsers.md)
+  ;; Browsers — ARM64 policy: Guix `firefox` has NO aarch64 substitute; NEVER
+  ;; source-build it here (many hours, fails on default toolchain). Firefox
+  ;; comes from snap: scripts/install-browser.sh. Epiphany IS
+  ;; substitute-served on aarch64 and stays in the profile.
+  ;; Prereqs for epiphany: post-pull guix with nonguix (channels.scm) +
+  ;; kernel.apparmor_restrict_unprivileged_userns=0 (see docs/LESSONS-guix-browsers.md).
   "epiphany"
-  "firefox"
-  ;; Optional extra:
+  ;; Optional browser (nonguix, substitute-served on x86_64):
   ;; "ungoogled-chromium"
 
   ;; Diagrams (optional — uncomment when needed)
