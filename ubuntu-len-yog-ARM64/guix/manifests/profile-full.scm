@@ -19,6 +19,7 @@
   ;; Editors & core CLI
   "neovim"
   "emacs"
+  "vscodium"
   "git"
   "ripgrep"
   "fd"
