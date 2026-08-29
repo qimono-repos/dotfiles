@@ -55,4 +55,24 @@ if systemctl list-unit-files 2>/dev/null | grep -q systemd-vconsole-setup; then
   echo "==> Restarted systemd-vconsole-setup"
 fi
 
-echo "Done. Test: Ctrl+Alt+F3 (Terminus Bold) → Ctrl+Alt+F1 to return."
+# Ubuntu persistence trap (2026-08-21, seen again 2026-08-28): Ubuntu 26.04
+# ships NO systemd-vconsole-setup unit — console-setup.service (setupcon) owns
+# the boot-time TTY font via /etc/default/console-setup and silently reverts us
+# to Fixed 8x16 every reboot (tiny text on the high-res panel). Keep both files
+# agreeing on the same FONT so the larger Terminus Bold survives reboots.
+CS_DST="/etc/default/console-setup"
+if [[ -f "$CS_DST" ]]; then
+  cp -n "$CS_DST" "$CS_DST.qimono.bak" || true
+  if grep -q '^FONT=' "$CS_DST"; then
+    sed -i "s|^FONT=.*|FONT=\"$FONT\"|" "$CS_DST"
+  else
+    printf '\n# qimono fleet: keep in sync with /etc/vconsole.conf\nFONT="%s"\n' "$FONT" >> "$CS_DST"
+  fi
+  # FONT= wins over FONTFACE/FONTSIZE, but comment them out so nothing
+  # disagrees later and reverts our size.
+  sed -i 's/^FONTFACE=/#FONTFACE=/; s/^FONTSIZE=/#FONTSIZE=/' "$CS_DST"
+  echo "==> Synced $CS_DST (console-setup.service applies $FONT at boot)"
+fi
+
+echo "Done. Font takes effect on next TTY login or reboot."
+echo "Test: Ctrl+Alt+F3 (Terminus Bold) → Ctrl+Alt+F1 to return."
