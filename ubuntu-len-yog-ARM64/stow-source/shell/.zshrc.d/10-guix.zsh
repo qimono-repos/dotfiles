@@ -26,9 +26,14 @@ if [[ -z "${GUIX_ENVIRONMENT:-}" ]]; then
   fi
 fi
 
-# Desktop apps (GNOME app grid)
+# Desktop apps (GNOME app grid).
+# APPEND, don't prepend: the Guix profile bundles an OLDER org.gnome.*
+# GSettings schema set than the host. If it comes first it shadows
+# /usr/share/glib-2.0/schemas and gnome-shell aborts on missing keys
+# (see 10-qimono-flatpak.conf — same trap, 2026-08-28 login loop).
+# Kept last so .desktop files/icons stay visible without shadowing schemas.
 if [[ -d "$GUIX_PROFILE/share" ]]; then
-  export XDG_DATA_DIRS="$GUIX_PROFILE/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
+  export XDG_DATA_DIRS="${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}$GUIX_PROFILE/share"
 fi
 
 # Guix locales on foreign distros (Ubuntu host)
