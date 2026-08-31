@@ -48,6 +48,10 @@ darwin/
   docs/
     apple-container.md      # researched facts + traps (verified 2026-08-31)
     guix-in-container.md    # Guix foreign-distro bootstrap inside the machine
+    macos-vs-linux.md       # honest Linux/macOS model map (perms, ~/Library, …)
+    apfs-goodies.md         # clones, snapshots, shared pool — what's worth using
+    launchd.md              # systemd-vs-launchd: making jobs/services
+    wsl-vs-linux.md         # Windows-side sibling (for the future Windows machine)
   guix/
     channels.scm            # mirrors gnu-guix/config/guix/channels.scm (nonguix)
     manifests/
