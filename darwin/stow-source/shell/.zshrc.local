@@ -1,0 +1,17 @@
+# Machine pack: darwin
+# Sourced from ~/.zshrc when present (stow → ~/.zshrc.local).
+# The SAME file runs on macOS (host) AND inside `container machine qi-dev`
+# (Linux) — snippets must stay OS-guarded (see .zshrc.d/*.zsh).
+# Keep this file small; put most logic in ~/.zshrc.d/*.zsh
+
+# Load ordered snippets
+if [[ -d "${HOME}/.zshrc.d" ]]; then
+  for _qimono_snippet in "${HOME}"/.zshrc.d/*.zsh(N); do
+    # shellcheck disable=SC1090
+    source "$_qimono_snippet"
+  done
+  unset _qimono_snippet
+fi
+
+# --- package manager ranking reminder (interactive only) ---
+# 1 brew (macOS host) · 2 guix (inside container machine) · 3 apt (in-machine) · 4 podman

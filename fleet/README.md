@@ -30,7 +30,10 @@ hands off — the heavy lifting stays in the existing per-pack scripts:
    HTTPS (no auth) → detects the pack → **Guix-first** binary install (sudo) →
    runs the pack's `bootstrap.sh`.
 2. **macOS:** ensures Xcode CLT → installs **Homebrew** (`NONINTERACTIVE=1`) →
-   `brew bundle` → clones repo.
+   `brew bundle` → clones repo → **gates on macOS 26 Tahoe + Apple Silicon** →
+   hands off to the `darwin` pack: stow shell, **Apple `container`** + Podman,
+   the `qi-dev` container machine (Debian+systemd), and the Guix-in-container
+   bootstraps. (Guix runs *inside* the machine — no native macOS Guix.)
 3. **Windows:** ensures winget → `winget import` → clones repo — *no WSL,
    full PowerShell*.
 
@@ -46,7 +49,8 @@ Because the repo is **public**, no SSH key / token is needed to fetch it. The
   scripts (`install-guix-binary.sh`, `finish-guix-binary.sh`,
   `bootstrap.sh`, `stow-apply.sh`); it only fetches and orchestrates.
 - **Idempotent.** Safe to re-run anywhere; nothing is force-clobbered.
-- **Per-OS manager:** Linux → Guix-first; macOS → Homebrew; Windows → winget.
+- **Per-OS manager:** Linux → Guix-first; macOS → Homebrew (host) + Guix *inside*
+  the Apple container machine; Windows → winget.
 
 ## Files
 
@@ -55,11 +59,12 @@ Because the repo is **public**, no SSH key / token is needed to fetch it. The
 | `install` | bash `curl\|sh` entrypoint (Linux + macOS dispatch) |
 | `install.ps1` | PowerShell `irm\|iex` entrypoint (Windows) |
 | `guix.sh` | Linux/Ubuntu: apt prereqs → clone → Guix-first → pack bootstrap |
-| `brew.sh` | macOS: Xcode CLT → Homebrew → `brew bundle` → clone+stow |
+| `brew.sh` | macOS: Xcode CLT → Homebrew → `brew bundle` → clone → darwin pack |
 | `winget.ps1` | Windows: execpolicy → winget import → clone |
 | `Brewfile` | macOS Homebrew manifest |
 | `winget.json` | Windows winget import manifest |
 | `QA/` | per-OS checklists (Human + AI) |
+| `../darwin/` | macOS pack: shell stow, container, Podman, Guix-in-machine |
 
 ## Test locally before pushing
 

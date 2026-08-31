@@ -1,6 +1,7 @@
 # Qimono macOS Homebrew manifest (fleet/Brewfile).
 # Applied by fleet/brew.sh:  brew bundle --file=fleet/Brewfile
-# Add daily-use tools here; macOS does not use Guix in this fleet.
+# Add daily-use tools here. Package-manager ranking (darwin pack, 2026-08-31):
+#   1 brew (host) · 2 guix (inside the Apple container machine) · 3 apt (in-machine) · 4 podman
 
 # Core dev shells / tools
 brew "git"
@@ -10,6 +11,7 @@ brew "fzf"
 brew "tmux"
 brew "jq"
 brew "tree"
+brew "stow"          # dotfiles stow (darwin/stow-apply.sh)
 
 # Runtime / package managers used across the fleet
 brew "bun"          # JS runtime + package manager (opencode install via bun)
@@ -18,12 +20,20 @@ brew "uv"           # Python toolchain (mirrors Guix-guix uv usage on Linux)
 # Editors
 brew "neovim"
 
+# Container tooling
+#   `container` (Apple's OCI-in-a-VM CLI) is installed by
+#   darwin/scripts/install-container.sh: brew formula may not yet be in
+#   homebrew-core, and install-container.sh falls back to Apple's signed .pkg
+#   (see darwin/docs/apple-container.md). Keeping it OUT of this Brewfile so a
+#   missing-formula does not fail the whole `brew bundle`.
+brew "podman"       # parity/fallback, daemonless VM-based alternative
+
 # OpenCode CLI (model-agnostic coding agent)
 brew "anomalyco/tap/opencode"
 
-# Casks (GUI apps) — optional, uncomment as needed
+# Terminal (Ghostty) + Catppuccin font for the darwin shell config
 # cask "ghostty"
-# cask "firefox"
+# cask "font-caskaydia-cove-nerd-font"
 
 # Keep formulae/casks pinned by git so `brew update` is reviewable
 tap "homebrew/bundle"

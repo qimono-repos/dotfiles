@@ -1,20 +1,24 @@
-# ~/.zshrc — interactive zsh configuration (stow-managed via ubuntu-len-yog-ARM64)
+# ~/.zshrc — interactive zsh configuration (stow-managed via darwin pack)
+# Shared across macOS (host) AND the container machine (Linux): snippets are
+# OS-guarded so each environment only activates its own layer.
 # Out-of-the-box defaults with commonly recommended options
 
 # Only run for interactive shells
 [[ $- != *i* ]] && return
 
+OS="$(uname -s)"
+
 # ---------------------------------------------------------------------------
 # PATH (login-shell paths that may not be set in non-login terminals)
+#   macOS: /opt/homebrew/bin first (Apple Silicon). ~/.local/bin for misc.
+#   Linux (inside container machine): keep $HOME bins; brew block is Darwinguarded.
 # ---------------------------------------------------------------------------
 typeset -U path PATH
-path=(
-  "$HOME/bin"
-  "$HOME/.local/bin"
-  "$HOME/.grok/bin"
-  /usr/lib/dotnet
-  $path
-)
+if [[ "$OS" == "Darwin" ]]; then
+  path=(/opt/homebrew/bin /opt/homebrew/sbin "$HOME/.local/bin" $path)
+else
+  path=("$HOME/bin" "$HOME/.local/bin" $path)
+fi
 export PATH
 
 # ---------------------------------------------------------------------------
@@ -95,13 +99,18 @@ bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 
 # ---------------------------------------------------------------------------
-# Colors for ls / grep
+# Colors for ls (BSD ls on macOS, GNU on Linux — guarded)
 # ---------------------------------------------------------------------------
-if [[ -x /usr/bin/dircolors ]]; then
-  if [[ -r "${HOME}/.dircolors" ]]; then
-    eval "$(dircolors -b "${HOME}/.dircolors")"
-  else
-    eval "$(dircolors -b)"
+if [[ "$OS" == "Darwin" ]]; then
+  export CLICOLOR=1
+  export LSCOLORS="exfxcxdxbxegedabagacad"
+else
+  if [[ -x /usr/bin/dircolors ]]; then
+    if [[ -r "${HOME}/.dircolors" ]]; then
+      eval "$(dircolors -b "${HOME}/.dircolors")"
+    else
+      eval "$(dircolors -b)"
+    fi
   fi
 fi
 
@@ -133,16 +142,19 @@ _set_title() {
 add-zsh-hook precmd _set_title
 
 # ---------------------------------------------------------------------------
-# Aliases
+# Aliases (os-appropriate)
 # ---------------------------------------------------------------------------
-alias ls='ls --color=auto'
+if [[ "$OS" == "Darwin" ]]; then
+  alias ls='ls -G'
+else
+  alias ls='ls --color=auto'
+fi
 alias ll='ls -la'
 alias la='ls -A'
 alias l='ls -CF'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history | tail -n1 | sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 alias d='dirs -v'
 alias ..='cd ..'
@@ -154,9 +166,11 @@ alias mv='mv -i'
 alias e=emacs
 alias vi=nvim
 alias cls=clear
+# NOTE: the `dev` alias (container machine run qi-dev) lives in
+# .zshrc.d/30-container.zsh — it is Darwin-guarded (meaningless inside Linux).
 
 # ---------------------------------------------------------------------------
-# Plugins (zsh-autosuggestions, zsh-syntax-highlighting)
+# Plugins (zsh-autosuggestions, zsh-syntax-highlighting — Linux host paths)
 # ---------------------------------------------------------------------------
 if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -174,9 +188,4 @@ fi
 [[ -r "${HOME}/.zshrc.local" ]] && source "${HOME}/.zshrc.local"
 
 export PATH="$HOME/.bun/bin:$PATH"
-[[ -f "/home/qi/vega/env" ]] && source "/home/qi/vega/env"
-export PATH="/home/qi/.local/bin:$PATH"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="$HOME/.local/bin:$PATH"

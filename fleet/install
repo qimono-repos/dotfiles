@@ -11,7 +11,9 @@
 #
 # Steps (handled downstream):
 #   Linux/Ubuntu -> fleet/guix.sh   (apt prereqs -> clone -> Guix-first -> pack bootstrap)
-#   macOS        -> fleet/brew.sh   (Xcode CLT -> Homebrew -> brew bundle -> clone+stow)
+#   macOS        -> fleet/brew.sh   (Xcode CLT -> Homebrew -> brew bundle -> clone -> darwin pack:
+#                                    macOS 26 Tahoe gate -> stow shell -> Apple Container +
+#                                    Podman -> dev machine -> Guix-in-container generators)
 #
 # Idempotent: safe to re-run anywhere. Never fetches a binary you cannot read.
 

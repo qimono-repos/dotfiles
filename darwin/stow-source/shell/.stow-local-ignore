@@ -1,0 +1,3 @@
+# Stow ignore for the shell package (target = $HOME).
+# Keep reference/merge-only docs out of the live home directory.
+README.md

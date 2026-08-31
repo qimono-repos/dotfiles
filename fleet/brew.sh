@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # Qimono fleet bootstrap — macOS (Homebrew path).
 #
-# macOS does not run Guix in this fleet; its package manager is Homebrew.
-# Flows:
+# macOS packages: Homebrew (host) is manager #1; Guix is manager #2 but runs
+# INSIDE the Apple `container machine` (Linux), not on macOS directly — see the
+# darwin pack (darwin/README.md) for that layer. This script:
 #   1. Ensure Xcode Command Line Tools (xcode-select --install; one human dialog).
 #   2. Install Homebrew (NONINTERACTIVE=1) into /opt/homebrew (Apple Silicon)
 #      or /usr/local (Intel).
 #   3. brew bundle from the checked-in fleet/Brewfile.
-#   4. Clone the PUBLIC dotfiles repo over HTTPS and stow shell config.
+#   4. Clone the PUBLIC dotfiles repo over HTTPS.
+#   5. macOS 26 Tahoe gate, then dispatch to the darwin pack bootstrap.sh
+#      (stow shell, Apple Container + Podman, dev machine, Guix-in-container
+#      generators). Older macOS falls back to a stow-only path.
 #
 # Run via the curl|sh entrypoint (fleet/install) on macOS.
 
@@ -74,7 +78,7 @@ else
   warn "Brewfile" "not found — skipping brew bundle"
 fi
 
-# ---- 4. clone + stow ----------------------------------------------------------
+# ---- 4. clone + dispatch to a macOS pack -------------------------------------
 echo "--- fetching dotfiles repo (public, HTTPS) ---"
 mkdir -p "${QIMONO_SRC}"
 if [[ -d "$REPO_DIR/.git" ]]; then
@@ -84,11 +88,18 @@ else
   ok "dotfiles repo" "cloned to ${REPO_DIR}"
 fi
 
-if [[ -d "$REPO_DIR/gnu-guix" && -x "$(command -v stow 2>/dev/null || command -v ${HOME}/.guix-profile/bin/stow 2>/dev/null || echo /nonexistent)" ]]; then
+# macOS 26 Tahoe gate (Apple Container hard requirement).
+MAJOR="$(sw_vers -productVersion 2>/dev/null | cut -d. -f1)"
+if [[ "$(uname -m)" == "arm64" ]] && (( ${MAJOR:-0} >= 26 )) && [[ -x "$REPO_DIR/darwin/scripts/bootstrap.sh" ]]; then
+  echo "--- dispatching to darwin pack bootstrap (macOS $MAJOR / arm64) ---"
+  bash "$REPO_DIR/darwin/scripts/bootstrap.sh"
+elif command -v stow >/dev/null 2>&1 && [[ -d "$REPO_DIR/gnu-guix" ]]; then
+  # Older macOS / non-Apple-Silicon: legacy stow-only path (no container layer).
+  warn "darwin pack" "not applicable (macOS $MAJOR / $(uname -m)) — legacy stow only"
   ( cd "$REPO_DIR" && stow -d gnu-guix/stow-source -t "$HOME" --restow shell ) 2>/dev/null || \
     warn "stow" "skipped (stow not installed for macOS shell stow)"
 else
-  warn "stow" "no macOS shell stow source wired yet — add gnu-guix/stow-source/shell or a mac shell pack"
+  warn "darwin pack" "bootstrap.sh missing or macOS < 26 — manually: stow + brew bundle"
 fi
 
 echo
