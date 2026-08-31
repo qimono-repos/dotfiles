@@ -34,13 +34,13 @@ Snapshot placeholders. Fill from `scripts/machine-discovery.sh` output on
 
 | Item | Detail |
 |------|--------|
-| **Captured** | (run `./scripts/machine-discovery.sh`) |
-| hw.model | `Macmini?` (fill `sysctl -n hw.model`) |
-| Chip | Apple M3 (?) |
-| RAM / Storage | ? GiB / ? TB |
-| Hostname | (fill) |
-| macOS | (fill `sw_vers -productVersion`, must be ≥ 26) |
-| brew / container / podman | (fill versions) |
+| **Captured** | 2026-08-31 (initial specs from user) |
+| hw.model | `Macmini16,1` (confirm with `sysctl -n hw.model`) |
+| Chip | Apple **M4** |
+| RAM | **16 GiB** |
+| Storage | **256 GiB** total — **~11 GiB free** ⚠️ (tight; disk audit before day 1) |
+| macOS | **26.2 (Tahoe)** — 1 update pending (run tonight) |
+| brew / container / podman | (fill after `./scripts/machine-discovery.sh`) |
 
 ## Container machines
 

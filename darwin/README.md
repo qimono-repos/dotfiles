@@ -55,6 +55,7 @@ darwin/
   scripts/
     bootstrap.sh            # host orchestrator (called by fleet/brew.sh)
     machine-discovery.sh    # macOS probe (sysctl hw.model, sw_vers, brew, container)
+    disk-audit.sh           # read-only disk reclaim report (keep vs. remove)
     install-container.sh    # brew container + podman + container system start
     container-machine-create.sh  # Debian+systemd image → container machine create
     gen-guix-in-container.sh     # writes guest bootstrap into the mirrored $HOME
