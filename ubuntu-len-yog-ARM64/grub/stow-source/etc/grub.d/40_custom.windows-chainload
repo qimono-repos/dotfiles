@@ -1,0 +1,14 @@
+# Qimono GRUB custom menu — Windows 11 (deterministic chainload fallback).
+# APPEND ONLY the `menuentry` block below into /etc/grub.d/40_custom
+# (do NOT include a #!/bin/sh shebang — 40_custom already is a shell script).
+# If os-prober reliably finds Windows, this is belt-and-braces; keep it if you
+# prefer not to trust os-prober with the BitLocker partition.
+#
+# We chainload the Windows EFI manager from the ESP — robust across GPT/GUIDs
+# and it bypasses reading the (encrypted) BitLocker BCD store.
+
+# --- append this to /etc/grub.d/40_custom, then: sudo update-grub ---
+menuentry "Windows 11 (Microsoft EFI)" {
+    search --fs-uuid --no-floppy --set=root INSERT_ESP_UUID_HERE
+    chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+}
