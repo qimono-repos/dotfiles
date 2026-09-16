@@ -1,0 +1,52 @@
+# Qimono quantum workspace — Windows ARM64 subset (windows11 pack).
+#
+# Sibling of ubuntu-len-yog-ARM64/quantum/pyproject.toml, adapted to what has
+# prebuilt wheels for win_arm64 (measured 2026-09-16):
+#
+#   DEFERRED (bandwidth decision 2026-09-16 — see doc/BUILD-QUANTUM-WIN_ARM64.md):
+#     * qiskit           (no win_arm64 wheel; pulls rustworkx, no win_arm64
+#                         wheel either -> both need MSVC/Rust source builds)
+#     * pennylane        (hard-depends on rustworkx>=0.14 -> same wheel gap)
+#     * qiskit-aer       (CI publishes only Windows x64 + Linux aarch64)
+#     * qdk (Q#)         (Microsoft release channels not guaranteed win_arm64)
+#
+#   Consequently qiskit is EXCLUDED from the base install below. It lives in an
+#   OPTIONAL EXTRA (`quantum`) that must be enabled explicitly only when the
+#   source-build resume path is ready — see scripts/install-quantum.ps1
+#   (-IncludeQuantum) and doc/BUILD-QUANTUM-WIN_ARM64.md. The base spec (this
+#   file minus the extra) resolves + syncs cleanly on win_arm64.
+#
+#   Why deferred on win: rustworkx 0.18.1 sdist ships a STALE committed
+#   Cargo.lock (predates the pyo3 0.29 map_into_ptr API change). Building it
+#   from source requires rustup (aarch64-pc-windows-gnullvm target) + a linker
+#   (llvm-mingw aarch64 clang, since VS Build Tools is ~1-2 GB) AND pinning
+#   pyo3==0.28 + a matching numpy. Each try costs more crates.io bandwidth.
+#   See scripts/install-build-toolchain.ps1 + doc/BUILD-QUANTUM-WIN_ARM64.md
+#   for the proven-ready resume path.
+#
+#   SPEC NOTE: do NOT track/stale-copy a uv.lock here — the old one predated the
+#   qiskit-extra move and was removed (2026-09-16). Re-lock fresh for win_arm64 on
+#   resume (`uv lock [--extra quantum]`); never `uv sync --frozen` this spec.
+
+[project]
+name = "quantum-workspace-win"
+version = "0.1.0"
+description = "Qimono quantum workspace (Windows ARM64): JupyterLab base (qiskit = optional deferred extra)"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.8",
+    "numpy>=1.26",
+    "ipykernel>=6.0",
+    "jupyterlab>=4.0",
+    "notebook>=7.0",
+]
+
+[project.optional-dependencies]
+# ENABLE ONLY ON RESUME (needs rustup gnullvm + llvm-mingw + pyo3 pin; see
+# doc/BUILD-QUANTUM-WIN_ARM64.md). `uv sync --extra quantum --extra dev`.
+quantum = [
+    "qiskit==2.5.2",
+]
+dev = [
+    "pytest>=8.0",
+]
