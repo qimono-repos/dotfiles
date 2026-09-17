@@ -26,7 +26,7 @@ Windows sibling of the `ubuntu-len-yog-ARM64` Linux pack.
 | git · gh · bun · ollama | already installed | ok |
 | node / nvm | Node 24 LTS (arm64) | ✅ tier-1 |
 | openjdk (Guix) | **frozen: Android Studio JBR 25.0.3** — see `../ubuntu/README_JAVA_FOR_MOBILE.md` | untouched |
-| quantum workspace (uv) | `quantum-win/` subset — **qiskit DEFERRED** (bandwidth; see `doc/BUILD-QUANTUM-WIN_ARM64.md`) | pending |
+| quantum workspace (uv) | `quantum-win/` subset — **qiskit 2.5.2 INSTALLED** (source-built; see `doc/BUILD-QUANTUM-WIN_ARM64.md`) | ok |
 | Ollama + gemma4:e2b | Ollama installed; model pull = manual (7.2 GB) | deferred |
 | .zshrc + .zshrc.d | `$PROFILE` + `Profile.d/` | ✅ setup-profile |
 | (bonus) network budget monitor | `scripts/check-network-budget.ps1` — hard 1 GiB received-cap | ✅ new |
@@ -36,11 +36,9 @@ Windows sibling of the `ubuntu-len-yog-ARM64` Linux pack.
 - **No `qiskit-aer` / `pennylane-lightning`** — no `win_arm64` wheels exist; a
   native install would be an MSVC source build (hours). Documented in
   `quantum-win/pyproject.toml`. The LINUX simulator stack runs 1:1 in WSL2 Ubuntu.
-- **`qiskit` itself is DEFERRED (2026-09-16)** — no `win_arm64` wheel, and its
-  `rustworkx` dependency's sdist carries a stale `Cargo.lock` (breaks `--locked`).
-  A VS-free source-build path (rustup `aarch64-pc-windows-gnullvm` toolchain +
-  llvm-mingw) was **proven to compile & link** before the remaining pyo3
-  fixes were parked for bandwidth. Resume: `doc/BUILD-QUANTUM-WIN_ARM64.md` +
+- **`qiskit` 2.5.2 INSTALLED (2026-09-17)** — source-built `win_arm64` (its
+  `rustworkx` 0.18.1 dependency was built first with the same toolchain). Build
+  record + resume path: `doc/BUILD-QUANTUM-WIN_ARM64.md` /
   `scripts/install-build-toolchain.ps1`.
 - **Q# (qdk)** — Python package not guaranteed on win_arm64; Q# remains a
   WSL2/other-host item for now.
@@ -54,7 +52,7 @@ Windows sibling of the `ubuntu-len-yog-ARM64` Linux pack.
 | Doc | Purpose |
 |-----|---------|
 | [`doc/TOOLCHAIN.md`](doc/TOOLCHAIN.md) | What's installed, where, why (core + build toolchain + exclusions) |
-| [`doc/BUILD-QUANTUM-WIN_ARM64.md`](doc/BUILD-QUANTUM-WIN_ARM64.md) | **Resume guide** for the deferred qiskit/rustworkx source build |
+| [`doc/BUILD-QUANTUM-WIN_ARM64.md`](doc/BUILD-QUANTUM-WIN_ARM64.md) | **Build record** for qiskit 2.5.2 / rustworkx 0.18.1 source build (2026-09-17) |
 | [`doc/NETWORK-BUDGET.md`](doc/NETWORK-BUDGET.md) | The 1 GiB received-cap monitor: how it works, usage, caveats |
 | [`doc/TROUBLESHOOTING.md`](doc/TROUBLESHOOTING.md) | Real failures hit during provisioning + fixes |
 
@@ -83,3 +81,4 @@ pwsh .\scripts\check-network-budget.ps1
 ```
 
 QA checklists (Human + AI) live in [`QA/`](./QA/).
+

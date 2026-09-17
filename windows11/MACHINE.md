@@ -51,7 +51,7 @@ installed), tree, tig.
 
 | Item | Status | Doc |
 |------|--------|-----|
-| qiskit (Qiskit only) | **DEFERRED** — no win_arm64 wheel; sdist lock broken (bandwidth cap hit 2026-09-16) | [`doc/BUILD-QUANTUM-WIN_ARM64.md`](doc/BUILD-QUANTUM-WIN_ARM64.md) |
+| qiskit (Qiskit only) | **INSTALLED** — source-built win_arm64 (llvm-mingw gnullvm) 2026-09-17 | [`doc/BUILD-QUANTUM-WIN_ARM64.md`](doc/BUILD-QUANTUM-WIN_ARM64.md) |
 | pennylane | excluded from spec (hard-depends rustworkx → same wheel gap) | `quantum-win/pyproject.toml` |
 | qiskit-aer | excluded (no win_arm64 wheels at all) | `quantum-win/pyproject.toml` |
 | qdk (Q#) | excluded (win_arm64 availability not guaranteed) | `quantum-win/pyproject.toml` |
@@ -66,3 +66,4 @@ winget list | Select-String -Pattern 'Neovim|Emacs|git|Python|Node|uv|OhMyPosh|r
 where.exe rg fd fzf nvim emacs node python uv fastfetch oh-my-posh
 pwsh .\scripts\check-network-budget.ps1
 Get-ChildItem "$env:USERPROFILE\.rustup\toolchains" | Select-Object -ExpandProperty Name
+

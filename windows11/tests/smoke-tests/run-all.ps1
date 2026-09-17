@@ -37,11 +37,16 @@ if ($tests.Count -eq 0) {
 }
 
 $status = 0
+$py = Join-Path (Join-Path $ws '.venv') 'Scripts\python.exe'
+if (-not (Test-Path $py)) {
+    Write-Host "[smoke] no venv python at $py — run install-quantum.ps1 first" -ForegroundColor Yellow
+    exit 1
+}
 foreach ($t in $tests) {
     Write-Host "--- $t ---"
     Push-Location $ws
     try {
-        uv run python (Join-Path $dir $t)
+        & $py (Join-Path $dir $t)
         if ($LASTEXITCODE -ne 0) { $status = 1 }
     } catch { Write-Host "  -> threw: $($_.Exception.Message)" -ForegroundColor Red; $status = 1 }
     finally { Pop-Location }

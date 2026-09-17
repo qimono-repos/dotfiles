@@ -77,7 +77,7 @@ Podman Desktop, tree, tig.
 
 ## Deliberately absent / excluded
 
-- `qiskit`, `rustworkx` source-build — **deferred** (logistics + bandwidth; see doc)
+- `qiskit` 2.5.2, `rustworkx` 0.18.1 — **installed 2026-09-17** via llvm-mingw gnullvm source build (see `doc/BUILD-QUANTUM-WIN_ARM64.md`)
 - `qiskit-aer` — no `win_arm64` wheels at all (CI ships only x64 + Linux aarch64)
 - `qdk` (Q#) — win_arm64 availability not guaranteed
 - `pennylane` — hard-depends on `rustworkx`; same wheel gap
@@ -88,3 +88,5 @@ Podman Desktop, tree, tig.
 - uv refusing python: check `UV_PYTHON_PREFERENCE`/`UV_PYTHON_DOWNLOADS` are set
 - Monitor reset: `check-network-budget.ps1 -Reset`
 - Full toolchain re-provisioning: `install-build-toolchain.ps1` (idempotent)
+
+

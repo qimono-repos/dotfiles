@@ -1,6 +1,6 @@
 # Building Qiskit for Windows ARM64 (Resume Guide)
 
-**Status: DEFERRED 2026-09-16 (bandwidth decision).** This document captures everything
+**Status: INSTALLED 2026-09-17 (qiskit 2.5.2 built + verified on win_arm64).** This document captures how qiskit 2.5.2 + rustworkx 0.18.1 were built from source and
 learned while attempting to source-build qiskit + rustworkx on the Snapdragon
 machine (Yin) so a future high-bandwidth session can resume in minutes instead
 of re-deriving it.
@@ -128,3 +128,5 @@ uv run python .\dotfiles\windows11\tests\smoke-tests\hello_qiskit.py
 - `../scripts/install-build-toolchain.ps1` — resume env
 - `../tests/smoke-tests/run-all.ps1` — auto-skips qiskit until installed
 - `../MACHINE.md`, `../README.md` — parity table status
+
+

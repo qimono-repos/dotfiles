@@ -28,7 +28,7 @@ in order; tick only what actually passes.
 - [ ] New shell launches fastfetch once; `cls` reprints it
 - [ ] `too` / `powerofff` functions defined
 
-## Quantum (currently DEFERRED — qiskit/rustworkx win_arm64; see doc/BUILD-QUANTUM-WIN_ARM64.md)
+## Quantum (INSTALLED 2026-09-17 — qiskit 2.5.2 + rustworkx 0.18.1 win_arm64)
 
 - [ ] `QIMONO_QUANTUM_HOME` workspace exists with pyproject.toml (qiskit under `quantum` extra)
 - [ ] `uv lock` + `uv sync --extra dev` resolved (base deps: numpy/matplotlib/jupyterlab/notebook/ipykernel)
@@ -45,3 +45,5 @@ in order; tick only what actually passes.
 
 - [ ] `java -version` still 25.0.3 (JBR) — Java untouched
 - [ ] No `gemma4:e2b` auto-pull happened (~7.2 GB) — stays deferred/manual
+
+

@@ -64,6 +64,7 @@ if (-not $state) {
         accumulatedBytes = 0L
         lastSeen         = $lastSeen
         runs             = 1
+        runsReset        = 0
     }
     $state | ConvertTo-Json -Depth 4 | Set-Content -Path $stateFile -Encoding utf8
     Write-Host ('[network] tracking anchored at {0}; budget {1:N0} bytes ({2:N2} GiB)' -f (Get-Date).ToString('s'), $BudgetBytes, ($BudgetBytes / 1GB)) -ForegroundColor Cyan
@@ -71,6 +72,13 @@ if (-not $state) {
 else {
     # Accumulate per-adapter deltas since the previous read. Any adapter whose
     # counter went BACKWARD (reset) contributes 0 and gets re-anchored.
+    # Guard schema evolution: files written by earlier script versions may lack
+    # fields added later. Backfill them so the persistent state stays forward
+    # compatible ("runsReset"/"accumulatedBytes"/"lastSeen"/"budgetBytes").
+    if ($null -eq $state.runsReset)  { $state | Add-Member -NotePropertyName runsReset  -NotePropertyValue 0 -Force }
+    if ($null -eq $state.lastSeen)   { $state | Add-Member -NotePropertyName lastSeen   -NotePropertyValue @{} -Force }
+    if ($null -eq $state.accumulatedBytes) { $state | Add-Member -NotePropertyName accumulatedBytes -NotePropertyValue 0L -Force }
+    if ($null -eq $state.budgetBytes) { $state | Add-Member -NotePropertyName budgetBytes -NotePropertyValue [long]$BudgetBytes -Force }
     if (-not $state.accumulatedBytes) { $state.accumulatedBytes = 0L }
     if (-not $state.lastSeen)         { $state.lastSeen = @{} }
 
@@ -104,7 +112,7 @@ else {
 $used   = [long]$state.accumulatedBytes
 $usedMB = [math]::Round($used / 1MB, 1)
 $budMB  = [math]::Round($BudgetBytes / 1MB, 1)
-$remain = [math]::Max(0, $BudgetBytes - $used)
+$remain = [math]::Max(0L, $BudgetBytes - $used)
 
 $color = 'Green'
 if ($usedMB -ge 0.8 * $budMB) { $color = 'Yellow' }
