@@ -22,7 +22,7 @@ Copy-Item "C:\Users\qi\Tools\llvm-mingw\bin\libunwind.dll" "$sp\qiskit\libunwind
 
 ```powershell
 cd C:\Users\qi\source\repos\qimono-repos\quantum-workspace
-.\.venv\Scripts\python.exe
+uv run python
 ```
 
 ```python
