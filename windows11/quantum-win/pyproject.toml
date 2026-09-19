@@ -1,0 +1,35 @@
+# Qimono quantum workspace - Windows 11 on Snapdragon X (win_arm64) - offline-capable.
+#
+# WHY wheels/ is vendored in git:
+#   * qiskit 2.5.2 and rustworkx 0.18.1 have NO upstream win_arm64 wheels.
+#     A fresh uv sync would otherwise try to SOURCE-BUILD them (Rust + llvm-mingw
+#     + Cargo.lock juggling). We already did that build ONCE, successfully, and
+#     archived the resulting ARM64 wheels. uv must never rebuild them again.
+#   * The two vendored wheels are committed under wheels/ (find-links in [tool.uv]).
+#   * NOTE: this machine needs matplotlib? then add it here. Keep it lean for ARM64.
+
+[project]
+name = "quantum-win"
+version = "0.1.0"
+description = "Qiskit 2.5.2 offline workspace for Windows 11 on Snapdragon X (Snapdragon X / win_arm64), terminal-first"
+requires-python = ">=3.13"
+dependencies = [
+    "qiskit==2.5.2",
+    "rustworkx==0.18.1",
+]
+
+[project.optional-dependencies]
+lab = [
+    "ipykernel>=6.0",
+    "jupyterlab>=4.0",
+]
+
+[tool.uv]
+# NEVER attempt a source-build for these two - only accept our vendored ARM64 wheels.
+no-build-package = ["qiskit", "rustworkx"]
+find-links = ["wheels"]
+# Offline re-syncs reuse the uv cache; first sync needs one network burst.
+
+[tool.uv.sources]
+qiskit = { workspace = false }
+rustworkx = { workspace = false }
