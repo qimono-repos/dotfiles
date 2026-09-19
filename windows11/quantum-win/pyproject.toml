@@ -30,6 +30,3 @@ no-build-package = ["qiskit", "rustworkx"]
 find-links = ["wheels"]
 # Offline re-syncs reuse the uv cache; first sync needs one network burst.
 
-[tool.uv.sources]
-qiskit = { workspace = false }
-rustworkx = { workspace = false }

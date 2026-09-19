@@ -32,7 +32,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # 4) THE contract: qiskit imports from the terminal
-.\.venv\Scripts\python.exe -c "from qiskit import QuantumCircuit; from qiskit.quantum_info import Statevector; q=QuantumCircuit(3); q.h([0,1,2]); s=Statevector.from_instruction(q); p=s.probabilities_dict(); assert len(p)==8 and abs(sum(p.values())-1)<1e-6; print('QUANTUM READY |', 'qiskit 2.5.2 rustworkx 0.18.1 win_arm64')"
+uv run python -c "from qiskit import QuantumCircuit; from qiskit.quantum_info import Statevector; q=QuantumCircuit(3); q.h([0,1,2]); s=Statevector.from_instruction(q); p=s.probabilities_dict(); assert len(p)==8 and abs(sum(p.values())-1)<1e-6; print('QUANTUM READY |', 'qiskit 2.5.2 rustworkx 0.18.1 win_arm64')"
 if ($LASTEXITCODE -ne 0) { throw "qiskit import failed" }
 
 "== done. run a python shell with:  .\.venv\Scripts\python.exe  =="
