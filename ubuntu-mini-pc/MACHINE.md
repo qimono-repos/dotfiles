@@ -47,6 +47,14 @@ a ceiling, but day-1 work does not need cloud QPUs.
 | Kernel spec | `Python (quantum)` → workspace `.venv` |
 | Flatpak | Guix 1.16.0 client; Flathub user remote; Alpaca 9.2.5. Run via `FLATPAK_BWRAP=/usr/bin/bwrap` (Ubuntu AppArmor) |
 
+## Python profile target (after applying the updated manifest)
+
+The historical generation-3 snapshot below records Python 3.11.14. The updated
+`guix/manifests/profile-full.scm` now requests `python@3.12` so PROXORA's
+Python engine can use the project's `requires-python = ">=3.12"` without
+installing a non-Guix interpreter. Reapply the full manifest, then refresh the
+live inventory with `./scripts/status.sh`.
+
 ## Pack policy
 
 | Rank | Manager | Role |
