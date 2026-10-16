@@ -44,7 +44,8 @@ Guix Python does not search `/usr/lib`. NumPy / Aer wheels still `dlopen`
 `LD_LIBRARY_PATH` in the interactive shell — Ubuntu `ls` then loads Guix
 `libm` and dies (`GLIBC_2.43 not found`).
 
-`install-quantum-python.sh` copies `scripts/sitecustomize-guix-native.py`
-into the venv so notebooks and `uv run python` preload those sonames
-without exporting the path. Same lesson as `qu/qiskit/env.sh`, scoped to
-the interpreter that needs it.
+`scripts/install-quantum-python.sh` calls the fleet helper
+`scripts/install-guix-wheel-shim.sh` (dotfiles repo root), which copies
+`scripts/sitecustomize-guix-native.py` into the venv so notebooks and
+`uv run python` preload those sonames without exporting the path. Same
+lesson as `qu/qiskit/env.sh`, scoped to the interpreter that needs it.

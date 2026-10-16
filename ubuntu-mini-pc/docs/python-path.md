@@ -66,7 +66,10 @@ source ~/.zshrc
 ```
 
 Wheels that need `libz` / `libstdc++` are preloaded by the venv
-`sitecustomize.py` (copied from `scripts/sitecustomize-guix-native.py`).
+`sitecustomize.py`. Install it with the fleet helper from the dotfiles repo
+root: `scripts/install-guix-wheel-shim.sh <venv|project>` (copies
+`scripts/sitecustomize-guix-native.py`; re-run after any `uv sync` that
+recreates the venv).
 `install-quantum-python.sh` also wraps `uv add` / `uv run` with
 `LD_LIBRARY_PATH` for the child only. The login shell and the Jupyter
 unit stay clean.

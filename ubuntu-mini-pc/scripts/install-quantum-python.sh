@@ -88,7 +88,15 @@ SITE="$(
 )"
 if [[ -n "$SITE" && -d "$SITE" ]]; then
   echo "==> Installing sitecustomize (Guix libz/libstdc++ for wheels)"
-  cp "$ROOT/scripts/sitecustomize-guix-native.py" "$SITE/sitecustomize.py"
+  # Canonical shim + installer live at the dotfiles repo root: scripts/.
+  SHIM_INSTALLER="$ROOT/../scripts/install-guix-wheel-shim.sh"
+  if [[ -x "$SHIM_INSTALLER" ]]; then
+    "$SHIM_INSTALLER" "$WS"
+  else
+    echo "warning: $SHIM_INSTALLER not found — wheels may fail with" >&2
+    echo "         'libz.so.1: cannot open shared object file'." >&2
+    echo "         Fetch scripts/ from the dotfiles repo and rerun." >&2
+  fi
 fi
 
 echo "==> Registering Jupyter kernel: Python (quantum)"

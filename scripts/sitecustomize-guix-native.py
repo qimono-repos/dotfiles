@@ -4,19 +4,24 @@ Guix CPython does not search /usr/lib. Wheels still dlopen libz / libstdc++
 by soname. Exporting LD_LIBRARY_PATH in the login shell (or the Jupyter
 unit) makes Ubuntu ls/date load Guix libm and die with GLIBC_2.43.
 
-This file is copied into the quantum-workspace venv site-packages so only
-that interpreter preloads the libs. Subprocesses (!ls in a notebook) keep
-the Ubuntu dynamic linker path.
+Install this as ``sitecustomize.py`` in a Guix-CPython venv's site-packages
+(see scripts/install-guix-wheel-shim.sh) so only that interpreter preloads
+the libs. Subprocesses (!ls in a notebook) keep the Ubuntu dynamic linker
+path.
 
-Do not import this from an interactive host python.
+Override the profile with ``QIMONO_GUIX_PROFILE``. Do not import this from
+an interactive host python.
 """
 
 from __future__ import annotations
 
 import ctypes
+import os
 from pathlib import Path
 
-_GUIX_LIB = Path.home() / ".guix-profile" / "lib"
+_GUIX_LIB = Path(
+    os.environ.get("QIMONO_GUIX_PROFILE", str(Path.home() / ".guix-profile"))
+) / "lib"
 _SONAMES = (
     "libz.so.1",
     "libstdc++.so.6",
