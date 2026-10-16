@@ -38,22 +38,33 @@ a ceiling, but day-1 work does not need cloud QPUs.
 | Layer | Actual |
 |-------|--------|
 | Kernel | `7.0.0-29-generic` |
-| Guix user profile | generation 3: emacs, stow, python 3.11.14, uv 0.6.12, jupyter 1.0.0, gcc-toolchain, zlib, openssl, pkg-config, glibc-locales |
-| Developer `python3` | `~/.guix-profile/bin/python3` (3.11.14) |
-| Apt `python3` | `/usr/bin/python3` (3.14.4) still present |
-| Jupyter | `qimono-jupyter.service` enabled+active, http://127.0.0.1:5005 |
+| Guix user profile | generation 7 (2026-10-16): emacs, stow, blender, bat, python 3.12.12, uv 0.10.12, jupyter 1.0.0, gcc-toolchain 16.2.0, zlib, openssl 3.5.7, pkg-config, glibc-locales, flatpak 1.16.6 |
+| Developer `python3` | `~/.guix-profile/bin/python3` (3.12.12) |
+| Apt `python3` | `/usr/bin/python3` (3.14.8) still present |
+| Jupyter | `qimono-jupyter.service` enabled; **inactive** — `quantum-workspace` dir missing → CHDIR fails (needs recreate, see below) |
 | Auth | `~/.secrets/jupyter_auth.py` mode 600 (hash only) |
 | Shared Qiskit | `~/source/repos/qimono-repos/quantum-workspace` — qiskit 2.5.2 + aer 0.17.2 on Guix CPython |
 | Kernel spec | `Python (quantum)` → workspace `.venv` |
-| Flatpak | Guix 1.16.0 client; Flathub user remote; Alpaca 9.2.5. Run via `FLATPAK_BWRAP=/usr/bin/bwrap` (Ubuntu AppArmor) |
+| Flatpak | Guix 1.16.6 client; Flathub user remote; Alpaca 9.2.5. Run via `FLATPAK_BWRAP=/usr/bin/bwrap` (Ubuntu AppArmor) |
 
-## Python profile target (after applying the updated manifest)
+## Python profile target (applied 2026-10-16)
 
-The historical generation-3 snapshot below records Python 3.11.14. The updated
-`guix/manifests/profile-full.scm` now requests `python@3.12` so PROXORA's
-Python engine can use the project's `requires-python = ">=3.12"` without
-installing a non-Guix interpreter. Reapply the full manifest, then refresh the
-live inventory with `./scripts/status.sh`.
+`guix/manifests/profile-full.scm` requests `python@3.12` so PROXORA's
+`requires-python = ">=3.12"` is satisfied by the Guix interpreter — no non-Guix
+Python is installed. Generation 7 now provides **python 3.12.12**; re-verify
+with `./scripts/status.sh`.
+
+Two traps fixed while applying it:
+
+1. **`GUIX_PROFILE` clobber** — `~/.zshrc`'s installer block exports
+   `GUIX_PROFILE=$HOME/.config/guix/current` before `~/.guix-profile/etc/profile`
+   is sourced. That snippet prepends `${GUIX_PROFILE}/bin`, so the *pull*
+   profile's bin was prepended and `~/.guix-profile/bin` (python3, uv, stow)
+   never reached PATH. `stow-source/shell/.zshrc.d/10-guix.zsh` now pins
+   `GUIX_PROFILE=$HOME/.guix-profile` for the user-profile source.
+2. **Manifest completeness** — `blender` and `bat` were installed but not
+   listed, so a bare `-m` would have deleted them. Both are now in
+   `profile-full.scm` (which must stay complete).
 
 ## Pack policy
 

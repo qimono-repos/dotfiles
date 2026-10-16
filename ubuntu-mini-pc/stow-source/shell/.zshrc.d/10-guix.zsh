@@ -9,17 +9,18 @@ if [[ -d "$HOME/.config/guix/current/bin" ]]; then
 fi
 
 # 2) user packages (epiphany, firefox, uv, stow, …)
-export GUIX_PROFILE="${GUIX_PROFILE:-$HOME/.guix-profile}"
-
-# Profile files are sourced ONLY outside a project `guix shell`: inside one,
-# the project profile must stay first on PATH. NB: current/etc/profile
-# prepends "${GUIX_PROFILE}/bin" — with the inherited GUIX_PROFILE value it
-# would silently re-add the default profile ahead of the project's python3.
+# NB: ~/.zshrc's installer block may have already exported GUIX_PROFILE as
+# $HOME/.config/guix/current (the guix-pull profile). The *user* profile is
+# always ~/.guix-profile; keep them apart or the profile bin (python3, uv,
+# stow) never lands on PATH — the /etc/profile snippet prepends
+# ${GUIX_PROFILE}/bin, so a clobbered value yields the wrong bin dir.
 if [[ -z "${GUIX_ENVIRONMENT:-}" ]]; then
   if [[ -r "$HOME/.config/guix/current/etc/profile" ]]; then
+    GUIX_PROFILE="$HOME/.config/guix/current"
     # shellcheck disable=SC1091
     source "$HOME/.config/guix/current/etc/profile"
   fi
+  export GUIX_PROFILE="$HOME/.guix-profile"
   if [[ -r "$GUIX_PROFILE/etc/profile" ]]; then
     # shellcheck disable=SC1091
     source "$GUIX_PROFILE/etc/profile"

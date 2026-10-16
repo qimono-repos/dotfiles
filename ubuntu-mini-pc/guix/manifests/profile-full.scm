@@ -18,6 +18,8 @@
   ;; Already on this host — must stay listed
   "emacs"
   "stow"
+  "blender"
+  "bat"
 
   ;; Developer toolchain (Guix python wins PATH; apt python stays for the OS)
   "python@3.12"

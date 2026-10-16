@@ -46,8 +46,10 @@ uv sync
 uv run proxora
 ```
 
-Host `~/.local/bin/uv` (0.12.x) may still exist; after `10-guix.zsh` the
-Guix binary is first.
+Host `~/.local/bin/uv` (0.12.x) may still exist; it is **not** on PATH ahead
+of Guix. `40-oh-my-posh.zsh` used to re-prepend `~/.local/bin` (to find the
+prompt binary), which silently shadowed the Guix `uv`; it now appends instead,
+so `~/.guix-profile/bin` stays rank #1 and `uv --version` is the Guix build.
 
 ## Do not put Guix `lib/` on `LD_LIBRARY_PATH` in the shell
 
