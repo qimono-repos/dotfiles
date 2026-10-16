@@ -31,7 +31,7 @@
   ;; Dotfiles + Python + uv (quantum libs + JupyterLab stay in the uv workspace:
   ;; the monolithic Guix `jupyter` package does NOT support aarch64-linux).
   "stow"
-  "python"
+  "python@3.12"
   "uv"
 
    ;; Locales / small libs
