@@ -2,7 +2,7 @@
 
 ## Rule
 
-- **You** type `python3` → Guix (`~/.guix-profile/bin/python3`, 3.11.x).
+- **You** type `python3` → Guix (`~/.guix-profile/bin/python3`, Guix Python 3.12.x).
 - **Ubuntu** scripts use `#!/usr/bin/python3` → apt 3.14, untouched.
 - Do **not** `apt remove python3`. Do **not** delete `/usr/bin` from PATH.
 
@@ -23,18 +23,27 @@ Check:
 ```bash
 which -a python3
 # first line must be /home/qi/.guix-profile/bin/python3
-python3 --version          # 3.11.x
+python3 --version          # 3.12.x
 /usr/bin/python3 --version # 3.14.x, still there
 ```
 
 ## uv
 
-Use the Guix `uv`. Do **not** `uv python install 3.12`. That is a second
-interpreter and fights this policy.
+Use the Guix `uv`; Python interpreters must come from Guix. Do **not** run
+`uv python install`, which downloads a separate CPython.
+
+The fleet profile now explicitly installs Guix `python@3.12`, so the default
+developer interpreter satisfies PROXORA's `requires-python = ">=3.12"`.
+The shell exports `UV_PYTHON_PREFERENCE=only-system` and
+`UV_PYTHON_DOWNLOADS=never`, but deliberately does **not** globally set
+`UV_PYTHON`: project pins and each project's `requires-python` must be
+allowed to select the appropriate Guix interpreter.
+
+For PROXORA, from `python/`:
 
 ```bash
-export UV_PYTHON_PREFERENCE=only-system
-uv python pin "$(readlink -f "$HOME/.guix-profile/bin/python3")"
+uv sync
+uv run proxora
 ```
 
 Host `~/.local/bin/uv` (0.12.x) may still exist; after `10-guix.zsh` the
