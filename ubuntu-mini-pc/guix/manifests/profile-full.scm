@@ -25,6 +25,7 @@
   ;; Functional programming toolchain: use the JDK output, not only default out
   "openjdk@21:jdk"
   "clojure"
+  "clojure-tools"
 
   ;; Developer toolchain (Guix python wins PATH; apt python stays for the OS)
   "python@3.12"
