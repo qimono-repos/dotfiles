@@ -23,8 +23,9 @@ Install as ``sitecustomize.py`` in a Guix-CPython venv's site-packages
 touches the Guix libs; subprocesses (``!ls`` in a notebook) keep the
 Ubuntu dynamic linker path.
 
-Override the profile with ``QIMONO_GUIX_PROFILE``. Do not import this
-from an interactive host python.
+Override the profile with ``QIMONO_GUIX_PROFILE``. On a machine with no
+``~/.guix-profile/lib`` this module is a complete no-op, so it is safe to
+ship in a package. Do not import this from an interactive host python.
 """
 
 from __future__ import annotations
@@ -45,6 +46,11 @@ _SONAMES = (
 )
 _TLS_TUNABLE = "glibc.rtld.optional_static_tls=65536"
 _SENTINEL = "QIMONO_STATIC_TLS"
+
+
+def _guix_active() -> bool:
+    """True only where Guix actually provides the libraries we preload."""
+    return _GUIX_LIB.is_dir()
 
 
 def _raise_static_tls() -> None:
@@ -77,5 +83,6 @@ def _preload() -> None:
             pass
 
 
-_raise_static_tls()
-_preload()
+if _guix_active():
+    _raise_static_tls()
+    _preload()
