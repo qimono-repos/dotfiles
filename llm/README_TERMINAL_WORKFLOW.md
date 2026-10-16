@@ -20,7 +20,7 @@ uv sync                     # installs once; no-op afterwards
 - `./run` = `uv run` plus the Guix `LD_LIBRARY_PATH` fix (libz /
   libstdc++) that wheels like NumPy and Aer need when Python/libs
   come from guix (Ubuntu GNOME + guix as package manager here).
-- `python3` alone still opens the Guix system Python (3.11) without
+- `python3` alone opens the Guix system Python (now targeted at 3.12 by the fleet manifests) without
   any project packages — by policy, on every machine.
 
 ## Offload Gemma (free ~5 GiB of RAM)
