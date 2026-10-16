@@ -99,7 +99,7 @@ Sibling pack (same drop-in): `dotfiles/ubuntu-hp-pro/`.
 - `fd` 10.2.0  
 - `fzf` 0.67.0  
 
-**Also installed later:** `stow`, `python` 3.11, `uv` (Guix).  
+**Also installed later:** `stow`, Guix `python@3.12`, `uv` (Guix), per the current `profile-full.scm`.  
 
 **Gap (historical):** Guix profile was **not** sourced in live zsh `PATH` at first snapshot. Fixed via `stow-source/shell` + `guix-env`.
 
