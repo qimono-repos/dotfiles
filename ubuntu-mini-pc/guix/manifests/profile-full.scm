@@ -20,7 +20,7 @@
   "stow"
 
   ;; Developer toolchain (Guix python wins PATH; apt python stays for the OS)
-  "python"
+  "python@3.12"
   "uv"
   "jupyter"
 
