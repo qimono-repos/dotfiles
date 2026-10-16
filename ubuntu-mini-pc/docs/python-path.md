@@ -74,6 +74,14 @@ recreates the venv).
 `LD_LIBRARY_PATH` for the child only. The login shell and the Jupyter
 unit stay clean.
 
+The same shim re-execs the interpreter once with
+`glibc.rtld.optional_static_tls=65536`. glibc reads `GLIBC_TUNABLES` before
+`site` runs, so this is the only way to give SciPy / Qiskit-Aer's
+`dlopen`-ed `libgomp` (and qiskit 2.6's Rust `_accelerate`) enough
+static-TLS surplus. Do not export the tunable yourself; unlike
+`LD_LIBRARY_PATH` it would be harmless, but it is pointless — the shim
+handles it per interpreter.
+
 ## Wrong `GUIX_PROFILE`
 
 The old zshrc sets `GUIX_PROFILE=~/.config/guix/current` (the *guix

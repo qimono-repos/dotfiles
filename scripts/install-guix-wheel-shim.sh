@@ -14,6 +14,17 @@
 # $GUIX_PROFILE/lib in the login shell (that makes Ubuntu binaries load Guix
 # libm and die with `GLIBC_2.43 not found`).
 #
+# A second failure follows from the same preloading: SciPy and Qiskit-Aer
+# `dlopen` libgomp after start-up, and qiskit's Rust `_accelerate` needs
+# initial-exec TLS, which exhausts glibc's static-TLS surplus:
+#
+#     ImportError: ..._accelerate.abi3.so: cannot allocate memory in static TLS block
+#
+# `GLIBC_TUNABLES` is parsed by ld.so BEFORE `site` runs, so the shim
+# re-execs the process once with `glibc.rtld.optional_static_tls=65536`.
+# That is handled automatically — do not export LD_LIBRARY_PATH (or the
+# tunable) yourself.
+#
 # Idempotent: re-run after any `uv sync` that recreates the venv. Safe to run
 # on any fleet machine; does nothing when the shim is already in place.
 #
@@ -35,7 +46,7 @@ TARGET=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=1 ;;
-    -h|--help) sed -n '2,29p' "$0"; exit 0 ;;
+    -h|--help) awk 'NR>1 && /^set -uo pipefail/{exit} NR>1{print}' "$0"; exit 0 ;;
     -*) echo "unknown arg: $1 (try --help)" >&2; exit 2 ;;
     *) TARGET="$1" ;;
   esac
@@ -127,14 +138,40 @@ else
 fi
 
 # --- Verify (best effort) ----------------------------------------------------
+# Imports every stack module that is actually installed. This is what catches
+# the static-TLS regression: qiskit's Rust _accelerate and SciPy's dlopen'd
+# libgomp only fail here, not on plain numpy.
 if (( ! DRY_RUN )) && [[ -n "$VENV" ]]; then
-  if "$VENV/bin/python" -c 'import numpy' >/dev/null 2>&1; then
-    ok "verify" "numpy imports under $(basename "$VENV") python"
+  VERIFY_OUT="$("$VENV/bin/python" - <<'PY' 2>&1
+import importlib
+
+mods = ("numpy", "scipy", "matplotlib.pyplot", "qiskit", "qiskit_aer")
+imported = 0
+problems = []
+for name in mods:
+    try:
+        importlib.import_module(name)
+    except ImportError:
+        continue  # not installed in this venv
+    except Exception as exc:  # noqa: BLE001
+        problems.append(f"{name}: {type(exc).__name__}: {exc}")
+    else:
+        imported += 1
+print(f"IMPORTED {imported}")
+for problem in problems:
+    print(f"FAIL {problem}")
+PY
+)"
+  if printf '%s' "$VERIFY_OUT" | grep -q '^FAIL '; then
+    warn "verify" "$(printf '%s\n' "$VERIFY_OUT" | grep '^FAIL ' | head -2 | tr '\n' ' ')"
+  elif printf '%s' "$VERIFY_OUT" | grep -q '^IMPORTED 0'; then
+    warn "verify" "no stack modules installed yet"
   else
-    warn "verify" "numpy import not confirmed (may not be installed yet)"
+    ok "verify" "$(printf '%s' "$VERIFY_OUT" | head -1 | sed 's/IMPORTED //') stack module(s) import"
   fi
 fi
 
 echo
 echo "Re-run after any 'uv sync' that recreates the venv."
 echo "Never export LD_LIBRARY_PATH=\$GUIX_PROFILE/lib in the login shell."
+echo "No GLIBC_TUNABLES needed either — the shim re-execs itself once."

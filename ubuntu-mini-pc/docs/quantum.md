@@ -49,3 +49,21 @@ Guix Python does not search `/usr/lib`. NumPy / Aer wheels still `dlopen`
 `scripts/sitecustomize-guix-native.py` into the venv so notebooks and
 `uv run python` preload those sonames without exporting the path. Same
 lesson as `qu/qiskit/env.sh`, scoped to the interpreter that needs it.
+
+### Static TLS (`cannot allocate memory in static TLS block`)
+
+Preloading those sonames — and SciPy / Aer `dlopen`-ing `libgomp` at import
+time — can exhaust glibc's static-TLS surplus, after which qiskit's Rust
+`_accelerate.abi3.so` fails with
+`cannot allocate memory in static TLS block`. Dropping sonames does not
+help: without the shim `import qiskit_aer` already trips on
+`_accelerate`, and with it SciPy / Aer pull in `libgomp` anyway.
+
+`GLIBC_TUNABLES` is parsed by ld.so **before** Python's `site` module runs,
+so setting it inside `sitecustomize.py` is too late. The shim therefore
+re-execs the process once with `glibc.rtld.optional_static_tls=65536`
+(sentinel-guarded; skipped if the value is already present). Nothing to
+export by hand, and it is safe for Ubuntu tools — unlike `LD_LIBRARY_PATH`.
+
+Verified with qiskit 2.6 / Aer 0.17 in the workspace venv on the command
+line, under `uv run`, and through the `Python (quantum)` Jupyter kernel.
