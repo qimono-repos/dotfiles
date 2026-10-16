@@ -12,7 +12,7 @@ Print or tick. Born from Yoga profile-wipe + HP Jupyter lessons.
 ## After `./scripts/bootstrap.sh`
 
 - [x] New terminal: `which python3` starts with `~/.guix-profile/bin/python3`
-- [x] `python3 --version` is 3.11.x
+- [x] `python3 --version` is 3.12.x
 - [x] `/usr/bin/python3 --version` still works (3.14.x)
 - [x] `which uv` is under `~/.guix-profile`
 - [x] `systemctl --user status qimono-jupyter.service` is active (or activating)
