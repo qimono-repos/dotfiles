@@ -27,7 +27,7 @@ Day-1 target (what “green” means):
 | Check | Expected |
 |-------|----------|
 | Guix user profile | `python`, `uv`, `jupyter`, `emacs`, `stow`, `gcc-toolchain`, `zlib`, `openssl`, `pkg-config`, `glibc-locales` |
-| Developer `python3` | `~/.guix-profile/bin/python3` (Guix 3.11). Apt `/usr/bin/python3` stays for Ubuntu shebangs. |
+| Developer `python3` | `~/.guix-profile/bin/python3` (Guix 3.12). Apt `/usr/bin/python3` stays for Ubuntu shebangs. |
 | `uv` | Guix `uv` first on PATH |
 | Jupyter UI | Guix `jupyter` on **127.0.0.1:5005** |
 | Config | `~/.jupyter/jupyter_notebook_config.py` (stow) |
