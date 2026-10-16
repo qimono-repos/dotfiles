@@ -110,4 +110,4 @@ uv add qiskit pennylane qdk ipykernel …
 # Jupyter Notebook UI: guix install jupyter (see scripts/install-jupyter.sh)
 ```
 
-Host `/usr/bin/python3` may be **3.14** — fine for OS scripts; scientific stacks use Guix/uv-managed 3.11/3.12.
+Host `/usr/bin/python3` may be **3.14** — fine for OS scripts; scientific stacks use Guix Python 3.12 and uv-managed project environments.
