@@ -57,7 +57,7 @@
              ;; Dotfiles + Python + uv + Jupyter Notebook
              ;; (quantum libs stay in the uv workspace, not here)
              "stow"
-             "python"
+             "python@3.12"
              "uv"
              "jupyter"
 
