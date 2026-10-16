@@ -31,15 +31,16 @@ if [[ -d "${GUIX_PROFILE:-$HOME/.guix-profile}/lib" ]]; then
   export LD_LIBRARY_PATH="${GUIX_PROFILE:-$HOME/.guix-profile}/lib"
 fi
 
-# Global fallback interpreter for uv in ANY location: the default Guix
-# profile's python. Per-project overrides still win (CLI --python flag,
-# an existing .venv, or pyproject requires-python filtering).
-if [[ -x "$HOME/.guix-profile/bin/python3" ]]; then
-  export UV_PYTHON="$HOME/.guix-profile/bin/python3"
-fi
+# Do not set UV_PYTHON globally. A forced interpreter here overrides a
+# project's .python-version / requires-python and breaks projects needing a
+# newer Guix Python. Let uv resolve the project's pin from Guix-owned Python
+# interpreters available on PATH; downloads remain disabled above.
+unset UV_PYTHON
 
-# Stable hint for scripts that want the Guix python explicitly.
-[[ -n "${UV_PYTHON:-}" ]] && export QIMONO_GUIX_PYTHON="${QIMONO_GUIX_PYTHON:-$UV_PYTHON}"
+# Stable hint for scripts that explicitly need the default Guix interpreter.
+if [[ -x "$HOME/.guix-profile/bin/python3" ]]; then
+  export QIMONO_GUIX_PYTHON="${QIMONO_GUIX_PYTHON:-$HOME/.guix-profile/bin/python3}"
+fi
 
 # --- Guard: refuse the machine Python, explain the way out ------------------
 # Shell functions take precedence over PATH lookup in interactive zsh, so
