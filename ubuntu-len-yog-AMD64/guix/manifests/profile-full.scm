@@ -29,7 +29,7 @@
 
   ;; Dotfiles + Python + uv + Jupyter Notebook (UI; quantum libs stay in uv)
   "stow"
-  "python"
+  "python@3.12"
   "uv"
   "jupyter"
 
