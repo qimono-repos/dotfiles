@@ -48,36 +48,42 @@ apt-get install -y "$tmp/$atlas_deb"
 atlas --version
 
 echo "=== MongoDB Shell (mongosh) ==="
-# MongoDB publishes a machine-readable catalogue with URL and SHA-256.
+# Use the official mongosh GitHub release asset. Ubuntu 26.04 is newer than
+# MongoDB's documented APT repository matrix, so avoid adding an OS repo.
 python3 - "$tmp" <<'PY'
 import hashlib, json, pathlib, sys, urllib.request
 root = pathlib.Path(sys.argv[1])
-url = "https://downloads.mongodb.com/compass/mongosh.json"
-req = urllib.request.Request(url, headers={"User-Agent":"qimono-vps-provisioner"})
+api = "https://api.github.com/repos/mongodb-js/mongosh/releases/latest"
+req = urllib.request.Request(api, headers={"Accept":"application/vnd.github+json","User-Agent":"qimono-vps-provisioner"})
 with urllib.request.urlopen(req, timeout=30) as r:
-    data = json.load(r)
-versions = data.get("versions", [])
-if not versions:
-    raise SystemExit("MongoDB mongosh catalogue has no versions")
-downloads = versions[0].get("downloads", [])
-entry = next((d for d in downloads if d.get("arch") == "x86_64" and d.get("distro") == "deb"), None)
-if not entry:
-    raise SystemExit("No x86_64 Debian package found in MongoDB mongosh catalogue")
-archive = entry.get("archive", {})
-package_url = archive.get("url")
-expected = archive.get("sha256")
-if not package_url or not expected:
-    raise SystemExit("MongoDB mongosh catalogue entry lacks URL or SHA-256")
-req = urllib.request.Request(package_url, headers={"User-Agent":"qimono-vps-provisioner"})
-with urllib.request.urlopen(req, timeout=90) as r:
+    release = json.load(r)
+assets = release.get("assets", [])
+# Prefer the self-contained OpenSSL 11 Debian build; fall back to the
+# regular Debian build if that is the only amd64 .deb published.
+candidates = [a for a in assets if a.get("name", "").endswith("_amd64.deb")]
+asset = next((a for a in candidates if "shared-openssl11" in a["name"]), None)
+if asset is None:
+    asset = next((a for a in candidates if "shared-openssl11" not in a["name"]), None)
+if asset is None:
+    raise SystemExit("No official mongosh amd64 Debian package found in latest release")
+digest = asset.get("digest", "")
+if not digest.startswith("sha256:"):
+    raise SystemExit("GitHub release did not publish a SHA-256 digest for the mongosh package")
+url = asset.get("browser_download_url")
+if not url:
+    raise SystemExit("mongosh release asset has no download URL")
+req = urllib.request.Request(url, headers={"User-Agent":"qimono-vps-provisioner"})
+with urllib.request.urlopen(req, timeout=120) as r:
     payload = r.read()
 actual = hashlib.sha256(payload).hexdigest()
+expected = digest.split(":", 1)[1]
 if actual.lower() != expected.lower():
     raise SystemExit("mongosh SHA-256 mismatch; refusing installation")
 if not payload.startswith(b"!<arch>\\n"):
-    raise SystemExit("MongoDB mongosh download was not a Debian package")
-(root/"mongosh.deb").write_bytes(payload)
-print(f"Verified mongosh package ({actual}): {package_url}")
+    raise SystemExit("Official mongosh release asset is not a Debian package")
+package = root / "mongosh.deb"
+package.write_bytes(payload)
+print(f"Verified {release.get('tag_name')} {asset['name']} (SHA-256 {actual})")
 PY
 apt-get install -y "$tmp/mongosh.deb"
 mongosh --version
