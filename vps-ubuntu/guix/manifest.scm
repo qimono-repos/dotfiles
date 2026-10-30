@@ -1,5 +1,8 @@
 ;; Complete, intentionally small VPS profile.
 ;; Applied as a full profile generation: keep every desired package here.
+;; Use package specifications supported by the active Guix generation.
+(use-modules (gnu packages build-tools))
+
 (specifications->manifest
  (list
   ;; Daily CLI and dotfiles
@@ -15,7 +18,7 @@
   "tmux"
   "stow"
   ;; Build and application tooling
-  "(@ (gnu packages build-tools) uv)"
+  (package-name uv)
   "gradle"
   "pkg-config"
   "openssl"
@@ -23,7 +26,6 @@
   "make"
   "gcc-toolchain"
   ;; Useful inspection / archive tools
-  ;; nss-certs provides the CA certificate bundle on Guix.
   "file"
   "unzip"
   "xz"
