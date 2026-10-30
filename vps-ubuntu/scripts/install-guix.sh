@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 [[ ${EUID} -eq 0 ]] || { echo "Run as root: sudo $0" >&2; exit 1; }
 
-if command -v guix >/dev/null 2>&1 && [[ -x /var/guix/profiles/per-user/root/current-guix/bin/guix || -x /usr/local/bin/guix ]]; then
+if command -v guix >/dev/null 2>&1; then
   echo "GNU Guix already installed: $(guix --version | head -1)"
   exit 0
 fi
