@@ -86,6 +86,7 @@ else
 fi
 
 run_optional "Install MongoDB Atlas CLI (mongosh intentionally omitted)" bash "$ROOT/scripts/install-mongodb-tools.sh"
+run_optional "Install Oh My Posh" as_target env HOME="$TARGET_HOME" PATH="$TARGET_HOME/.local/bin:$PATH" bash "$ROOT/scripts/install-oh-my-posh.sh"
 
 log "Prepare VPS-native Stow package"
 install -d -o "$TARGET_USER" -g "$(id -gn "$TARGET_USER")" "$TARGET_HOME/.local/share/qimono"
