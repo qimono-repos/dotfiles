@@ -18,7 +18,7 @@ installer if needed, initializes channels only on first setup (or with `--refres
 version-controlled Guix manifest, applies the VPS-native Zsh configuration
 through GNU Stow, and prints a machine report without exposing secrets.
 
-Host shell setup is independent of Guix profile realization: if a Guix manifest fails, the provisioner reports a warning and continues to configure the Stow-managed shell and login shell. The Guix profile remains incomplete until its manifest applies successfully.
+Independent stages are failure-isolated. A failed Guix profile application, MongoDB Atlas CLI install, or Stow package application is recorded as a warning and does not automatically prevent unrelated later stages from running. Required host prerequisites and Guix bootstrap remain hard requirements. The final machine report lists optional stages that failed. New independent tools (for example Bun) should be added through the same `run_optional` wrapper rather than allowed to abort the whole convergence run.
 
 The first Guix pull and profile realization are the substantial part of the initial run. Later provisioning reuses the current Guix generation and does not pull again. To deliberately refresh channels, run `sudo bash vps-ubuntu/scripts/provision-vps.sh --refresh-guix`. A stationary progress percentage is not proof of a hung process: use process completion and its exit status as the signal.
 Java 21 remains owned by Ubuntu because it is already installed and working. The VPS manifest intentionally excludes `uv` until its package specification is verified against the pinned channel set.
@@ -58,10 +58,10 @@ not on this headless VPS.
 
 ## Codex and OpenCode
 
-The provisioner installs the official MongoDB Atlas CLI (`atlas`) and MongoDB
-Shell (`mongosh`) from MongoDB/GitHub release assets. Atlas CLI release
-checksums are verified before installing the package. It does not install a
-MongoDB server.
+The provisioner installs the official MongoDB Atlas CLI (`atlas`) and verifies
+its release checksum before installing it. `mongosh` is intentionally omitted
+for this VPS milestone: Atlas CLI is sufficient for Atlas project and cluster
+management. It does not install a MongoDB server.
 
 Authenticate the Atlas CLI interactively after provisioning:
 
@@ -69,7 +69,6 @@ Authenticate the Atlas CLI interactively after provisioning:
 atlas auth login
 atlas projects list
 atlas clusters list
-mongosh --version
 ```
 
 The provisioner intentionally does not reconfigure either coding agent.
@@ -85,7 +84,7 @@ OpenCode config merging remains separate.
 - `guix/manifest.scm`: complete VPS user profile.
 - `guix/channels.scm`: Nonguix plus the official default channels, authenticated.
 - `scripts/install-guix.sh`: official binary installer wrapper.
-- `scripts/install-mongodb-tools.sh`: verified Atlas CLI + official mongosh installer.
+- `scripts/install-mongodb-tools.sh`: verified Atlas CLI installer; mongosh intentionally omitted.
 - `scripts/provision-vps.sh`: one-command convergence pipeline; no routine channel pulls.
 - `scripts/guix-maintenance.sh`: inspect generations, snapshot exact channels, refresh, or roll back.
 - `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
