@@ -29,10 +29,15 @@ if ! command -v guix >/dev/null 2>&1; then
 fi
 command -v guix >/dev/null 2>&1 || { echo "Guix command unavailable after install." >&2; exit 1; }
 
-log "Refresh official Guix channel"
+log "Authorize Nonguix substitutes and refresh Qimono Guix channels"
+SUBSTITUTE_URLS="https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org"
+NONGUIX_KEY="$(mktemp)"
+trap 'rm -f "$NONGUIX_KEY"' EXIT
+curl -fsSL https://substitutes.nonguix.org/signing-key.pub -o "$NONGUIX_KEY"
+guix archive --authorize < "$NONGUIX_KEY"
 mkdir -p "$TARGET_HOME/.config/guix"
 install -o "$TARGET_USER" -g "$(id -gn "$TARGET_USER")" -m 644 "$ROOT/guix/channels.scm" "$TARGET_HOME/.config/guix/channels.scm"
-as_target env PATH="$PATH" guix pull --channels="$TARGET_HOME/.config/guix/channels.scm"
+as_target env PATH="$PATH" guix pull --channels="$TARGET_HOME/.config/guix/channels.scm" --substitute-urls="$SUBSTITUTE_URLS"
 
 log "Load the pulled Guix profile"
 GUIX_CURRENT="$TARGET_HOME/.config/guix/current"
@@ -42,7 +47,7 @@ PROFILE="$TARGET_HOME/.guix-profile"
 mkdir -p "$TARGET_HOME/.config"
 chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/guix"
 log "Apply complete Guix profile manifest"
-as_target "$GUIX" package --manifest="$ROOT/guix/manifest.scm" --profile="$PROFILE"
+as_target "$GUIX" package --manifest="$ROOT/guix/manifest.scm" --profile="$PROFILE" --substitute-urls="$SUBSTITUTE_URLS"
 
 log "Install MongoDB Atlas CLI and mongosh"
 bash "$ROOT/scripts/install-mongodb-tools.sh"
