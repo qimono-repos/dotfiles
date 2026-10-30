@@ -18,8 +18,10 @@ installer if needed, initializes channels only on first setup (or with `--refres
 version-controlled Guix manifest, applies the VPS-native Zsh configuration
 through GNU Stow, and prints a machine report without exposing secrets.
 
+Host shell setup is independent of Guix profile realization: if a Guix manifest fails, the provisioner reports a warning and continues to configure the Stow-managed shell and login shell. The Guix profile remains incomplete until its manifest applies successfully.
+
 The first Guix pull and profile realization are the substantial part of the initial run. Later provisioning reuses the current Guix generation and does not pull again. To deliberately refresh channels, run `sudo bash vps-ubuntu/scripts/provision-vps.sh --refresh-guix`. A stationary progress percentage is not proof of a hung process: use process completion and its exit status as the signal.
-Java 21 remains owned by Ubuntu because it is already installed and working.
+Java 21 remains owned by Ubuntu because it is already installed and working. The VPS manifest intentionally excludes `uv` until its package specification is verified against the pinned channel set.
 
 ## Important profile policy
 
