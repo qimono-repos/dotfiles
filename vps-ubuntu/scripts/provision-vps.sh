@@ -3,6 +3,13 @@
 # Run from the checked-out dotfiles repo: sudo ./vps-ubuntu/scripts/provision-vps.sh
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REFRESH_GUIX=0
+case "${1:-}" in
+  "") ;;
+  --refresh-guix) REFRESH_GUIX=1 ;;
+  --help) echo "Usage: sudo bash $0 [--refresh-guix]"; exit 0 ;;
+  *) echo "Unknown option: $1" >&2; exit 2 ;;
+esac
 REPO="$(cd "$ROOT/.." && pwd)"
 TARGET_USER="${SUDO_USER:-root}"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
@@ -29,7 +36,7 @@ if ! command -v guix >/dev/null 2>&1; then
 fi
 command -v guix >/dev/null 2>&1 || { echo "Guix command unavailable after install." >&2; exit 1; }
 
-log "Authorize Nonguix substitutes and refresh Qimono Guix channels"
+log "Authorize Nonguix substitutes and prepare Qimono Guix channels"
 SUBSTITUTE_URLS="https://substitutes.nonguix.org https://bordeaux.guix.gnu.org https://ci.guix.gnu.org"
 NONGUIX_KEY="$(mktemp)"
 trap 'rm -f "$NONGUIX_KEY"' EXIT
@@ -37,10 +44,15 @@ curl -fsSL https://substitutes.nonguix.org/signing-key.pub -o "$NONGUIX_KEY"
 guix archive --authorize < "$NONGUIX_KEY"
 mkdir -p "$TARGET_HOME/.config/guix"
 install -o "$TARGET_USER" -g "$(id -gn "$TARGET_USER")" -m 644 "$ROOT/guix/channels.scm" "$TARGET_HOME/.config/guix/channels.scm"
-as_target env PATH="$PATH" guix pull --channels="$TARGET_HOME/.config/guix/channels.scm" --substitute-urls="$SUBSTITUTE_URLS"
+GUIX_CURRENT="$TARGET_HOME/.config/guix/current"
+if [[ "$REFRESH_GUIX" -eq 1 || ! -x "$GUIX_CURRENT/bin/guix" ]]; then
+  [[ "$REFRESH_GUIX" -eq 1 ]] && log "Explicit Guix refresh requested" || log "Initialize first Guix generation"
+  as_target env PATH="$PATH" guix pull --channels="$TARGET_HOME/.config/guix/channels.scm" --substitute-urls="$SUBSTITUTE_URLS"
+else
+  log "Reuse existing Guix generation (no network pull)"
+fi
 
 log "Load the pulled Guix profile"
-GUIX_CURRENT="$TARGET_HOME/.config/guix/current"
 [[ -x "$GUIX_CURRENT/bin/guix" ]] || { echo "guix pull did not create $GUIX_CURRENT/bin/guix" >&2; exit 1; }
 GUIX="$GUIX_CURRENT/bin/guix"
 PROFILE="$TARGET_HOME/.guix-profile"
