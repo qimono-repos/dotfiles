@@ -29,9 +29,20 @@ generation. Add packages to `guix/manifest.scm` before reapplying it. Do not
 use a partial manifest to add one package, or you may remove packages from the
 managed profile.
 
-The initial channel list contains GNU Guix only and includes the upstream
-channel introduction so `guix pull` authenticates commits. Nonguix is
-deliberately not enabled by default.
+The channel set follows Qimono's established Linux machine packs:
+`nonguix + %default-channels`. Nonguix is authenticated with its channel
+introduction and its substitute signing key. The provisioner authorizes that
+key and uses these substitute servers for pulls and profile realization:
+
+- `https://substitutes.nonguix.org`
+- `https://bordeaux.guix.gnu.org`
+- `https://ci.guix.gnu.org`
+
+This is intentional: Qimono uses Nonguix for additional and nonfree-adjacent
+packages where licensing permits. See
+`ubuntu-len-yog-AMD64/docs/LESSONS-guix-browsers.md` for the hard-earned
+rules about authenticated channels, selecting the post-pull Guix binary,
+substitute keys/URLs, and avoiding source builds on constrained machines.
 
 ## Shell / Stow
 
@@ -71,7 +82,7 @@ OpenCode config merging remains separate.
 ## Layout
 
 - `guix/manifest.scm`: complete VPS user profile.
-- `guix/channels.scm`: official channel definition.
+- `guix/channels.scm`: Nonguix plus the official default channels, authenticated.
 - `scripts/install-guix.sh`: official binary installer wrapper.
 - `scripts/install-mongodb-tools.sh`: verified Atlas CLI + official mongosh installer.
 - `scripts/provision-vps.sh`: one-command convergence pipeline.
