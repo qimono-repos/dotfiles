@@ -29,8 +29,9 @@ generation. Add packages to `guix/manifest.scm` before reapplying it. Do not
 use a partial manifest to add one package, or you may remove packages from the
 managed profile.
 
-The initial channel list contains GNU Guix only. Nonguix is deliberately not
-enabled by default.
+The initial channel list contains GNU Guix only and includes the upstream
+channel introduction so `guix pull` authenticates commits. Nonguix is
+deliberately not enabled by default.
 
 ## Shell / Stow
 
@@ -45,6 +46,20 @@ not on this headless VPS.
 
 ## Codex and OpenCode
 
+The provisioner installs the official MongoDB Atlas CLI (`atlas`) and MongoDB
+Shell (`mongosh`) from MongoDB/GitHub release assets. Atlas CLI release
+checksums are verified before installing the package. It does not install a
+MongoDB server.
+
+Authenticate the Atlas CLI interactively after provisioning:
+
+```bash
+atlas auth login
+atlas projects list
+atlas clusters list
+mongosh --version
+```
+
 The provisioner intentionally does not reconfigure either coding agent.
 Existing Codex ChatGPT OAuth credentials are left alone. The provider wiring
 script is only for explicit API-key/provider configuration.
@@ -58,6 +73,7 @@ OpenCode config merging remains separate.
 - `guix/manifest.scm`: complete VPS user profile.
 - `guix/channels.scm`: official channel definition.
 - `scripts/install-guix.sh`: official binary installer wrapper.
+- `scripts/install-mongodb-tools.sh`: verified Atlas CLI + official mongosh installer.
 - `scripts/provision-vps.sh`: one-command convergence pipeline.
 - `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
 - `stow-source/shell/`: VPS-native Zsh and prompt configuration.
