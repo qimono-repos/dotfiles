@@ -1,117 +1,71 @@
 # vps-ubuntu
 
-Machine pack for the **root@179.236.239.149** Ubuntu VPS: install the AI coding
-CLIs with plain `curl` (no npm, no Bun) and wire both of them to the LLM
-providers from **one gitignored secrets file**.
+Guix-first machine pack for Qimono's headless Ubuntu VPS. This is a server-native
+configuration, not a repurposed desktop pack.
 
-| Item | Value |
-|------|-------|
-| Host | `179.236.239.149` |
-| OS | Ubuntu (systemd) |
-| Role | Headless dev box: Codex CLI + opencode |
-| Installers | `curl` only (standalone Codex, opencode install script) |
-| Secrets | `~/.config/qimono/providers.env` (mode 600, never in git) |
+## One-command provisioning
 
-## Quickstart (on the VPS)
+From the dotfiles checkout on the VPS:
 
 ```bash
-# either clone the repo, or rsync this folder from your laptop:
-#   rsync -av vps-ubuntu/ root@179.236.239.149:/root/vps-ubuntu/
-cd ~/dotfiles/vps-ubuntu
-chmod +x scripts/*.sh
-./scripts/bootstrap.sh
+cd ~/source/repos/qimono-repos/dotfiles
+git pull --ff-only
+sudo bash vps-ubuntu/scripts/provision-vps.sh
 ```
 
-Then fill in keys and re-run only the wiring:
+The provisioner installs host prerequisites, installs GNU Guix with the official
+installer if needed, pulls the official channel, applies the complete
+version-controlled Guix manifest, applies the VPS-native Zsh configuration
+through GNU Stow, and prints a machine report without exposing secrets.
 
-```bash
-$EDITOR ~/.config/qimono/providers.env
-./scripts/configure-llm.sh
-exec bash          # or open a new SSH session
-codex
-opencode
-```
+The first Guix pull and profile realization are the substantial part of this
+run. On a 1-vCPU VPS, download/build time depends on substitute availability.
+Java 21 remains owned by Ubuntu because it is already installed and working.
 
-`bootstrap.sh` is idempotent: re-running upgrades/probes rather than
-re-downloading. `--dry-run` prints the plan and changes nothing.
+## Important profile policy
+
+`guix package --manifest=...` applies the manifest as the complete profile
+generation. Add packages to `guix/manifest.scm` before reapplying it. Do not
+use a partial manifest to add one package, or you may remove packages from the
+managed profile.
+
+The initial channel list contains GNU Guix only. Nonguix is deliberately not
+enabled by default.
+
+## Shell / Stow
+
+`stow-source/shell/` is the canonical VPS package. The provisioner migrates
+only known legacy symlinks from the earlier HP Pro experiment, backs up an
+existing non-Stow `.zshrc`, then links this package into the target home.
+Reconnect SSH after provisioning to start in the managed Zsh environment.
+
+Oh My Posh is optional. The prompt configuration degrades gracefully if the
+binary is absent. Nerd Font installation belongs on the local terminal client,
+not on this headless VPS.
+
+## Codex and OpenCode
+
+The provisioner intentionally does not reconfigure either coding agent.
+Existing Codex ChatGPT OAuth credentials are left alone. The provider wiring
+script is only for explicit API-key/provider configuration.
+
+With no provider/model selected, `configure-llm.sh` leaves Codex
+`config.toml` untouched and never reads or writes `~/.codex/auth.json`.
+OpenCode config merging remains separate.
 
 ## Layout
 
-```
-vps-ubuntu/
-  README.md
-  scripts/
-    bootstrap.sh        # prereqs -> codex -> opencode -> configure -> status
-    install-codex.sh    # curl https://chatgpt.com/codex/install.sh
-    install-opencode.sh # curl https://opencode.ai/install
-    configure-llm.sh    # providers.env -> config.toml + opencode.json + shell
-    status.sh           # read-only expected-vs-actual probe
-  llm/
-    providers.env.example
-  QA/
-    Checklist.md
-```
+- `guix/manifest.scm`: complete VPS user profile.
+- `guix/channels.scm`: official channel definition.
+- `scripts/install-guix.sh`: official binary installer wrapper.
+- `scripts/provision-vps.sh`: one-command convergence pipeline.
+- `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
+- `stow-source/shell/`: VPS-native Zsh and prompt configuration.
+- `scripts/status.sh`: existing read-only Codex/OpenCode status report.
 
-## What gets installed where
+## Safety and scope
 
-| Tool | Command | Binary | Config |
-|------|---------|--------|--------|
-| Codex CLI | `curl -fsSL https://chatgpt.com/codex/install.sh \| sh` | `~/.local/bin/codex` | `~/.codex/config.toml` |
-| opencode | `curl -fsSL https://opencode.ai/install \| bash` | `~/.opencode/bin/opencode` | `~/.config/opencode/opencode.json` |
-
-`install-codex.sh` falls back to
-`https://github.com/openai/codex/releases/latest/download/install.sh` if
-`chatgpt.com` is unreachable. Both installers add their bin dir to your shell;
-`configure-llm.sh` also writes one guarded PATH + env block to `~/.bashrc`,
-`~/.profile`, and `~/.zshrc` (when present), so non-interactive shells behave.
-
-## Provider wiring
-
-Keys go in `~/.config/qimono/providers.env` (created from
-[`llm/providers.env.example`](./llm/providers.env.example)). The generated
-configs reference the variables — they never contain the raw keys.
-
-| Env var | opencode provider | Codex |
-|---------|-------------------|-------|
-| `OPENAI_API_KEY` | `openai` | built-in `openai` (`forced_login_method = "api"`) |
-| `ANTHROPIC_API_KEY` | `anthropic` | — (not a Codex provider) |
-| `OPENROUTER_API_KEY` | `openrouter` | `[model_providers.openrouter]` |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | `google` | — |
-| `OLLAMA_BASE_URL` | `ollama` | `[model_providers.qimono_ollama]` |
-| `CUSTOM_BASE_URL` | `custom` | `[model_providers.custom]` |
-
-Codex provider auto-selection priority (override with `CODEX_PROVIDER`):
-`custom` → `openrouter` → `qimono_ollama` → `openai`.
-
-Choose defaults with `--codex-model`, `--opencode-model`, or the
-`CODEX_MODEL` / `OPENCODE_MODEL` vars.
-
-### Notes / gotchas
-
-- **Codex custom providers must speak the Responses API.** Current Codex only
-  supports `wire_api = "responses"`; plain chat-completions-only endpoints may
-  not work. OpenAI, and OpenAI-compatible routers that expose `/responses`, are
-  the safe choices.
-- **Ollama is a reserved id** in Codex (`openai`, `ollama`, `lmstudio` cannot be
-  overridden), hence the `qimono_ollama` id for a custom/remote URL.
-- opencode's `/connect` still works for interactive OAuth; the config wiring
-  here is for headless/API-key use.
-- Re-running `configure-llm.sh` regenerates `~/.codex/config.toml` (a
-  non-managed existing file is backed up once). It **merges** into
-  `opencode.json` and keeps other keys such as `mcp`.
-
-## Security
-
-- The repo is public. Only `providers.env.example` is committed.
-- `providers.env` is gitignored and forced to mode `600`.
-- `status.sh` prints env-var **names** only, never values.
-- Prefer per-provider keys with minimal spend limits on a VPS.
-
-## Manual, step by step
-
-```bash
-./scripts/install-codex.sh [--dry-run] [--force] [--version X]
-./scripts/install-opencode.sh [--dry-run] [--force] [--version X]
-./scripts/configure-llm.sh [--dry-run] [--env-file PATH]
-./scripts/status.sh
-```
+- No API keys or MongoDB credentials belong in Git.
+- The provisioner never prints environment values or auth files.
+- MongoDB Atlas access and the Kotlin/Ktor service are separate deployment
+  milestones; this pull does not open Atlas network access or deploy a service.
