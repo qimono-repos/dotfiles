@@ -75,12 +75,14 @@ if as_target "$GUIX" package --help >/dev/null 2>&1; then
   if ! as_target "$GUIX" package --manifest="$ROOT/guix/manifest.scm" --profile="$PROFILE" --substitute-urls="$SUBSTITUTE_URLS"; then
     echo "WARNING: Guix manifest application failed. Continuing with Ubuntu-managed shell and CLI setup." >&2
     GUIX_PROFILE_FAILED=1
+    OPTIONAL_FAILURES+=("Guix user profile (manifest application)")
   else
     GUIX_PROFILE_FAILED=0
   fi
 else
   echo "WARNING: Guix package command unavailable. Continuing with Ubuntu-managed shell and CLI setup." >&2
   GUIX_PROFILE_FAILED=1
+  OPTIONAL_FAILURES+=("Guix command unavailable")
 fi
 
 run_optional "Install MongoDB Atlas CLI (mongosh intentionally omitted)" bash "$ROOT/scripts/install-mongodb-tools.sh"
