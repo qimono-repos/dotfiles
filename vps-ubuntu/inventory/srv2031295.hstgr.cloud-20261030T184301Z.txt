@@ -31,7 +31,7 @@ Hypervisor vendor:                       KVM
 [memory]
                total        used        free      shared  buff/cache   available
 Mem:           3.8Gi       468Mi       2.3Gi       720Ki       1.3Gi       3.4Gi
-Swap:             0B          0B          0B         
+Swap:          0B
 
 [disk]
 Filesystem     Type  Size  Used Avail Use% Mounted on
@@ -102,9 +102,9 @@ python3-babel   2.17.0-2
 python3-blinker 1.9.0-2build1
 python3-boto3   1.40.72-1build1
 python3-botocore        1.40.72+repack-1build1
-python3-certifi 1.2026.1.4+ds-1
+python3-certifi 2026.1.4+ds-1
 python3-cffi-backend:amd64      2.0.0-3build1
-python3-chardet 5.2.0+dfsg-2
+python3-chardet 5.2.0+dfsg-2ubuntu0.1
 python3-commandnotfound 23.04.0build1
 python3-configobj       5.0.9-1build1
 python3-cryptography    46.0.5-1ubuntu2.2
@@ -122,32 +122,26 @@ python3-idna    3.11-1ubuntu0.1
 python3-inflect 7.5.0-1build1
 python3-jaraco.context  6.0.1-2
 python3-jaraco.functools        4.1.1-2
-python3-jaraco.text    4.0.1-1
-python3-jwt     2.10.1-4ubuntu1.3
-python3-launchpadlib    2.1.0-1build1
-python3-lazr.restfulclient      0.14.6-3build1
-python3-lazr.uri        1.0.6-7build1
-python3-linkify-it      2.0.0-1ubuntu3
-python3-magic   2:0.4.27-3build1
-python3-markdown-it     3.0.0-1
+python3-jaraco.text    4.0.0-1build1
 python3-markupsafe     3.0.3-1build1
 python3-mdurl   0.1.2-1build1
+python3-more-itertools  10.8.0-1build1
 python3-msgpack 1.1.2-2build1
 python3-netplan 1.2-1ubuntu5.1
-python3-oauthlib        3.3.1-1build1
+python3-oauthlib        3.3.1-1
 python3-openssl 25.3.1-1ubuntu1
 python3-packaging       26.0-1
 python3-passlib 1.9.3-1ubuntu1
 python3-pexpect 4.9-4
 python3-pkg-resources   78.1.1-0.1build1
-python3-pygments       2.19.2+dfsg-1
+python3-pygments 2.19.2+dfsg-1
 python3-pyparsing       3.3.2-2build1
 python3-referencing     0.36.2-1ubuntu2
 python3-requests        2.32.5+dfsg-1ubuntu1.1
-python3-rich    13.9.2-1
+python3-rich    13.9.4-1.2
 python3-s3transfer      0.14.0-1build1
 python3-serial  3.5-2build1
-python3-setuptools      78.1.1-0.1build1
+python3-setuptools      78.1.1-1
 python3-six     1.17.0-1build1
 python3-software-properties     0.120.1
 python3-typeguard       4.4.4-2
