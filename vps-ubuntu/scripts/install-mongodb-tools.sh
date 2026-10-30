@@ -48,37 +48,36 @@ apt-get install -y "$tmp/$atlas_deb"
 atlas --version
 
 echo "=== MongoDB Shell (mongosh) ==="
-# MongoDB's official download catalogue supplies the current Debian/Ubuntu x64 .deb.
+# MongoDB publishes a machine-readable catalogue with URL and SHA-256.
 python3 - "$tmp" <<'PY'
-import json, pathlib, sys, urllib.request
+import hashlib, json, pathlib, sys, urllib.request
 root = pathlib.Path(sys.argv[1])
 url = "https://downloads.mongodb.com/compass/mongosh.json"
 req = urllib.request.Request(url, headers={"User-Agent":"qimono-vps-provisioner"})
 with urllib.request.urlopen(req, timeout=30) as r:
     data = json.load(r)
-found = []
-def walk(x):
-    if isinstance(x, dict):
-        for v in x.values():
-            if isinstance(v, str) and v.startswith("https://") and "mongosh" in v.lower() and ".deb" in v.lower():
-                found.append(v)
-            else:
-                walk(v)
-    elif isinstance(x, list):
-        for v in x:
-            walk(v)
-walk(data)
-urls = list(dict.fromkeys(found))
-url = next((u for u in urls if ("x64" in u.lower() or "amd64" in u.lower() or "x86_64" in u.lower()) and ".deb" in u.lower()), None)
-if not url:
-    raise SystemExit("Could not identify official mongosh Debian x64 package in MongoDB's download catalogue")
-req = urllib.request.Request(url, headers={"User-Agent":"qimono-vps-provisioner"})
-with urllib.request.urlopen(req, timeout=60) as r:
+versions = data.get("versions", [])
+if not versions:
+    raise SystemExit("MongoDB mongosh catalogue has no versions")
+downloads = versions[0].get("downloads", [])
+entry = next((d for d in downloads if d.get("arch") == "x86_64" and d.get("distro") == "deb"), None)
+if not entry:
+    raise SystemExit("No x86_64 Debian package found in MongoDB mongosh catalogue")
+archive = entry.get("archive", {})
+package_url = archive.get("url")
+expected = archive.get("sha256")
+if not package_url or not expected:
+    raise SystemExit("MongoDB mongosh catalogue entry lacks URL or SHA-256")
+req = urllib.request.Request(package_url, headers={"User-Agent":"qimono-vps-provisioner"})
+with urllib.request.urlopen(req, timeout=90) as r:
     payload = r.read()
-if not payload.startswith(b"!<arch>\n"):
+actual = hashlib.sha256(payload).hexdigest()
+if actual.lower() != expected.lower():
+    raise SystemExit("mongosh SHA-256 mismatch; refusing installation")
+if not payload.startswith(b"!<arch>\\n"):
     raise SystemExit("MongoDB mongosh download was not a Debian package")
 (root/"mongosh.deb").write_bytes(payload)
-print("Downloaded official mongosh package:", url)
+print(f"Verified mongosh package ({actual}): {package_url}")
 PY
 apt-get install -y "$tmp/mongosh.deb"
 mongosh --version
