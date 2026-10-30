@@ -14,12 +14,11 @@ sudo bash vps-ubuntu/scripts/provision-vps.sh
 ```
 
 The provisioner installs host prerequisites, installs GNU Guix with the official
-installer if needed, pulls the official channel, applies the complete
+installer if needed, initializes channels only on first setup (or with `--refresh-guix`), applies the complete
 version-controlled Guix manifest, applies the VPS-native Zsh configuration
 through GNU Stow, and prints a machine report without exposing secrets.
 
-The first Guix pull and profile realization are the substantial part of this
-run. On a 1-vCPU VPS, download/build time depends on substitute availability.
+The first Guix pull and profile realization are the substantial part of the initial run. Later provisioning reuses the current Guix generation and does not pull again. To deliberately refresh channels, run `sudo bash vps-ubuntu/scripts/provision-vps.sh --refresh-guix`. A stationary progress percentage is not proof of a hung process: use process completion and its exit status as the signal.
 Java 21 remains owned by Ubuntu because it is already installed and working.
 
 ## Important profile policy
@@ -85,10 +84,15 @@ OpenCode config merging remains separate.
 - `guix/channels.scm`: Nonguix plus the official default channels, authenticated.
 - `scripts/install-guix.sh`: official binary installer wrapper.
 - `scripts/install-mongodb-tools.sh`: verified Atlas CLI + official mongosh installer.
-- `scripts/provision-vps.sh`: one-command convergence pipeline.
+- `scripts/provision-vps.sh`: one-command convergence pipeline; no routine channel pulls.
+- `scripts/guix-maintenance.sh`: inspect generations, snapshot exact channels, refresh, or roll back.
 - `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
 - `stow-source/shell/`: VPS-native Zsh and prompt configuration.
 - `scripts/status.sh`: existing read-only Codex/OpenCode status report.
+
+## Guix maintenance and reproducibility
+
+Use `sudo bash vps-ubuntu/scripts/guix-maintenance.sh status` to inspect Guix state, `snapshot` to write the exact revisions from `guix describe -f channels` to `guix/channels.lock.scm`, `refresh` for a deliberate channel update, or `rollback` to return the Guix command profile to its previous generation. Commit the generated lock file after a successful trusted pull. These operations do not require a server reboot. Logs are appended to `/var/log/qimono-guix-maintenance.log`.
 
 ## Safety and scope
 
