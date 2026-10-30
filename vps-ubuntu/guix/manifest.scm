@@ -1,8 +1,6 @@
-;; Complete, intentionally small VPS profile.
+;; Complete, intentionally conservative VPS profile.
 ;; Applied as a full profile generation: keep every desired package here.
-;; Use package specifications supported by the active Guix generation.
-(use-modules (gnu packages build-tools))
-
+;; Only use package names verified as package specifications.
 (specifications->manifest
  (list
   ;; Daily CLI and dotfiles
@@ -18,7 +16,6 @@
   "tmux"
   "stow"
   ;; Build and application tooling
-  (package-name uv)
   "gradle"
   "pkg-config"
   "openssl"
