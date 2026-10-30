@@ -18,8 +18,8 @@ for arg in "$@"; do
     --yes) NO_PROMPT=1 ;;
     -h|--help)
       echo "Usage: $0 [--dry-run] [--yes]"
-      echo "Installs zsh, stow, Oh My Posh and links the Qimono Catppuccin Zsh prompt."
-      echo "Does not change the account's login shell."
+      echo "Installs zsh, stow, Oh My Posh, links the Qimono Catppuccin Zsh prompt,"
+      echo "and sets Zsh as the account's default login shell."
       exit 0
       ;;
     *) echo "Unknown option: $arg" >&2; exit 2 ;;
@@ -153,6 +153,33 @@ log "Configure Bash and login PATH"
 write_managed_block "$HOME_DIR/.bashrc"
 write_managed_block "$HOME_DIR/.profile"
 
+log "Set Zsh as the default login shell"
+ZSH_BIN="$(command -v zsh || true)"
+[[ -n "$ZSH_BIN" && -x "$ZSH_BIN" ]] || { echo "zsh executable not found after installation" >&2; exit 1; }
+if ! grep -Fxq "$ZSH_BIN" /etc/shells; then
+  if (( DRY_RUN )); then
+    echo "PLAN: register $ZSH_BIN in /etc/shells"
+  else
+    printf '%s\n' "$ZSH_BIN" >> /etc/shells
+  fi
+fi
+CURRENT_LOGIN_SHELL="$(getent passwd "$(id -un)" | cut -d: -f7)"
+if [[ "$CURRENT_LOGIN_SHELL" == "$ZSH_BIN" ]]; then
+  echo "Default login shell already set to $ZSH_BIN"
+elif (( DRY_RUN )); then
+  echo "PLAN: chsh -s $ZSH_BIN $(id -un)"
+else
+  if [[ $EUID -eq 0 ]]; then
+    chsh -s "$ZSH_BIN" "$(id -un)"
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo chsh -s "$ZSH_BIN" "$(id -un)"
+  else
+    echo "Cannot change login shell: run chsh -s $ZSH_BIN $(id -un)" >&2
+    exit 1
+  fi
+  echo "Default login shell changed to $ZSH_BIN"
+fi
+
 log "Stow validation"
 if (( ! DRY_RUN )); then
   stow --version | head -n 1
@@ -168,5 +195,6 @@ fi
 log "Complete"
 echo "Open a new SSH session, or run: exec zsh"
 echo "Verify: command -v codex; command -v opencode; command -v oh-my-posh"
-echo "The account login shell remains unchanged: $(getent passwd "$(id -un)" | cut -d: -f7)"
+echo "Default login shell: $(getent passwd "$(id -un)" | cut -d: -f7)"
+echo "Reconnect over SSH to start directly in Zsh."
 echo "Nerd Font note: install CascadiaCode Nerd Font on your LOCAL terminal computer for prompt glyphs."
