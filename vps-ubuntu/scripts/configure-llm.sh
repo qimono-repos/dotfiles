@@ -177,7 +177,12 @@ render_codex_config() {
   esac
 }
 
-if (( DRY_RUN )); then
+# Codex ChatGPT sign-in (OAuth) is independent of API-key providers.
+# With no explicit provider/model selected, preserve config.toml byte-for-byte.
+# Never inspect, overwrite, or delete ~/.codex/auth.json.
+if [[ -z "$CODEX_PROVIDER" && -z "$CODEX_MODEL" ]]; then
+  warn "codex config" "no API provider/model selected; preserving existing config and ChatGPT OAuth"
+elif (( DRY_RUN )); then
   plan "write codex config" "$CODEX_CONFIG"
   render_codex_config | sed 's/^/      /'
 else
