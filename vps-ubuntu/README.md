@@ -52,9 +52,7 @@ only known legacy symlinks from the earlier HP Pro experiment, backs up an
 existing non-Stow `.zshrc`, then links this package into the target home.
 Reconnect SSH after provisioning to start in the managed Zsh environment.
 
-Oh My Posh is optional. The prompt configuration degrades gracefully if the
-binary is absent. Nerd Font installation belongs on the local terminal client,
-not on this headless VPS.
+Oh My Posh is installed to `~/.local/bin` through its official installer as an optional, idempotent stage. The Catppuccin theme and Zsh initialization are version-controlled in the Stow package; the prompt degrades gracefully if installation fails. Nerd Font installation belongs on the local terminal client, not on this headless VPS.
 
 ## Codex and OpenCode
 
@@ -84,7 +82,8 @@ OpenCode config merging remains separate.
 - `guix/manifest.scm`: complete VPS user profile.
 - `guix/channels.scm`: Nonguix plus the official default channels, authenticated.
 - `scripts/install-guix.sh`: official binary installer wrapper.
-- `scripts/install-mongodb-tools.sh`: verified Atlas CLI installer; mongosh intentionally omitted.\n- `scripts/install-oh-my-posh.sh`: optional Oh My Posh installer for the Catppuccin Zsh prompt.
+- `scripts/install-mongodb-tools.sh`: verified Atlas CLI installer; mongosh intentionally omitted.
+- `scripts/install-oh-my-posh.sh`: optional Oh My Posh installer for the Catppuccin Zsh prompt.
 - `scripts/provision-vps.sh`: one-command convergence pipeline; no routine channel pulls.
 - `scripts/guix-maintenance.sh`: inspect generations, snapshot exact channels, refresh, or roll back.
 - `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
