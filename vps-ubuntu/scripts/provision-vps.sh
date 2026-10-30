@@ -59,7 +59,9 @@ PROFILE="$TARGET_HOME/.guix-profile"
 mkdir -p "$TARGET_HOME/.config"
 chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/guix"
 log "Apply complete Guix profile manifest"
-as_target "$GUIX" package --manifest="$ROOT/guix/manifest.scm" --profile="$PROFILE" --substitute-urls="$SUBSTITUTE_URLS"
+as_target env GUIX_PROFILE="$TARGET_HOME/.config/guix/current" PATH="$GUIX_CURRENT/bin:$PATH" \
+  bash -c '. "$GUIX_PROFILE/etc/profile"; exec "$1" package --manifest="$2" --profile="$3" --substitute-urls="$4"' \
+  _ "$GUIX" "$ROOT/guix/manifest.scm" "$PROFILE" "$SUBSTITUTE_URLS"
 
 log "Install MongoDB Atlas CLI and mongosh"
 bash "$ROOT/scripts/install-mongodb-tools.sh"
