@@ -1,0 +1,5 @@
+# Real keys never enter the repo — only the example template does.
+providers.env
+*.env
+!*.env.example
+!providers.env.example
