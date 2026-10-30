@@ -20,7 +20,7 @@ apt-get install -y ca-certificates curl git gnupg stow tar unzip wget xz-utils z
 
 log "GNU Guix installation"
 if ! command -v guix >/dev/null 2>&1; then
-  "$ROOT/scripts/install-guix.sh"
+  bash "$ROOT/scripts/install-guix.sh"
 fi
 if ! command -v guix >/dev/null 2>&1; then
   for p in /var/guix/profiles/per-user/root/current-guix/bin /usr/local/bin; do
