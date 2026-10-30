@@ -1,12 +1,13 @@
-;; Official GNU Guix channel with its authenticated introduction.
-;; These values are the upstream Guix channel trust anchor.
-(list
- (channel
-  (name 'guix)
-  (url "https://git.savannah.gnu.org/git/guix.git")
-  (branch "master")
-  (introduction
-   (make-channel-introduction
-    "87a40d7203a813921b3ef0805c2b46c0026d6c31"
-    (openpgp-fingerprint
-     "BBB0 2DDF 2CEA F6A8 0D1D E643 A2A0 6DF2 A33A 54FA")))))
+;; Qimono Guix channel set for Ubuntu hosts.
+;; Nonguix provides additional packages unavailable in the official channel,
+;; including proprietary / nonfree software where licensing permits.
+;; Keep aligned with ubuntu-len-yog-AMD64 and gnu-guix/config/guix.
+(cons* (channel
+        (name 'nonguix)
+        (url "https://gitlab.com/nonguix/nonguix")
+        (introduction
+         (make-channel-introduction
+          "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
+          (openpgp-fingerprint
+           "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
+       %default-channels)
