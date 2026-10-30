@@ -15,7 +15,7 @@
   "tmux"
   "stow"
   ;; Build and application tooling
-  "uv"
+  "(@ (gnu packages build-tools) uv)"
   "gradle"
   "pkg-config"
   "openssl"
@@ -23,11 +23,12 @@
   "make"
   "gcc-toolchain"
   ;; Useful inspection / archive tools
+  ;; nss-certs provides the CA certificate bundle on Guix.
   "file"
   "unzip"
   "xz"
   "which"
   "curl"
   "wget"
-  "ca-certificates"
+  "nss-certs"
   "glibc-locales"))
