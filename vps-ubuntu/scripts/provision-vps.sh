@@ -44,6 +44,9 @@ chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/guix"
 log "Apply complete Guix profile manifest"
 as_target "$GUIX" package --manifest="$ROOT/guix/manifest.scm" --profile="$PROFILE"
 
+log "Install MongoDB Atlas CLI and mongosh"
+bash "$ROOT/scripts/install-mongodb-tools.sh"
+
 log "Prepare VPS-native Stow package"
 install -d -o "$TARGET_USER" -g "$(id -gn "$TARGET_USER")" "$TARGET_HOME/.local/share/qimono"
 # The checked-out repo remains the source of truth; Stow links from this pack.
