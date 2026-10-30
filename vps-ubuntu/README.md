@@ -18,7 +18,7 @@ installer if needed, initializes channels only on first setup (or with `--refres
 version-controlled Guix manifest, applies the VPS-native Zsh configuration
 through GNU Stow, and prints a machine report without exposing secrets.
 
-Independent stages are failure-isolated. A failed Guix profile application, MongoDB Atlas CLI install, or Stow package application is recorded as a warning and does not automatically prevent unrelated later stages from running. Required host prerequisites and Guix bootstrap remain hard requirements. The final machine report lists optional stages that failed. New independent tools (for example Bun) should be added through the same `run_optional` wrapper rather than allowed to abort the whole convergence run.
+Independent stages are failure-isolated. A failed Guix profile application, MongoDB Atlas CLI install, Oh My Posh install, or Stow package application is recorded as a warning and does not automatically prevent unrelated later stages from running. Required host prerequisites and Guix bootstrap remain hard requirements. The final machine report lists optional stages that failed. New independent tools (for example Bun) should be added through the same `run_optional` wrapper rather than allowed to abort the whole convergence run.
 
 The first Guix pull and profile realization are the substantial part of the initial run. Later provisioning reuses the current Guix generation and does not pull again. To deliberately refresh channels, run `sudo bash vps-ubuntu/scripts/provision-vps.sh --refresh-guix`. A stationary progress percentage is not proof of a hung process: use process completion and its exit status as the signal.
 Java 21 remains owned by Ubuntu because it is already installed and working. The VPS manifest intentionally excludes `uv` until its package specification is verified against the pinned channel set.
@@ -84,7 +84,7 @@ OpenCode config merging remains separate.
 - `guix/manifest.scm`: complete VPS user profile.
 - `guix/channels.scm`: Nonguix plus the official default channels, authenticated.
 - `scripts/install-guix.sh`: official binary installer wrapper.
-- `scripts/install-mongodb-tools.sh`: verified Atlas CLI installer; mongosh intentionally omitted.
+- `scripts/install-mongodb-tools.sh`: verified Atlas CLI installer; mongosh intentionally omitted.\n- `scripts/install-oh-my-posh.sh`: optional Oh My Posh installer for the Catppuccin Zsh prompt.
 - `scripts/provision-vps.sh`: one-command convergence pipeline; no routine channel pulls.
 - `scripts/guix-maintenance.sh`: inspect generations, snapshot exact channels, refresh, or roll back.
 - `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
