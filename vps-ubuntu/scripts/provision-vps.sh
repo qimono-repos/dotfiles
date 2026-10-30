@@ -59,9 +59,17 @@ PROFILE="$TARGET_HOME/.guix-profile"
 mkdir -p "$TARGET_HOME/.config"
 chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$TARGET_HOME/.config/guix"
 log "Apply complete Guix profile manifest"
-as_target env GUIX_PROFILE="$TARGET_HOME/.config/guix/current" PATH="$GUIX_CURRENT/bin:$PATH" \
-  bash -c '. "$GUIX_PROFILE/etc/profile"; exec "$1" package --manifest="$2" --profile="$3" --substitute-urls="$4"' \
-  _ "$GUIX" "$ROOT/guix/manifest.scm" "$PROFILE" "$SUBSTITUTE_URLS"
+if as_target "$GUIX" package --help >/dev/null 2>&1; then
+  if ! as_target "$GUIX" package --manifest="$ROOT/guix/manifest.scm" --profile="$PROFILE" --substitute-urls="$SUBSTITUTE_URLS"; then
+    echo "WARNING: Guix manifest application failed. Continuing with Ubuntu-managed shell and CLI setup." >&2
+    GUIX_PROFILE_FAILED=1
+  else
+    GUIX_PROFILE_FAILED=0
+  fi
+else
+  echo "WARNING: Guix package command unavailable. Continuing with Ubuntu-managed shell and CLI setup." >&2
+  GUIX_PROFILE_FAILED=1
+fi
 
 log "Install MongoDB Atlas CLI and mongosh"
 bash "$ROOT/scripts/install-mongodb-tools.sh"
@@ -82,6 +90,15 @@ if [[ -e "$TARGET_HOME/.zshrc" && ! -L "$TARGET_HOME/.zshrc" ]] && ! grep -q 'QI
 fi
 as_target stow --dir="$STOW_SOURCE" --target="$TARGET_HOME" --restow shell
 
+log "Set Zsh as root/target login shell"
+ZSH_BIN="$(command -v zsh || true)"
+[[ -x "$ZSH_BIN" ]] || { echo "zsh binary missing after apt installation." >&2; exit 1; }
+grep -Fxq "$ZSH_BIN" /etc/shells || printf '%s\n' "$ZSH_BIN" >> /etc/shells
+CURRENT_SHELL="$(getent passwd "$TARGET_USER" | cut -d: -f7)"
+if [[ "$CURRENT_SHELL" != "$ZSH_BIN" ]]; then
+  chsh -s "$ZSH_BIN" "$TARGET_USER"
+fi
+
 log "Preserve existing LLM authentication"
 # No provider/API key selection means Codex config and OAuth state are untouched.
 if [[ -f "$TARGET_HOME/.codex/auth.json" ]]; then
@@ -101,4 +118,9 @@ printf 'OpenCode: '; [[ -x "$TARGET_HOME/.opencode/bin/opencode" ]] && "$TARGET_
 printf 'Disk: '; df -h / | awk 'NR==2 {print $4 " available of " $2}'
 printf 'Memory: '; free -h | awk '/Mem:/ {print $7 " available of " $2}'
 echo
-echo "Provisioning complete. Reconnect SSH to load the Stow-managed Zsh environment."
+if [[ "${GUIX_PROFILE_FAILED:-0}" -eq 1 ]]; then
+  echo "Provisioning completed with a Guix profile warning. Shell and host tooling were still configured."
+else
+  echo "Provisioning complete. Reconnect SSH to load the Stow-managed Zsh environment."
+fi
+printf 'Login shell: %s\\n' "$(getent passwd "$TARGET_USER" | cut -d: -f7)"
