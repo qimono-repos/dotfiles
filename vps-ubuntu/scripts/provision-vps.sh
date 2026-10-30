@@ -15,6 +15,18 @@ TARGET_USER="${SUDO_USER:-root}"
 TARGET_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
 [[ -n "$TARGET_HOME" && -d "$TARGET_HOME" ]] || { echo "Cannot resolve home for $TARGET_USER" >&2; exit 1; }
 log(){ printf '\n\n========== %s ==========\n' "$*"; }
+OPTIONAL_FAILURES=()
+run_optional(){
+  local label="$1"; shift
+  log "$label"
+  if "$@"; then
+    echo "OPTIONAL STAGE OK: $label"
+  else
+    local rc=$?
+    echo "WARNING: Optional stage '$label' failed (exit $rc). Continuing; no later stage depends on it." >&2
+    OPTIONAL_FAILURES+=("$label (exit $rc)")
+  fi
+}
 as_target(){ if [[ "$TARGET_USER" == root ]]; then "$@"; else sudo -u "$TARGET_USER" -H "$@"; fi; }
 
 [[ "$(uname -m)" == x86_64 ]] || { echo "This VPS profile currently targets x86_64." >&2; exit 1; }
@@ -71,8 +83,7 @@ else
   GUIX_PROFILE_FAILED=1
 fi
 
-log "Install MongoDB Atlas CLI and mongosh"
-bash "$ROOT/scripts/install-mongodb-tools.sh"
+run_optional "Install MongoDB Atlas CLI (mongosh intentionally omitted)" bash "$ROOT/scripts/install-mongodb-tools.sh"
 
 log "Prepare VPS-native Stow package"
 install -d -o "$TARGET_USER" -g "$(id -gn "$TARGET_USER")" "$TARGET_HOME/.local/share/qimono"
@@ -88,7 +99,7 @@ if [[ -e "$TARGET_HOME/.zshrc" && ! -L "$TARGET_HOME/.zshrc" ]] && ! grep -q 'QI
   cp -a "$TARGET_HOME/.zshrc" "$TARGET_HOME/.zshrc.pre-vps-stow.$(date +%Y%m%dT%H%M%S)"
   rm "$TARGET_HOME/.zshrc"
 fi
-as_target stow --dir="$STOW_SOURCE" --target="$TARGET_HOME" --restow shell
+run_optional "Apply VPS-native Stow shell package" as_target stow --dir="$STOW_SOURCE" --target="$TARGET_HOME" --restow shell
 
 log "Set Zsh as root/target login shell"
 ZSH_BIN="$(command -v zsh || true)"
@@ -124,3 +135,9 @@ else
   echo "Provisioning complete. Reconnect SSH to load the Stow-managed Zsh environment."
 fi
 printf 'Login shell: %s\\n' "$(getent passwd "$TARGET_USER" | cut -d: -f7)"
+if (("${#OPTIONAL_FAILURES[@]}" > 0)); then
+  echo "Optional stages with warnings:"
+  printf ' - %s\\n' "${OPTIONAL_FAILURES[@]}"
+else
+  echo "Optional stages: all successful"
+fi
