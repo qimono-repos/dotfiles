@@ -1,6 +1,6 @@
 # Qimono VPS — Next Steps and Collaborative Build Plan
 
-**Status:** Architecture and execution brief  
+**Status:** Execution record updated 2026-10-30
 **Target:** `vps-ubuntu` on the Hostinger Ubuntu VPS  
 **Control plane:** `qimono-repos/dotfiles`  
 **Execution model:** GitHub is the canonical source of truth; the VPS is the runtime and development target.  
@@ -39,17 +39,17 @@ Last verified provisioning report (2026-10-30):
 | Java | OpenJDK 21 |
 | Gradle | 9.2.1 in Guix profile |
 | GNU Guix | Working; current generation reused without routine pull |
-| Guix profile | 25 packages, including Git, Neovim, Gradle, tmux, Stow, jq, yq, ripgrep and build tools |
+| Guix profile | 28 packages, including Git, Neovim, Gradle, tmux, Stow, jq, yq, ripgrep, `gh`, `bb`, and `uv` |
 | Shell | Zsh 5.9, configured as login shell |
 | Dotfiles | VPS-native Stow package applied from this repository |
-| Oh My Posh | 31.9.1 installed; Catppuccin theme file exists but needs visual refinement |
+| Oh My Posh | 31.9.1 installed; Catppuccin Mocha theme managed by Stow |
 | MongoDB tooling | Atlas CLI 1.59.4 installed; no local MongoDB server; mongosh intentionally omitted |
 | Coding agents | Codex CLI 0.166.0 and OpenCode 1.19.5; user confirmed both launch |
-| GitHub CLI | Not yet installed / verified |
-| Kotlin/Ktor application | Not yet created or deployed |
-| Nginx / TLS | Not yet provisioned on this VPS |
-| Browser IDE | Not yet deployed |
-| Bluesky PDS / OpenCloud | Not yet deployed |
+| GitHub CLI | Guix profile has gh 2.83.2; no GitHub authentication configured |
+| Kotlin/Ktor application | Deployed as loopback-only systemd service; health succeeds, Atlas readiness awaits URI |
+| Nginx / TLS | Not provisioned; domain currently resolves to a different IPv4 |
+| Browser IDE | code-server 4.144.0 active on loopback port 13337; password auth, SSH tunnel access, disabled at boot |
+| Bluesky PDS / OpenCloud | Not deployed; public domain/gateway and data decisions remain |
 
 These values are a dated baseline, not live telemetry. Re-inventory before making resource-sensitive decisions.
 
@@ -72,15 +72,15 @@ These values are a dated baseline, not live telemetry. Re-inventory before makin
 
 **Goal:** A comfortable, reproducible shell and editor environment.
 
-- [ ] Refine the existing Oh My Posh theme into a real Catppuccin Mocha palette. Keep the theme in the VPS Stow package.
-- [ ] Verify Zsh startup, PATH ordering, Guix profile activation, and prompt initialization.
-- [ ] Install and configure GitHub CLI (`gh`); support SSH authentication, repository operations, releases, and automation.
-- [ ] Review existing repository configurations for Neovim/LazyVim/LayVim. Reuse existing Qimono configuration where appropriate; do not blindly import an unrelated desktop setup.
-- [ ] Configure Emacs with Evil mode as an alternative editor, if its memory and maintenance footprint is reasonable.
-- [ ] Configure tmux for persistent remote sessions and recovery after SSH disconnects.
-- [ ] Install Babashka (`bb`) for lightweight Clojure scripting and REPL workflows. JVM Clojure is optional and should be justified by a concrete need.
+- [x] Refine the existing Oh My Posh theme into a Catppuccin Mocha palette in the VPS Stow package.
+- [x] Verify Zsh startup, PATH ordering, Guix profile activation, and prompt initialization.
+- [x] Install GitHub CLI (`gh`) from Guix and configure SSH protocol/editor. **Pending:** interactive `gh auth login`; no GitHub identity is authenticated yet.
+- [x] Review existing editor configuration and add a minimal, repo-managed Neovim setup.
+- [x] Configure Emacs with Evil mode; package and batch startup verified.
+- [x] Configure and parse-check repo-managed tmux settings.
+- [x] Install Babashka (`bb`) and run the repository smoke script.
 
-**Acceptance:** A new SSH login gives the managed shell; `gh`, `bb`, tmux and selected editors work; configuration is reproducible from Stow and scripts.
+**Acceptance:** A new SSH login gives the managed shell; `gh`, `bb`, tmux and selected editors work; configuration is reproducible from Stow and scripts. Tooling is verified; `gh` still needs interactive account authentication before private GitHub operations.
 
 ### Layer B — Application development
 
@@ -88,23 +88,23 @@ These values are a dated baseline, not live telemetry. Re-inventory before makin
 
 #### Kotlin + Ktor + MongoDB Atlas
 
-- [ ] Create or connect the intended `the-porketo` backend repository/workspace.
-- [ ] Use Java 21 and a committed Gradle wrapper. Pin the Kotlin and Ktor plugin/dependency versions in the project.
-- [ ] Implement a minimal Ktor service with routing, configuration, structured logs, and a health endpoint.
-- [ ] Connect to MongoDB Atlas using environment-based configuration. Do not store credentials in Git.
-- [ ] Separate local development configuration from production service configuration.
-- [ ] Create a dedicated unprivileged service account and systemd unit.
-- [ ] Add build, deploy, health-check, log-inspection, stop, and rollback commands.
-- [ ] Keep the service bound to loopback until the reverse proxy and exposure policy are ready.
+- [x] Connect the existing `the-porketo` backend workspace.
+- [x] Use Java 21 and add a Gradle wrapper; pin the existing Kotlin/Ktor dependencies.
+- [x] Implement Ktor routing, environment configuration, structured logs, `/health`, and `/ready`.
+- [ ] Connect to MongoDB Atlas using environment configuration. **Blocked:** production `MONGODB_URI` is not present; `/ready` correctly returns 503 until configured.
+- [x] Separate local development configuration from the root-owned production environment file.
+- [x] Create a dedicated unprivileged service account and bounded systemd unit.
+- [x] Add build, deploy, health-check, log-inspection, stop, and rollback commands.
+- [x] Keep the service bound to loopback pending a gateway decision.
 
 **Acceptance:** One documented command builds and deploys the service; the health endpoint responds; Atlas connectivity is verified without exposing secrets; a failed deployment leaves the previous working version recoverable.
 
 #### Python + quantum workspace
 
-- [ ] Use Python 3.12 for scientific package compatibility rather than assuming Ubuntu's Python 3.14 is supported by every wheel.
-- [ ] Prefer the existing Qimono Guix + uv approach and quantum workspace installer/manifests already in the repository.
-- [ ] Set up a project-local environment for Qiskit, Qiskit Aer, PennyLane, NumPy, Matplotlib, and ipykernel as justified.
-- [ ] Reuse existing Qiskit smoke tests and quantum documentation.
+- [x] Use Python 3.12 in the scientific environment.
+- [x] Use Guix + uv and the existing Qimono quantum assets.
+- [x] Set up the project-local Qiskit, Qiskit Aer, PennyLane, and ipykernel environment.
+- [x] Reuse and pass the Qiskit smoke test and register the `quantum` kernel.
 - [ ] Keep Jupyter bound to loopback and expose it only through an authenticated access path if needed.
 - [ ] Avoid installing large scientific stacks into the global Guix profile unless there is a clear reason.
 
@@ -112,9 +112,9 @@ These values are a dated baseline, not live telemetry. Re-inventory before makin
 
 #### Clojure / Babashka
 
-- [ ] Review `llm/clojure-proposal.md` and the existing Babashka direction.
-- [ ] Install Babashka as a user-local, idempotent tool.
-- [ ] Validate REPL and script workflows.
+- [x] Review `llm/clojure-proposal.md` and the existing Babashka direction. It proposes a learning-oriented Gemma port; implementation remains optional and Python stays authoritative until parity work is explicitly continued.
+- [x] Install Babashka in the managed Guix profile.
+- [x] Validate the repository script workflow.
 - [ ] If continuing the Gemma harness port, preserve the Python implementation as the reference until parity tests pass.
 
 **Acceptance:** `bb` is available to the target user and a small repository-owned smoke task succeeds.
@@ -132,23 +132,23 @@ Compare extension compatibility, authentication, update strategy, resource consu
 
 Deployment requirements:
 
-- [ ] Run as a dedicated unprivileged user.
-- [ ] Bind to loopback; do not expose the editor port directly to the public internet.
-- [ ] Put it behind the Nginx gateway with HTTPS and an authentication/access-control plan.
-- [ ] Keep extensions minimal on the 1-vCPU host.
-- [ ] Make it independently startable/stoppable and recoverable.
-- [ ] Ensure editor sessions do not own or require root access to application secrets.
+- [x] Prepare a pinned installer for a dedicated unprivileged code-server user.
+- [x] Installer is designed for loopback binding and no raw public port.
+- [x] Use password auth over SSH local forwarding while the public HTTPS route is blocked pending DNS alignment and gateway choice.
+- [x] Keep extensions minimal on the 1-vCPU host.
+- [x] Make it independently startable/stoppable; installer leaves it disabled at boot.
+- [x] Keep editor identity separate from root and application secrets.
 
-**Acceptance:** Browser IDE is reachable through the intended protected URL, can open the canonical repositories, and can use the installed toolchain without requiring a public raw editor port.
+**Acceptance:** Browser IDE is reachable through the protected SSH-tunnel URL, opens separate service-user copies of both canonical repositories, and has the Guix toolchain without root or API secrets. A public HTTPS hostname remains future work.
 
-**Resource note:** Browser IDE documentation may recommend more CPU/RAM than this VPS provides. Treat the documented baseline as a warning, not a guarantee. Measure real idle and active usage before adding other always-on services.
+**Resource note:** Idle code-server measured about 60 MiB in its systemd cgroup (about 86 MiB process RSS). After provisioning, the host had about 2.9 GiB available RAM and 32 GiB free disk. Browser IDE documentation may recommend more CPU/RAM than this VPS provides; measure again under active editing before adding always-on services.
 
 ### Layer D — Gateway and sovereign infrastructure
 
 #### Nginx and TLS
 
-- [ ] Inventory existing domains, DNS, firewall rules, and ports before configuring.
-- [ ] Install Nginx only after defining the shared reverse-proxy layout.
+- [x] Inventory existing domains, DNS, firewall rules, and ports. `qimono.vip` resolves to `194.195.126.37`, not the VPS IPv4 `179.236.239.149`; UFW is inactive; listeners were limited to SSH and loopback services.
+- [ ] Install Nginx only after defining the shared reverse-proxy layout. **Blocked:** `qimono.vip` resolves to `194.195.126.37`; the VPS public IPv4 is `179.236.239.149`.
 - [ ] Route each service by hostname or path as appropriate.
 - [ ] Use TLS certificates with automated renewal.
 - [ ] Keep backend/editor/service ports private on loopback or a private interface.
@@ -157,16 +157,16 @@ Deployment requirements:
 
 #### Bluesky Personal Data Server (PDS)
 
-- [ ] Review the official PDS deployment requirements and installer behavior.
-- [ ] Plan DNS, domain ownership, email/identity requirements, storage, backups, and public ports.
+- [x] Review the official PDS deployment requirements and installer behavior.
+- [ ] Plan DNS, domain ownership, email/identity requirements, storage, backups, and public ports. The current official installer supports Ubuntu 20.04/22.04/24.04 and Debian 11–13, not Ubuntu 26.04, and assumes it can own ports 80/443; see [official installer](https://github.com/bluesky-social/pds/blob/main/installer.sh) and [deployment guide](https://github.com/bluesky-social/pds#installing-on-ubuntu-200422042404-and-debian-111213).
 - [ ] Integrate with the shared Nginx/TLS design rather than blindly assuming the PDS installer can own ports 80 and 443.
 - [ ] Run independently with explicit resource limits and persistent data storage.
 - [ ] Define backup/restore and graceful stop/start procedures.
 
 #### OpenCloud
 
-- [ ] Review the current official deployment model and minimum resource needs.
-- [ ] Prefer a minimal deployment without optional heavyweight integrations initially.
+- [x] Review the current official deployment model and minimum resource needs.
+- [ ] Prefer a minimal deployment without optional heavyweight integrations initially. Official minimum for up to 10 users is 1 GHz single core and 512 MB RAM, but required storage depends on user data; see [OpenCloud requirements](https://docs.opencloud.eu/docs/admin/getting-started/requirements/). Disk capacity and backup retention still need a decision.
 - [ ] Integrate with the shared Nginx/TLS gateway.
 - [ ] Use independent service/container boundaries and persistent data volumes.
 - [ ] Define backup, restore, upgrade, and graceful shutdown procedures.
@@ -245,18 +245,18 @@ Each milestone should provide:
 
 ## 8. Suggested execution order
 
-1. [ ] Fix Catppuccin prompt colors and verify shell startup.
-2. [ ] Install/configure GitHub CLI and verify repository SSH workflow.
-3. [ ] Build the first Kotlin/Ktor + MongoDB Atlas service.
-4. [ ] Add systemd deployment, health checks, logs, and rollback.
-5. [ ] Add the browser IDE behind a protected access design.
-6. [ ] Add Python 3.12 + uv + Qiskit workspace using existing Qimono assets.
-7. [ ] Add Babashka and continue the Clojure workflow.
-8. [ ] Configure Nginx and TLS as the shared gateway.
-9. [ ] Deploy Bluesky PDS with independent lifecycle and resource controls.
-10. [ ] Deploy minimal OpenCloud with independent lifecycle and resource controls.
-11. [ ] Add optional service schedules and operating profiles after safe stop/start behavior is proven.
-12. [ ] Review Emacs Evil mode, LayVim/LazyVim, and remaining editor ergonomics.
+1. [x] Fix Catppuccin prompt colors and verify shell startup.
+2. [ ] Install/configure GitHub CLI and verify repository SSH workflow (**interactive auth remains**).
+3. [x] Build and deploy the Ktor service; Atlas connectivity is pending its production URI.
+4. [x] Add systemd deployment, health checks, logs, and rollback.
+5. [x] Start the protected browser IDE with SSH forwarding; public HTTPS remains pending DNS/gateway.
+6. [x] Add Python 3.12 + uv + Qiskit workspace using existing Qimono assets.
+7. [x] Add Babashka and validate its script workflow.
+8. [ ] Configure Nginx/TLS after DNS points at this VPS and public exposure policy is settled.
+9. [ ] Deploy Bluesky PDS after the supported-OS path, domain, email, storage, and proxy integration are resolved.
+10. [ ] Deploy minimal OpenCloud after storage, backup/restore, and gateway details are settled.
+11. [ ] Add optional service schedules after safe stop/start behavior and service needs are proven.
+12. [x] Review Emacs Evil and add a minimal Neovim setup; revisit ergonomics after browser IDE use.
 
 This order is a proposal, not permission to make every change automatically. Revisit priorities with Albert as the project evolves.
 

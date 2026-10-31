@@ -1,0 +1,24 @@
+[project]
+name = "quantum-workspace"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "pennylane>=0.45.1",
+    "pennylane-lightning>=0.45.0",
+    "pylatexenc>=2.11",
+    "qdk>=1.33.1",
+    "qiskit>=1.0",
+    "qiskit-aer>=0.18.2",
+]
+
+[project.scripts]
+quantum-workspace = "quantum_workspace:main"
+
+[build-system]
+requires = ["uv_build>=0.10.12,<0.11.0"]
+build-backend = "uv_build"

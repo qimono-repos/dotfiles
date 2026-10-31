@@ -21,7 +21,7 @@ through GNU Stow, and prints a machine report without exposing secrets.
 Independent stages are failure-isolated. A failed Guix profile application, MongoDB Atlas CLI install, Oh My Posh install, or Stow package application is recorded as a warning and does not automatically prevent unrelated later stages from running. Required host prerequisites and Guix bootstrap remain hard requirements. The final machine report lists optional stages that failed. New independent tools (for example Bun) should be added through the same `run_optional` wrapper rather than allowed to abort the whole convergence run.
 
 The first Guix pull and profile realization are the substantial part of the initial run. Later provisioning reuses the current Guix generation and does not pull again. To deliberately refresh channels, run `sudo bash vps-ubuntu/scripts/provision-vps.sh --refresh-guix`. A stationary progress percentage is not proof of a hung process: use process completion and its exit status as the signal.
-Java 21 remains owned by Ubuntu because it is already installed and working. The VPS manifest intentionally excludes `uv` until its package specification is verified against the pinned channel set.
+Java 21 remains owned by Ubuntu because it is already installed and working. The complete VPS manifest includes `uv`, verified against the active channel set, alongside Babashka and GitHub CLI.
 
 ## Important profile policy
 
@@ -84,11 +84,37 @@ OpenCode config merging remains separate.
 - `scripts/install-guix.sh`: official binary installer wrapper.
 - `scripts/install-mongodb-tools.sh`: verified Atlas CLI installer; mongosh intentionally omitted.
 - `scripts/install-oh-my-posh.sh`: optional Oh My Posh installer for the Catppuccin Zsh prompt.
+- `scripts/install-github-cli.sh`: installs GitHub CLI from the Guix-managed VPS profile.
+- `scripts/install-emacs-evil.sh`: installs the packaged Evil mode for the existing Emacs.
+- `scripts/install-code-server.sh`: checksum-verified, password-protected code-server on loopback, with SSH-tunnel access.
+- `scripts/install-quantum-python.sh`: creates the repo-owned Python 3.12 quantum workspace and registers the Qiskit tests.
+- `scripts/bb-smoke.clj`: tiny Babashka smoke task.
+- `scripts/deploy-porketo-api.sh`: build and deploy the adjacent Porketo Ktor API as a loopback-only systemd service.
+- `scripts/reconnaissance.sh`: read-only VPS report for host resources, ports, services, and repo state.
 - `scripts/provision-vps.sh`: one-command convergence pipeline; no routine channel pulls.
 - `scripts/guix-maintenance.sh`: inspect generations, snapshot exact channels, refresh, or roll back.
 - `scripts/bootstrap.sh`: compatibility entrypoint to the provisioner.
 - `stow-source/shell/`: VPS-native Zsh and prompt configuration.
 - `scripts/status.sh`: existing read-only Codex/OpenCode status report.
+
+## Developer tools
+
+The complete Guix profile includes Babashka for lightweight Clojure scripts,
+GitHub CLI, and `uv` for isolated Python workspaces. The Qiskit/PennyLane environment is
+project-local instead of expanding the global profile. Create or refresh it with
+`bash vps-ubuntu/scripts/install-quantum-python.sh`. Apply the full manifest
+after pulling changes:
+
+```bash
+sudo -H /root/.config/guix/current/bin/guix package \
+  --manifest="$PWD/vps-ubuntu/guix/manifest.scm" \
+  --profile=/root/.guix-profile
+```
+
+The VPS Stow package supplies low-noise tmux defaults, a minimal Neovim setup,
+and a small Emacs configuration using Evil mode. `gh` is installed in the
+complete Guix profile; authenticate interactively with `gh auth login` and
+choose SSH as the Git transport.
 
 ## Guix maintenance and reproducibility
 
@@ -98,5 +124,9 @@ Use `sudo bash vps-ubuntu/scripts/guix-maintenance.sh status` to inspect Guix st
 
 - No API keys or MongoDB credentials belong in Git.
 - The provisioner never prints environment values or auth files.
-- MongoDB Atlas access and the Kotlin/Ktor service are separate deployment
-  milestones; this pull does not open Atlas network access or deploy a service.
+- The Porketo API is deployed loopback-only. Atlas credentials and any public
+  proxy exposure remain separately configured.
+- code-server runs under its own `codeserver` account on `127.0.0.1:13337`
+  with password authentication. Access it through an SSH local forward; read
+  its password locally from `/etc/qimono-code-server/config.yaml`. It is
+  disabled at boot and can be stopped with `systemctl stop qimono-code-server`.

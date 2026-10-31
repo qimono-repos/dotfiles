@@ -21,8 +21,7 @@ mkdir -p "$(dirname "$WS")"
 if [[ ! -d "$WS" ]]; then
   echo "==> Creating uv project at $WS"
   # Prefer 3.11/3.12 for scientific wheels; host 3.14 is often too new
-  uv init --name quantum-workspace --package "$WS" 2>/dev/null \
-    || uv init --name quantum-workspace "$WS"
+  uv init --python 3.12 --name quantum-workspace --package "$WS"
 fi
 
 cd "$WS"
@@ -30,6 +29,19 @@ cd "$WS"
 # Pin a CPython uv can manage (independent of host 3.14)
 echo "==> Ensuring Python 3.12 for the project"
 uv python install 3.12 || true
+# uv init derives requires-python from the host interpreter unless told which
+# Python to use. Keep the project metadata aligned with the intended runtime.
+python3 - <<'PY'
+from pathlib import Path
+import re
+
+path = Path("pyproject.toml")
+text = path.read_text(encoding="utf-8")
+updated, count = re.subn(r'^requires-python\s*=\s*"[^"]+"', 'requires-python = ">=3.12,<3.13"', text, count=1, flags=re.MULTILINE)
+if count != 1:
+    raise SystemExit("Could not locate project requires-python in pyproject.toml")
+path.write_text(updated, encoding="utf-8")
+PY
 uv python pin 3.12 || true
 
 echo "==> Adding quantum frameworks"

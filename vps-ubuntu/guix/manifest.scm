@@ -15,8 +15,13 @@
   "yq"
   "tmux"
   "stow"
+  ;; Lightweight Clojure scripting / REPL runtime
+  "babashka"
+  ;; GitHub workflow CLI
+  "github-cli"
   ;; Build and application tooling
   "gradle"
+  "uv"
   "pkg-config"
   "openssl"
   "zlib"
