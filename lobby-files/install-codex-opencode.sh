@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | Codex + OpenCode + Ollama | v1.1.0
+# QIMONO GUIX LOBBY | Codex + OpenCode + Ollama | v1.1.1
 # Native musl Codex and OpenCode V2 in ~/.local/bin.
 # Ollama: Guix package if available; otherwise official archive adapted for Guix.
 # Override: QIMONO_OLLAMA=auto|force|off (auto checks free space).
@@ -53,10 +53,17 @@ download() {
   [[ -s "$dest" ]]
 }
 install_binary() {
-  install -m 0755 "$1" "$INSTALL_BIN/$2"
-  "$INSTALL_BIN/$2" --version
+  local source="$1" name="$2" candidate="$INSTALL_BIN/.$2.next.$"
+  # Keep the old executable intact until the new one has passed its version test.
+  install -m 0755 "$source" "$candidate" || return 1
+  if ! "$candidate" --version; then
+    rm -f "$candidate"
+    return 1
+  fi
+  mv -f "$candidate" "$INSTALL_BIN/$name" || return 1
+  say "Activated $name at $INSTALL_BIN/$name"
 }
-say "Starting v1.1.0 at $(date -u --iso-8601=seconds)"
+say "Starting v1.1.1 at $(date -u --iso-8601=seconds)"
 say "Architecture: $(uname -m)"
 say "Resource preflight: RAM, storage and existing installs"
 free -h || true
@@ -65,7 +72,10 @@ du -sh "$INSTALL_BIN" "$OPT_DIR" 2>/dev/null || true
 say "Planning budgets for temporary downloads, extraction and installed binaries (not exact release sizes): Codex 250 MiB; OpenCode 350 MiB; Ollama runtime 3072 MiB, models excluded"
 CODEX_BUDGET_MIB=250
 OPENCODE_BUDGET_MIB=350
-available_mib() { df -Pm "$HOME" | awk 'NR==2{print $4}'; }
+available_mib() {
+  # Agent downloads/extraction use /tmp, while installed binaries use HOME.
+  df -Pm "$HOME" /tmp | awk 'NR>1 { if (min=="" || $4<min) min=$4 } END { print min+0 }'
+}
 
 case "$(uname -m)" in
   x86_64) CODEX_ARCH=x86_64; OPENCODE_ARCH=x64; OLLAMA_ARCH=amd64 ;;
@@ -134,11 +144,11 @@ install_ollama_official() {
   esac
   [[ -f "$interpreter" ]] || { problem "Guix ELF interpreter missing: $interpreter"; return 1; }
   if patchelf --print-interpreter "$executable" >/dev/null 2>&1; then
-    patchelf --set-interpreter "$interpreter" "$executable"
+    patchelf --set-interpreter "$interpreter" "$executable" || return 1
   fi
   runtime_libs="$glibc/lib:$gcc_lib/lib:$prefix/lib/ollama"
   if patchelf --print-rpath "$executable" >/dev/null 2>&1; then
-    patchelf --set-rpath "$runtime_libs" "$executable"
+    patchelf --set-rpath "$runtime_libs" "$executable" || return 1
   fi
 
   cat > "$INSTALL_BIN/ollama" <<EOF
@@ -148,7 +158,7 @@ export OLLAMA_MODELS="\${OLLAMA_MODELS:-\$HOME/.local/share/ollama/models}"
 exec "$executable" "\$@"
 EOF
   chmod 0755 "$INSTALL_BIN/ollama" || return 1
-  "$INSTALL_BIN/ollama" --version
+  "$INSTALL_BIN/ollama" --version || return 1
 }
 
 if (( $(available_mib) >= CODEX_BUDGET_MIB )); then
@@ -167,7 +177,7 @@ df -h "$HOME"
 case "$OLLAMA_MODE" in
   off) RESULTS+=("ollama: disabled") ;;
   auto|force)
-    free_kib="$(df -Pk "$HOME" | awk 'NR==2{print $4}')"
+    free_kib="$(( $(available_mib) * 1024 ))"
     if [[ "$OLLAMA_MODE" == auto ]] && (( free_kib < 3145728 )); then
       RESULTS+=("ollama: deferred; less than 3 GiB free for archive and extraction")
     elif install_ollama_guix || install_ollama_official; then
