@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | KDE Plasma + Bluetooth | v1.1.0
+# QIMONO GUIX LOBBY | KDE Plasma + Bluetooth | v1.1.1
 # "by" is the requested script name. All OS changes are declarative Guix.
 # Run after setup-network-in-guix.sh: bash install-kde-by.sh
 # Override low-free-space pause with QIMONO_FORCE=1 (a build can still run out of space).
@@ -32,7 +32,7 @@ fetch() {
   [[ -s "$2" ]] || fail "Empty download from $1"
 }
 
-say "KDE + Bluetooth configuration run (v1.1.0)"
+say "KDE + Bluetooth configuration run (v1.1.1)"
 say "System: $(uname -srmo)"
 say "KDE preflight: RAM and filesystem space:"
 free -h || true
@@ -41,11 +41,11 @@ say "KDE planning allowance: at least 6 GiB free is preferable; actual Guix clos
 say "Existing Guix store footprint:"
 du -sh /gnu/store 2>/dev/null || true
 FREE_KIB=$(df -Pk / | awk 'NR==2{print $4}')
-if (( FREE_KIB < 1048576 )) && [[ "${QIMONO_FORCE:-0}" != "1" ]]; then
-  fail "Less than 1 GiB free. KDE derivations need more space. QIMONO_FORCE=1 overrides this check."
-fi
 if (( FREE_KIB < 6291456 )); then
-  say "Available space is less than 6 GiB; full Plasma often requires significantly more."
+  say "Only $(( FREE_KIB / 1024 )) MiB available; KDE is optional and Guix Plasma may require several GiB."
+  if [[ "${QIMONO_FORCE:-0}" != "1" ]]; then
+    fail "Not deploying KDE with less than 6 GiB free. Use QIMONO_FORCE=1 for an explicit experiment."
+  fi
 fi
 
 if [[ -x /root/.config/guix/current/bin/guix ]]; then
@@ -77,7 +77,13 @@ fi
 head -n 4 "$STAGED"
 
 say "Evaluating and downloading the KDE system closure"
-"$GUIX_BIN" system build --substitute-urls="$SUBSTITUTES" "$STAGED"
+SYSTEM_PATH="$("$GUIX_BIN" system build --substitute-urls="$SUBSTITUTES" "$STAGED" | tail -n 1)"
+say "Built system path: $SYSTEM_PATH"
+if [[ "$SYSTEM_PATH" == /gnu/store/* ]]; then
+  "$GUIX_BIN" size "$SYSTEM_PATH" || true
+fi
+say "Filesystem after building KDE closure"
+df -h / /gnu/store
 
 say "Reconfiguring Guix: Plasma, SDDM, Bluetooth, NetworkManager, standard Linux"
 "$GUIX_BIN" system reconfigure --substitute-urls="$SUBSTITUTES" "$STAGED"
@@ -90,8 +96,9 @@ say "Shepherd service inventory"
 herd status || true
 say "Bluetooth controller inventory"
 if command -v bluetoothctl >/dev/null 2>&1; then bluetoothctl list || true; fi
-say "Current disk use"
-df -h /
+say "Resource use after KDE deployment"
+free -h || true
+df -h / /gnu/store /tmp
 
 say "Install phase complete."
 echo "After reboot, the SDDM login screen should offer a Plasma session."
