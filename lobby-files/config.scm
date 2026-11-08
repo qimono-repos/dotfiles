@@ -1,6 +1,6 @@
 (use-modules (gnu) (gnu system nss))
 (use-service-modules networking ssh)
-(use-package-modules bootloaders certs screen ssh)
+(use-package-modules bootloaders certs nss screen ssh)
 
 (operating-system
   (host-name "qimono-lobby")
@@ -31,6 +31,6 @@
 
   (packages (append (list screen openssh nss-certs) %base-packages))
 
-  (services (append (list (service dhcp-client-service-type)
+  (services (append (list (service dhcpcd-service-type)
                           (service openssh-service-type))
                     %base-services)))
