@@ -1,6 +1,6 @@
-;; QIMONO-LOBBY-CONFIG-VERSION: v1.1.1
+;; QIMONO-LOBBY-CONFIG-VERSION: v1.2.0
 ;; Flavor: network-nonguix
-;; Change: NetworkManager + WPA supplicant; preserve qi-keydrive boot layout.
+;; Change: NetworkManager, WPA, standard Linux and firmware for wireless hardware.
 ;; Source: qimono-repos/dotfiles/lobby-files/
 
 (use-modules (gnu) (gnu system nss)
