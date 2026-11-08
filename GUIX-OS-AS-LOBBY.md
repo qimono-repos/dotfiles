@@ -59,6 +59,14 @@ Typical repair loop (conceptual): mount root+ESP → bind `/dev,/proc,/sys,/run`
 
 Separate from the lobby: a mountable data partition (USB SSD or, later, SD with speed tradeoff) for carry-along data — e.g. local repos, reference images, host-agnostic configs/wallpapers. Prefer mounting as `/qimono/` (or a labeled mount) rather than replacing the host `/home`. Use **ext4** (or another POSIX fs) when Unix permissions/symlinks/xattrs matter; avoid exFAT for that role. Mount by **UUID/label**, not device node.
 
+## Why the guided TUI may hide your target disk (and why you shouldn’t “hack” size)
+
+- Observed message: *“The installation device as well as the small devices are filtered.”* The **installation/source media** is filtered (safe). Disks below the installer’s **“small device”** size threshold are also hidden in the guided picker. `qi-keydrive` (~7.5 GB) and even a 14.5 GB thumbdrive can be filtered.
+- **Do not try to fake the drive’s reported size/capacity** (firmware hacks/counterfeit tricks). It’s device-specific, risky, can brick/corrupt the drive, and **does not create real storage**. The installer may still fail later when writing `/gnu/store` if real space is insufficient. The right workaround is the **manual install from a TTY**, which does not use that guided disk-picker filter. Use `lsblk` by **model/size/label/UUID** and target only the intended disk.
+- 7.5 GB is *small* for a Guix System install; it may work for a minimal lobby or fail with “no space left” during `guix system init`. If it fails for real space, use a larger USB SSD/thumbdrive as Drive 2.
+
+Detailed manual steps: [`GUIX-LOBBY-TTY-INSTALL.md`](./GUIX-LOBBY-TTY-INSTALL.md).
+
 ## Safety / open points
 
 - Always verify target disk identity before install/format/`dd` (model, size, serial/WWN/UUID/label).
