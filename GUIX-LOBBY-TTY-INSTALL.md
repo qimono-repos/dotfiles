@@ -189,18 +189,28 @@ After the network reconfiguration, reboot to load the new kernel if Nonguix firm
 nmcli --ask device wifi connect '<SSID>'
 ```
 
-Development agents (install as `qi`):
+After network bootstrap, clone the Qimono dotfiles repository once. `guix shell` supplies Git whether or not it is in the user profile:
 
 ```sh
-wget -O install-codex-opencode.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/install-codex-opencode.sh
-bash install-codex-opencode.sh
+guix shell git -- git clone --depth 1 https://github.com/qimono-repos/dotfiles.git "$HOME/qimono-dotfiles"
 ```
 
-Plasma and Bluetooth (the larger optional desktop stage):
+Run the development agent installer (as `qi`):
 
 ```sh
-wget -O install-kde-by.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/install-kde-by.sh
-bash install-kde-by.sh
+bash "$HOME/qimono-dotfiles/lobby-files/install-codex-opencode.sh"
+```
+
+Then the optional Plasma and Bluetooth stage:
+
+```sh
+bash "$HOME/qimono-dotfiles/lobby-files/install-kde-by.sh"
+```
+
+For subsequent script/config updates, pull from `main` rather than downloading files individually:
+
+```sh
+guix shell git -- git -C "$HOME/qimono-dotfiles" pull --ff-only
 ```
 
 The agents script sources `~/.guix-profile/etc/profile` to repair the command PATH in new shells. See the [post-install automation guide](./lobby-files/README.md) for variants, logs, environment overrides, and current version markers.
