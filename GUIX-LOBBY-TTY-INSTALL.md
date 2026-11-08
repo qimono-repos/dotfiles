@@ -103,49 +103,23 @@ herd start cow-store /mnt
 ```
 (If `herd`/service differs or errors, note the message and continue only if you understand it; on the Guix installer this is normally needed.)
 
-## 9) Create a minimal system configuration
+## 9) Download the minimal system configuration from GitHub
+The Guix lobby operating-system definition is maintained in [`lobby-files/config.scm`](./lobby-files/config.scm).
+
+Fetch it directly into the mounted target:
+
 ```sh
 mkdir -p /mnt/etc
-cat > /mnt/etc/config.scm <<'EOF'
-(use-modules (gnu) (gnu system nss))
-(use-service-modules networking ssh)
-(use-package-modules bootloaders certs screen ssh)
-
-(operating-system
-  (host-name "qimono-lobby")
-  (timezone "Etc/UTC")
-  (locale "en_US.utf8")
-
-  ;; Portable UEFI removable bootloader for the lobby.
-  (bootloader (bootloader-configuration
-                (bootloader grub-efi-removable-bootloader)
-                (targets '("/boot/efi"))))
-
-  (file-systems (append
-                  (list (file-system
-                          (mount-point "/")
-                          (device (file-system-label "qi-keydrive"))
-                          (type "ext4"))
-                        (file-system
-                          (mount-point "/boot/efi")
-                          (device (file-system-label "EFI"))
-                          (type "vfat")))
-                  %base-file-systems))
-
-  (users (cons (user-account
-                 (name "qi")
-                 (group "users")
-                 (supplementary-groups '("wheel" "netdev" "audio" "video")))
-               %base-user-accounts))
-
-  (packages (append (list screen openssh nss-certs) %base-packages))
-
-  (services (append (list (service dhcp-client-service-type)
-                          (service openssh-service-type))
-                    %base-services)))
-EOF
+curl -fL https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/config.scm -o /mnt/etc/config.scm
 ```
-Notes: minimal lobby, `linux-libre`/defaults for the first boot (fine to start). `nss-certs` helps TLS. You can harden/customize later (and add `linux`+`linux-firmware` via a nonguix-aware setup when ready).
+
+If `curl` isn't installed in the live environment, use `wget`:
+
+```sh
+wget -O /mnt/etc/config.scm https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/config.scm
+```
+
+The configuration retains the original minimal lobby setup: removable UEFI GRUB, `qi-keydrive` root and `EFI` ESP labels, user `qi`, SSH, and DHCP. Edit the version-controlled file in the repository for future changes instead of retyping Scheme in the installer.
 
 ## 10) Initialize the system (this takes time)
 ```sh
