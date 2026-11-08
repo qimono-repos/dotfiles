@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | KDE Plasma + Bluetooth | v1.0.1
+# QIMONO GUIX LOBBY | KDE Plasma + Bluetooth | v1.1.0
 # "by" is the requested script name. All OS changes are declarative Guix.
 # Run after setup-network-in-guix.sh: bash install-kde-by.sh
 # Override low-free-space pause with QIMONO_FORCE=1 (a build can still run out of space).
@@ -32,10 +32,14 @@ fetch() {
   [[ -s "$2" ]] || fail "Empty download from $1"
 }
 
-say "KDE + Bluetooth configuration run (v1.0.1)"
+say "KDE + Bluetooth configuration run (v1.1.0)"
 say "System: $(uname -srmo)"
-say "Disk capacity before Plasma evaluation:"
-df -h / /gnu/store
+say "KDE preflight: RAM and filesystem space:"
+free -h || true
+df -h / /gnu/store /tmp
+say "KDE planning allowance: at least 6 GiB free is preferable; actual Guix closure depends on shared store dependencies."
+say "Existing Guix store footprint:"
+du -sh /gnu/store 2>/dev/null || true
 FREE_KIB=$(df -Pk / | awk 'NR==2{print $4}')
 if (( FREE_KIB < 1048576 )) && [[ "${QIMONO_FORCE:-0}" != "1" ]]; then
   fail "Less than 1 GiB free. KDE derivations need more space. QIMONO_FORCE=1 overrides this check."
