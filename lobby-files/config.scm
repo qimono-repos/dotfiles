@@ -1,5 +1,8 @@
-;; QIMONO-LOBBY-CONFIG-REVISION: 2026-11-08.1
-;; Change: Import nss-certs from (gnu packages nss); use dhcpcd; add revision stamp.
+;; QIMONO-LOBBY-CONFIG-VERSION: v1.0.2
+;; Change: Switch to SemVer for rapid TTY install iterations.
+;; Previous fix (v1.0.1): Import nss-certs from (gnu packages nss); use dhcpcd.
+;; Versioning: MAJOR = breaking, MINOR = new feature/service, PATCH = fixes/docs.
+;; Rule: Increment version and update Change for EVERY edit to this file.
 ;; Source: qimono-repos/dotfiles/lobby-files/config.scm
 
 (use-modules (gnu) (gnu system nss))
