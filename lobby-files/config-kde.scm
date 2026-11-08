@@ -1,6 +1,6 @@
-;; QIMONO-LOBBY-CONFIG-VERSION: v1.3.0
+;; QIMONO-LOBBY-CONFIG-VERSION: v1.3.1
 ;; Flavor: plasma-bluetooth-nonguix
-;; Change: Add Plasma, SDDM and BlueZ on the firmware-enabled lobby.
+;; Change: Add Bluetooth access group; use SDDM default theme for compatibility.
 ;; Source: qimono-repos/dotfiles/lobby-files/
 
 (use-modules (gnu) (gnu system nss) (srfi srfi-1)
@@ -36,7 +36,7 @@
   (users (cons (user-account
                  (name "qi")
                  (group "users")
-                 (supplementary-groups '("wheel" "netdev" "audio" "video")))
+                 (supplementary-groups '("wheel" "netdev" "audio" "video" "lp")))
                %base-user-accounts))
 
   (packages (append (list screen openssh nss-certs) %base-packages))
@@ -46,8 +46,7 @@
   (services
    (append
     (list (service plasma-desktop-service-type)
-          (service sddm-service-type
-                   (sddm-configuration (theme "breeze")))
+          (service sddm-service-type)
           (service bluetooth-service-type
                    (bluetooth-configuration (auto-enable? #t)))
           (service openssh-service-type))
