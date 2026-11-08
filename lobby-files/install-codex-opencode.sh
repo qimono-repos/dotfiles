@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | Codex + OpenCode + Ollama | v1.1.1
+# QIMONO GUIX LOBBY | Codex + OpenCode + Ollama | v1.1.2
 # Native musl Codex and OpenCode V2 in ~/.local/bin.
 # Ollama: Guix package if available; otherwise official archive adapted for Guix.
 # Override: QIMONO_OLLAMA=auto|force|off (auto checks free space).
@@ -63,13 +63,13 @@ install_binary() {
   mv -f "$candidate" "$INSTALL_BIN/$name" || return 1
   say "Activated $name at $INSTALL_BIN/$name"
 }
-say "Starting v1.1.1 at $(date -u --iso-8601=seconds)"
+say "Starting v1.1.2 at $(date -u --iso-8601=seconds)"
 say "Architecture: $(uname -m)"
 say "Resource preflight: RAM, storage and existing installs"
 free -h || true
 df -h "$HOME" /gnu/store /tmp
 du -sh "$INSTALL_BIN" "$OPT_DIR" 2>/dev/null || true
-say "Planning budgets for temporary downloads, extraction and installed binaries (not exact release sizes): Codex 250 MiB; OpenCode 350 MiB; Ollama runtime 3072 MiB, models excluded"
+say "Planning budgets for temporary downloads, extraction and installed binaries (not exact release sizes): Codex 250 MiB; OpenCode 350 MiB; Ollama runtime 6144 MiB, models excluded (official Linux archive ~1.4 GB compressed)"
 CODEX_BUDGET_MIB=250
 OPENCODE_BUDGET_MIB=350
 available_mib() {
@@ -178,8 +178,8 @@ case "$OLLAMA_MODE" in
   off) RESULTS+=("ollama: disabled") ;;
   auto|force)
     free_kib="$(( $(available_mib) * 1024 ))"
-    if [[ "$OLLAMA_MODE" == auto ]] && (( free_kib < 3145728 )); then
-      RESULTS+=("ollama: deferred; less than 3 GiB free for archive and extraction")
+    if [[ "$OLLAMA_MODE" == auto ]] && (( free_kib < 6291456 )); then
+      RESULTS+=("ollama: deferred; less than 6 GiB free for archive and extraction")
     elif install_ollama_guix || install_ollama_official; then
       RESULTS+=("ollama: installed")
     else
