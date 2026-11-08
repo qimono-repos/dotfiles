@@ -121,6 +121,14 @@ If `curl` isn't installed in the live environment, use `wget`:
 wget -O /mnt/etc/config.scm https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/config.scm
 ```
 
+Read the embedded revision and change summary after every download:
+
+```sh
+head -n 2 /mnt/etc/config.scm
+```
+
+For the current revision, the first line is `;; QIMONO-LOBBY-CONFIG-REVISION: 2026-11-08.1`. Bump this marker and update the change summary in `config.scm` whenever you change the configuration. The marker identifies which revision actually reached the installer.
+
 The configuration retains the original minimal lobby setup: removable UEFI GRUB, `qi-keydrive` root and `EFI` ESP labels, user `qi`, SSH, and DHCP. Edit the version-controlled file in the repository for future changes instead of retyping Scheme in the installer.
 
 ## 10) Initialize the system (this takes time)
