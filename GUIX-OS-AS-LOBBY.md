@@ -26,11 +26,17 @@ Guix is the **segway**, not necessarily the full daily developer machine. The de
 **Never target:** `/dev/nvme0n1` (WD_BLACK SN7100 500GB, Ubuntu host). Always confirm with `lsblk -o NAME,MODEL,SIZE,TRAN,LABEL,FSTYPE,UUID` inside the installer.
 
 ### Steps
-1. Boot the machine from **Drive 1** (UEFI boot menu → removable/SD). The Guix image is a hybrid ISO; pick the **UEFI** entry for the removable device when shown. **Boot-menu key (this mini-pc is unknown/generic DMI, AMI BIOS 5.19 2023-09-11):** try `Esc`, `F7`, `F11`, `F12`, or `Del/F2` for setup; common AMI keys vary by OEM. From Linux you can also try `systemctl reboot --firmware-setup` to enter UEFI setup directly.
-2. Expect the **Guided Graphical Installation** to be a **text-based ncurses/TUI** (dialog boxes) — *not* a Calamares/Qt GUI. TTY1 is the installer; root shells are available on other TTYs (`Ctrl+Alt+F3`…`F6`), docs on `Ctrl+Alt+F2`. You can also choose manual installation.
-3. In the installer, identify **Drive 2** by model/size/label (`qi-thumb`, 14.5G, `USB DISK 2.0`) — **not** `nvme0n1`. Verify with `lsblk -o NAME,MODEL,SIZE,TRAN,LABEL,FSTYPE,UUID` before partitioning.
-4. Run the guided install / `guix system install` targeting **Drive 2 only** (its own ESP + root, UEFI/GPT). For a portable lobby, prefer the removable/EFI fallback-friendly layout.
-5. Reboot, remove Drive 1 if desired, boot from **Drive 2** via UEFI boot menu. Drive 2 is now the portable lobby.
+1. **Networking (do this first / be prepared):** the Guix install usually needs network to download substitutes. **Easiest/fastest: plug in a LAN cable** before or during the installer (sometimes inconvenient in 2026, but worth it). Wi‑Fi can work but may need extra steps in the live environment.
+2. Boot the machine from **Drive 1** (UEFI boot menu → removable/SD). The Guix image is a hybrid ISO; pick the **UEFI** entry for the removable device when shown.
+3. **Boot keys (this mini-pc, AMI BIOS 5.19 2023-09-11, generic DMI):** one-time boot menu observed/attempted via **`Esc`** (confirm exact behavior on your unit); if the fast boot menu isn’t available, **change boot priority in UEFI setup** (`Del`/`F2` common on AMI) to boot the SD/USB (UEFI) first, then revert later if desired. From Ubuntu: `systemctl reboot --firmware-setup`.
+4. Expect the **Guided Graphical Installation** to be a **text-based ncurses/TUI** (dialog boxes) — *not* a Calamares/Qt GUI. TTY1 is the installer; root shells on **TTY3–TTY6** (`Ctrl+Alt+F3`…`F6`), docs on **TTY2** (`Ctrl+Alt+F2`).
+5. **Disk selection gotcha (observed 2026-11-10):** the guided installer may show *“The installation device as well as the small devices are filtered”* and list only the NVMe. Typical causes: the **boot/source device** is filtered (SD card running the ISO) and the target may be filtered as **small** (e.g. 14.5 GB `qi-thumb`). **Workaround:** switch to another TTY and use **manual install** (`lsblk` → partition/mkfs → `herd start cow-store /mnt` if present → `guix system init`) targeting **Drive 2 only**. Re-verify identity every time:
+   ```sh
+   lsblk -o NAME,MODEL,SIZE,TRAN,LABEL,FSTYPE,UUID
+   ```
+   Target only `qi-thumb` / `USB DISK 2.0` 14.5G — **never** `nvme0n1` / `WD_BLACK`.
+6. If using the guided path (when the disk is visible), install to **Drive 2 only** (its own ESP + root, UEFI/GPT). For a portable lobby, prefer a removable/EFI fallback-friendly layout.
+7. Reboot, remove Drive 1 if desired, boot from **Drive 2** via UEFI boot menu. Drive 2 is now the portable lobby.
 
 ## Lobby system requirements (minimal)
 
