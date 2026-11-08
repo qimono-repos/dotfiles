@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | network bootstrap | v1.0.0
+# QIMONO GUIX LOBBY | network bootstrap | v1.1.0
 # Apply the versioned Guix networking config and prepare wireless networking.
 # Run as qi: bash setup-network-in-guix.sh
 # Overrides: QIMONO_FIRMWARE=auto|libre|nonguix, QIMONO_WIFI_SSID="My SSID"
 set -Eeuo pipefail
 
 PROJECT="qimono-network"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_RAW="https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files"
-RUN_VERSION="v1.0.0"
+RUN_VERSION="v1.1.0"
 BOOT_LOG="/var/log/qimono/network-$(date -u +%Y%m%dT%H%M%SZ).log"
 FIRMWARE_MODE="${QIMONO_FIRMWARE:-auto}"
 GUIX_BIN="guix"
@@ -33,8 +34,11 @@ say "UTC date: $(date -u --iso-8601=seconds)"
 say "Log file: $BOOT_LOG"
 say "Hostname: $(hostname)"
 say "Kernel: $(uname -r)"
-say "Available space:"
-df -h / /gnu/store 2>/dev/null || true
+say "Preflight: RAM, disk and Guix store footprint"
+free -h || true
+df -h / /gnu/store /tmp 2>/dev/null || true
+say "The Nonguix kernel/firmware and guix pull can require substantial free space."
+
 
 fetch() {
   local url="$1" output="$2"
@@ -71,11 +75,21 @@ say "Selected mode: $FIRMWARE_MODE"
 if [[ "$FIRMWARE_MODE" == "nonguix" ]]; then
   say "Provisioning Nonguix channel for standard Linux kernel and firmware"
   mkdir -p /root/.config/guix
-  fetch "$REPO_RAW/channels-nonguix.scm" /root/.config/guix/channels.scm
-  say "Updating root's Guix command with the channel"
-  guix pull -C /root/.config/guix/channels.scm
-  if [[ -x /root/.config/guix/current/bin/guix ]]; then
+  if [[ -x /root/.config/guix/current/bin/guix ]] &&
+     /root/.config/guix/current/bin/guix describe 2>/dev/null | grep -Fq 'nonguix'; then
+    say "Root Guix already has Nonguix. Reusing its existing channel generation."
     GUIX_BIN="/root/.config/guix/current/bin/guix"
+  else
+    if [[ -f "$SCRIPT_DIR/channels-nonguix.scm" ]]; then
+      say "Using Nonguix channel manifest from local checkout"
+      install -m 0644 "$SCRIPT_DIR/channels-nonguix.scm" /root/.config/guix/channels.scm
+    else
+      fetch "$REPO_RAW/channels-nonguix.scm" /root/.config/guix/channels.scm
+    fi
+    say "Pulling root Guix with authenticated Nonguix channel"
+    guix pull -C /root/.config/guix/channels.scm
+    GUIX_BIN="/root/.config/guix/current/bin/guix"
+    [[ -x "$GUIX_BIN" ]] || fail "Pulled Guix binary not found at $GUIX_BIN"
   fi
 
   fetch "https://substitutes.nonguix.org/signing-key.pub" "$SIGNING_KEY"
@@ -88,7 +102,12 @@ else
   SUBSTITUTE_URLS=""
 fi
 
-fetch "$REPO_RAW/$CONFIG" "$STAGED"
+if [[ -f "$SCRIPT_DIR/$CONFIG" ]]; then
+  say "Using versioned configuration from local checkout"
+  cp "$SCRIPT_DIR/$CONFIG" "$STAGED"
+else
+  fetch "$REPO_RAW/$CONFIG" "$STAGED"
+fi
 say "Configuration identity"
 head -n 4 "$STAGED"
 
@@ -125,6 +144,9 @@ else
   say "NetworkManager command will be available via the new system profile."
 fi
 
+say "Post-reconfiguration resource report"
+free -h || true
+df -h / /gnu/store /tmp || true
 say "Finished. If Wi-Fi remains invisible, boot the new kernel, then run:"
 echo "  nmcli radio wifi on"
 echo "  nmcli device wifi list"
