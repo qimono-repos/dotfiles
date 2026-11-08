@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | Codex + OpenCode + Ollama | v1.0.0
+# QIMONO GUIX LOBBY | Codex + OpenCode + Ollama | v1.0.1
 # Native musl Codex and OpenCode V2 in ~/.local/bin.
 # Ollama: Guix package if available; otherwise official archive adapted for Guix.
 # Override: QIMONO_OLLAMA=auto|force|off (auto checks free space).
@@ -27,8 +27,8 @@ fi
 mkdir -p "$INSTALL_BIN" "$OPT_DIR" "$STATE_DIR"
 exec > >(tee -a "$LOG") 2>&1
 
-if [[ -f "$HOME/.guix-profile/etc/profile" ]]; then
-  GUIX_PROFILE="$HOME/.guix-profile"
+GUIX_PROFILE="$HOME/.guix-profile"
+if [[ -f "$GUIX_PROFILE/etc/profile" ]]; then
   export GUIX_PROFILE
   . "$GUIX_PROFILE/etc/profile"
 fi
@@ -44,10 +44,11 @@ grep -Fqx "$BIN_LINE" "$HOME/.bash_profile" || printf '%s\n' "$BIN_LINE" >> "$HO
 download() {
   local url="$1" dest="$2"
   say "Downloading $url"
+  rm -f "$dest"
   if command -v curl >/dev/null 2>&1; then
-    curl -fL --retry 3 --connect-timeout 30 --output "$dest" "$url"
+    curl -fL --retry 3 --connect-timeout 30 --output "$dest" "$url" || return 1
   else
-    wget -q --show-progress --tries=3 --timeout=60 -O "$dest" "$url"
+    wget -q --show-progress --tries=3 --timeout=60 -O "$dest" "$url" || return 1
   fi
   [[ -s "$dest" ]]
 }
@@ -55,7 +56,7 @@ install_binary() {
   install -m 0755 "$1" "$INSTALL_BIN/$2"
   "$INSTALL_BIN/$2" --version
 }
-say "Starting v1.0.0 at $(date -u --iso-8601=seconds)"
+say "Starting v1.0.1 at $(date -u --iso-8601=seconds)"
 say "Architecture: $(uname -m)"
 say "Filesystem use:"
 df -h "$HOME"
@@ -68,9 +69,9 @@ esac
 
 install_codex() {
   local archive="$TMP/codex.tar.gz" extracted
-  download "https://github.com/openai/codex/releases/latest/download/codex-$CODEX_ARCH-unknown-linux-musl.tar.gz" "$archive"
+  download "https://github.com/openai/codex/releases/latest/download/codex-$CODEX_ARCH-unknown-linux-musl.tar.gz" "$archive" || return 1
   mkdir -p "$TMP/codex"
-  tar -xzf "$archive" -C "$TMP/codex"
+  tar -xzf "$archive" -C "$TMP/codex" || return 1
   extracted="$(find "$TMP/codex" -type f -name 'codex-*linux-musl' -print -quit)"
   [[ -n "$extracted" ]] || { problem "Codex binary absent from archive"; return 1; }
   install_binary "$extracted" codex
@@ -85,7 +86,7 @@ install_opencode() {
   done
   (( ok )) || { problem "OpenCode archive download failed"; return 1; }
   mkdir -p "$TMP/opencode"
-  tar -xzf "$archive" -C "$TMP/opencode"
+  tar -xzf "$archive" -C "$TMP/opencode" || return 1
   extracted="$(find "$TMP/opencode" -type f -name opencode -print -quit)"
   [[ -n "$extracted" ]] || { problem "OpenCode binary absent from archive"; return 1; }
   install_binary "$extracted" opencode
@@ -107,20 +108,20 @@ install_ollama_official() {
   local archive="$TMP/ollama.tar.zst"
   local prefix="$OPT_DIR/ollama" executable glibc gcc_lib interpreter runtime_libs
   say "Using official Ollama Linux archive adapted for Guix"
-  guix install zstd patchelf
+  guix install zstd patchelf || return 1
   GUIX_PROFILE="$HOME/.guix-profile"
   . "$GUIX_PROFILE/etc/profile"
   export PATH="$INSTALL_BIN:$GUIX_PROFILE/bin:$PATH"
   hash -r
 
-  download "https://ollama.com/download/ollama-linux-$OLLAMA_ARCH.tar.zst" "$archive"
+  download "https://ollama.com/download/ollama-linux-$OLLAMA_ARCH.tar.zst" "$archive" || return 1
   mkdir -p "$prefix"
-  tar --zstd -xf "$archive" -C "$prefix"
+  tar --zstd -xf "$archive" -C "$prefix" || return 1
   executable="$prefix/bin/ollama"
   [[ -f "$executable" ]] || { problem "bin/ollama missing in archive"; return 1; }
 
-  glibc="$(guix build glibc | tail -n 1)"
-  gcc_lib="$(guix build gcc:lib | tail -n 1)"
+  glibc="$(guix build glibc | tail -n 1)" || return 1
+  gcc_lib="$(guix build gcc:lib | tail -n 1)" || return 1
   case "$(uname -m)" in
     x86_64) interpreter="$glibc/lib/ld-linux-x86-64.so.2" ;;
     aarch64) interpreter="$glibc/lib/ld-linux-aarch64.so.1" ;;
@@ -140,7 +141,7 @@ export LD_LIBRARY_PATH="$runtime_libs:\${LD_LIBRARY_PATH:-}"
 export OLLAMA_MODELS="\${OLLAMA_MODELS:-\$HOME/.local/share/ollama/models}"
 exec "$executable" "\$@"
 EOF
-  chmod 0755 "$INSTALL_BIN/ollama"
+  chmod 0755 "$INSTALL_BIN/ollama" || return 1
   "$INSTALL_BIN/ollama" --version
 }
 
