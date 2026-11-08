@@ -1,3 +1,7 @@
+;; QIMONO-LOBBY-CONFIG-REVISION: 2026-11-08.1
+;; Change: Import nss-certs from (gnu packages nss); use dhcpcd; add revision stamp.
+;; Source: qimono-repos/dotfiles/lobby-files/config.scm
+
 (use-modules (gnu) (gnu system nss))
 (use-service-modules networking ssh)
 (use-package-modules bootloaders certs nss screen ssh)
