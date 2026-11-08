@@ -31,7 +31,7 @@ lsblk -o NAME,MODEL,SIZE,TYPE,TRAN,LABEL,FSTYPE,UUID,MOUNTPOINT
 | **SOURCE (installer)** | Guix ISO / micro SD reader, may show `GUIX...` labels | do **not** overwrite |
 | **FORBIDDEN** | **`WD_BLACK SN7100 500GB`**, size ~465.8G, `nvme0n1` | **never touch** |
 
-**Write down the TARGET disk name** (e.g. `/dev/sda` or `/dev/sdb`) **only after matching model+size**. From now on I’ll call it **`/dev/TARGETDISK`** — replace with your actual disk (the whole disk, not `p1`/`1`).
+Use `<target_disk>` for a device-path placeholder in documentation (for example, `/dev/sda`). In executable shell snippets, bind the device path to the `TARGET_DISK` variable. For this installation, the identified target is `/dev/sda`.
 
 If unsure: **stop and take a photo of `lsblk`**.
 
@@ -49,17 +49,19 @@ ping -c1 gnu.org
 If no network and you can: **plug a LAN cable**, then retry. (Wi‑Fi setup varies in the live image; LAN is the easy path.)
 
 ## 5) Partition the TARGET disk (UEFI/GPT, 2 partitions)
-**This erases `/dev/TARGETDISK` only.** Double-check it is `ProductCode` ~7.5G.
+These commands operate on the target device. Set `TARGET_DISK` to the device path corresponding to `<target_disk>`.
 
 ```sh
-# unmount anything on the target (ignore errors if not mounted)
-umount /dev/TARGETDISK* 2>/dev/null || true
+TARGET_DISK=/dev/sda
+
+# unmount target partitions if mounted
+umount "${TARGET_DISK}"[0-9]* 2>/dev/null || true
 
 # optional but clear
-wipefs -a /dev/TARGETDISK
+wipefs -a "$TARGET_DISK"
 
 # interactive partitioner (recommended)
-cfdisk /dev/TARGETDISK
+cfdisk "$TARGET_DISK"
 ```
 In `cfdisk`:
 1. Select **`gpt`** label type if asked.
@@ -70,29 +72,29 @@ In `cfdisk`:
 
 If `cfdisk` isn’t usable, `parted` alternative:
 ```sh
-parted -s /dev/TARGETDISK mklabel gpt \
+parted -s "$TARGET_DISK" mklabel gpt \
   mkpart ESP fat32 1MiB 513MiB set 1 esp on \
   mkpart LOBBY ext4 513MiB 100%
 ```
 
 Verify:
 ```sh
-lsblk -o NAME,MODEL,SIZE,TYPE,LABEL,FSTYPE /dev/TARGETDISK
+lsblk -o NAME,MODEL,SIZE,TYPE,LABEL,FSTYPE "$TARGET_DISK"
 ```
 Expect 2 partitions under the **7.5G ProductCode** disk.
 
 ## 6) Format partitions
-**Replace `TARGETDISK1/2` with the real partition names** (may be `/dev/sda1/sda2` or `/dev/sdb1/sdb2`; NVMe would be `p1/p2` but you are **not** using NVMe).
+`TARGET_DISK` remains the shell variable from Step 5. For USB `/dev/sdX` devices, append `1` for EFI and `2` for the root partition (for example, `/dev/sda1` and `/dev/sda2`).
 ```sh
-mkfs.fat -F32 -n EFI /dev/TARGETDISK1
-mkfs.ext4 -F -L qi-keydrive /dev/TARGETDISK2
+mkfs.fat -F32 -n EFI "${TARGET_DISK}1"
+mkfs.ext4 -F -L qi-keydrive "${TARGET_DISK}2"
 ```
 
 ## 7) Mount target filesystems
 ```sh
-mount /dev/TARGETDISK2 /mnt
+mount "${TARGET_DISK}2" /mnt
 mkdir -p /mnt/boot/efi
-mount /dev/TARGETDISK1 /mnt/boot/efi
+mount "${TARGET_DISK}1" /mnt/boot/efi
 findmnt /mnt /mnt/boot/efi
 ```
 Confirm `/mnt` is on the **7.5G/qi-keydrive** disk and `/mnt/boot/efi` is the EFI partition — **not nvme**.
