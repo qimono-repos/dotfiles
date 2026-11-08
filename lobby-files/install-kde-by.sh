@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | KDE Plasma + Bluetooth | v1.0.0
+# QIMONO GUIX LOBBY | KDE Plasma + Bluetooth | v1.0.1
 # "by" is the requested script name. All OS changes are declarative Guix.
 # Run after setup-network-in-guix.sh: bash install-kde-by.sh
 # Override low-free-space pause with QIMONO_FORCE=1 (a build can still run out of space).
 set -Eeuo pipefail
 
 NAME="qimono-kde"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_RAW="https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files"
 STAGED="/tmp/qimono-kde-$$.scm"
 KEY="/tmp/qimono-kde-nonguix-key-$$.pub"
@@ -31,7 +32,7 @@ fetch() {
   [[ -s "$2" ]] || fail "Empty download from $1"
 }
 
-say "KDE + Bluetooth configuration run (v1.0.0)"
+say "KDE + Bluetooth configuration run (v1.0.1)"
 say "System: $(uname -srmo)"
 say "Disk capacity before Plasma evaluation:"
 df -h / /gnu/store
@@ -48,7 +49,12 @@ if [[ -x /root/.config/guix/current/bin/guix ]]; then
 fi
 if ! "$GUIX_BIN" describe 2>/dev/null | grep -q 'nonguix'; then
   say "Bringing in the Nonguix Linux/firmware channel for the portable desktop"
-  fetch "$REPO_RAW/channels-nonguix.scm" /root/.config/guix/channels.scm
+  if [[ -f "$SCRIPT_DIR/channels-nonguix.scm" ]]; then
+    say "Using Nonguix channel definition from local Git checkout"
+    install -m 0644 "$SCRIPT_DIR/channels-nonguix.scm" /root/.config/guix/channels.scm
+  else
+    fetch "$REPO_RAW/channels-nonguix.scm" /root/.config/guix/channels.scm
+  fi
   guix pull -C /root/.config/guix/channels.scm
   GUIX_BIN=/root/.config/guix/current/bin/guix
 fi
@@ -58,7 +64,12 @@ fetch "https://substitutes.nonguix.org/signing-key.pub" "$KEY"
 SUBSTITUTES="https://ci.guix.gnu.org https://bordeaux.guix.gnu.org https://substitutes.nonguix.org"
 
 say "Fetching Guix System definition"
-fetch "$REPO_RAW/config-kde.scm" "$STAGED"
+if [[ -f "$SCRIPT_DIR/config-kde.scm" ]]; then
+  say "Using config-kde.scm from local Git checkout"
+  cp "$SCRIPT_DIR/config-kde.scm" "$STAGED"
+else
+  fetch "$REPO_RAW/config-kde.scm" "$STAGED"
+fi
 head -n 4 "$STAGED"
 
 say "Evaluating and downloading the KDE system closure"
