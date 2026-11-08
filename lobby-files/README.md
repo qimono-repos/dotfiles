@@ -53,7 +53,7 @@ For later iterations, fetch the newest scripts and Scheme configuration from mai
 guix shell git -- git -C "$HOME/qimono-dotfiles" pull --ff-only
 ```
 
-The scripts can now be executed locally, with no more `wget` for the repo files.
+The scripts can now be executed locally, with no more `wget` for the repo files. The scripts check storage and memory before significant installations. Codex and OpenCode run before the heavier Ollama stage.
 
 ## Stage 2: Codex, OpenCode, Ollama
 
@@ -70,7 +70,7 @@ bash "$HOME/qimono-dotfiles/lobby-files/install-codex-opencode.sh"
 - Each stage reports a distinct result; scripts can be re-run.
 - Logs are saved under `~/.local/state/qimono/`.
 
-Ollama has a comparatively large binary bundle and model storage. In `auto` mode, the script defers Ollama when free space is below 3 GiB. Overrides:
+Ollama has a comparatively large binary bundle and model storage. In `auto` mode, the script defers Ollama when free space is below 6 GiB. Overrides:
 
 ```sh
 QIMONO_OLLAMA=force bash "$HOME/qimono-dotfiles/lobby-files/install-codex-opencode.sh"
@@ -89,7 +89,7 @@ bash "$HOME/qimono-dotfiles/lobby-files/install-kde-by.sh"
 
 The KDE script deploys the adjacent local `config-kde.scm` and `channels-nonguix.scm` files when available, using `guix system reconfigure`. It adds Plasma, SDDM, BlueZ, NetworkManager, standard Linux, and firmware. Its desktop service composition uses `%desktop-services`, removes GDM, and adds SDDM.
 
-KDE is not part of the minimal lobby concept, but the scripted configuration lets us experiment with it. The 7.5 GiB USB is substantially smaller than a typical Plasma system closure. The script reports disk usage and stops below 1 GiB free unless `QIMONO_FORCE=1` is supplied.
+KDE is not part of the minimal lobby concept, but the scripted configuration lets us experiment with it. The 7.5 GiB USB is substantially smaller than a typical Plasma system closure. The script reports disk usage and stops below 6 GiB free unless `QIMONO_FORCE=1` is supplied.
 
 After reconfiguration, reboot to reach the graphical login manager. Bluetooth command-line checks:
 
@@ -106,9 +106,20 @@ bluetoothctl scan on
 | `config.scm` | `v1.0.2` | minimal lobby originally installed |
 | `config-network.scm` | `v1.1.0` | network manager and wireless, Linux-libre |
 | `config-network-nonguix.scm` | `v1.2.0` | network plus non-libre kernel and firmware |
-| `config-kde.scm` | `v1.3.0` | KDE/SDDM/Bluetooth with Nonguix |
+| `config-kde.scm` | `v1.3.1` | KDE/SDDM/Bluetooth with Nonguix |
 
 Every variant prints its marker before reconfiguration. For each later change, increment the corresponding version marker and `Change:` comment in the repository.
+
+## Code review and CI
+
+The repository's [Qimono Lobby static checks](../.github/workflows/qimono-lobby-checks.yml) run `bash -n`, ShellCheck at warning severity, and the Guile reader over the versioned Scheme files. These checks catch shell and Scheme syntax problems; actual `guix system build` remains the functional integration test on a Guix machine.
+
+Script revisions after the post-install review:
+- `setup-network-in-guix.sh` v1.1.0: skips redundant channel pulls, supports local configs, logs RAM and space.
+- `install-codex-opencode.sh` v1.1.2: installs coding agents first, atomically activates tested binaries, and defers Ollama under 6 GiB free.
+- `install-kde-by.sh` v1.1.1: a 6 GiB minimum unless explicitly overridden, reports built closure size.
+
+The Ollama Linux archive alone can be roughly 1.4 GiB compressed; its extracted runtime plus future models need more space. The 6 GiB free-space allowance is a conservative planning gate, not an exact predicted closure size.
 
 ## Primary references
 
