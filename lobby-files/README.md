@@ -38,13 +38,29 @@ ip -br a
 
 The `--ask` flag collects secrets interactively rather than including passwords in shell history. NetworkManager remembers successful connections.
 
-## Stage 2: Codex, OpenCode, Ollama
+## Local workspace: clone the repository once
 
-Run as `qi`, not `root`:
+After the network bootstrap has completed, use Git to make the full `dotfiles` repository available on the lobby. The `guix shell git` command provides Git without assuming it is installed in `qi`'s profile. `--depth 1` fetches the complete current working tree without the entire commit history.
 
 ```sh
-wget -O install-codex-opencode.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/install-codex-opencode.sh
-bash install-codex-opencode.sh
+guix shell git -- git clone --depth 1 https://github.com/qimono-repos/dotfiles.git "$HOME/qimono-dotfiles"
+cd "$HOME/qimono-dotfiles/lobby-files"
+```
+
+For later iterations, fetch the newest scripts and Scheme configuration from main:
+
+```sh
+guix shell git -- git -C "$HOME/qimono-dotfiles" pull --ff-only
+```
+
+The scripts can now be executed locally, with no more `wget` for the repo files.
+
+## Stage 2: Codex, OpenCode, Ollama
+
+Run as `qi`, not `root`, from the cloned repository:
+
+```sh
+bash "$HOME/qimono-dotfiles/lobby-files/install-codex-opencode.sh"
 ```
 
 - Codex: official latest Linux musl CLI archive from `openai/codex`.
@@ -54,27 +70,26 @@ bash install-codex-opencode.sh
 - Each stage reports a distinct result; scripts can be re-run.
 - Logs are saved under `~/.local/state/qimono/`.
 
-Ollama has a comparatively large binary bundle and model storage. In `auto` mode, the script defers Ollama when free space is below 3 GiB. An explicit override:
+Ollama has a comparatively large binary bundle and model storage. In `auto` mode, the script defers Ollama when free space is below 3 GiB. Overrides:
 
 ```sh
-QIMONO_OLLAMA=force bash install-codex-opencode.sh
-QIMONO_OLLAMA=off bash install-codex-opencode.sh
+QIMONO_OLLAMA=force bash "$HOME/qimono-dotfiles/lobby-files/install-codex-opencode.sh"
+QIMONO_OLLAMA=off bash "$HOME/qimono-dotfiles/lobby-files/install-codex-opencode.sh"
 ```
 
 After installation, start Ollama with `ollama serve`. Model downloads are separate.
 
 ## Stage 3: KDE Plasma + Bluetooth
 
-Run as `qi`:
+Run as `qi` from the cloned repository:
 
 ```sh
-wget -O install-kde-by.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/install-kde-by.sh
-bash install-kde-by.sh
+bash "$HOME/qimono-dotfiles/lobby-files/install-kde-by.sh"
 ```
 
-The KDE script deploys `config-kde.scm` using `guix system reconfigure`, adding Plasma, SDDM, BlueZ, NetworkManager, standard Linux, and broad firmware support. Its desktop service composition uses `%desktop-services`, removes GDM, and adds SDDM.
+The KDE script deploys the adjacent local `config-kde.scm` and `channels-nonguix.scm` files when available, using `guix system reconfigure`. It adds Plasma, SDDM, BlueZ, NetworkManager, standard Linux, and firmware. Its desktop service composition uses `%desktop-services`, removes GDM, and adds SDDM.
 
-KDE is not part of the minimal lobby concept, but the scripted configuration lets us experiment with it. The 7.5 GiB USB is considerably tighter than a typical Plasma system closure. The script reports disk usage and stops below 1 GiB free unless `QIMONO_FORCE=1` is supplied.
+KDE is not part of the minimal lobby concept, but the scripted configuration lets us experiment with it. The 7.5 GiB USB is substantially smaller than a typical Plasma system closure. The script reports disk usage and stops below 1 GiB free unless `QIMONO_FORCE=1` is supplied.
 
 After reconfiguration, reboot to reach the graphical login manager. Bluetooth command-line checks:
 
