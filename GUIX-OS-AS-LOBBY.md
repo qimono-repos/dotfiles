@@ -26,10 +26,11 @@ Guix is the **segway**, not necessarily the full daily developer machine. The de
 **Never target:** `/dev/nvme0n1` (WD_BLACK SN7100 500GB, Ubuntu host). Always confirm with `lsblk -o NAME,MODEL,SIZE,TRAN,LABEL,FSTYPE,UUID` inside the installer.
 
 ### Steps
-1. Boot the machine from **Drive 1** (UEFI boot menu → removable/SD).
-2. In the Guix installer, identify **Drive 2** by model/size/label (`qi-thumb`, 14.5G, `USB DISK 2.0`) — **not** `nvme0n1`.
-3. Run `guix system install` targeting **Drive 2 only** (its own ESP + root).
-4. Reboot, remove Drive 1 if desired, boot from **Drive 2** via UEFI boot menu. Drive 2 is now the portable lobby.
+1. Boot the machine from **Drive 1** (UEFI boot menu → removable/SD). The Guix image is a hybrid ISO; pick the **UEFI** entry for the removable device when shown. **Boot-menu key (this mini-pc is unknown/generic DMI, AMI BIOS 5.19 2023-09-11):** try `Esc`, `F7`, `F11`, `F12`, or `Del/F2` for setup; common AMI keys vary by OEM. From Linux you can also try `systemctl reboot --firmware-setup` to enter UEFI setup directly.
+2. Expect the **Guided Graphical Installation** to be a **text-based ncurses/TUI** (dialog boxes) — *not* a Calamares/Qt GUI. TTY1 is the installer; root shells are available on other TTYs (`Ctrl+Alt+F3`…`F6`), docs on `Ctrl+Alt+F2`. You can also choose manual installation.
+3. In the installer, identify **Drive 2** by model/size/label (`qi-thumb`, 14.5G, `USB DISK 2.0`) — **not** `nvme0n1`. Verify with `lsblk -o NAME,MODEL,SIZE,TRAN,LABEL,FSTYPE,UUID` before partitioning.
+4. Run the guided install / `guix system install` targeting **Drive 2 only** (its own ESP + root, UEFI/GPT). For a portable lobby, prefer the removable/EFI fallback-friendly layout.
+5. Reboot, remove Drive 1 if desired, boot from **Drive 2** via UEFI boot menu. Drive 2 is now the portable lobby.
 
 ## Lobby system requirements (minimal)
 
