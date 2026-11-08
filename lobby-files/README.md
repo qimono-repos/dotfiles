@@ -2,6 +2,38 @@
 
 The minimal lobby is booting and `qi` can log in. This directory contains the next stage of the experiment: make its network portable, add coding agents, and optionally turn it into a KDE desktop. Shell code is executed with `bash` after downloading; GitHub's content API does not set the executable bit.
 
+## Recovery: Git-first workflow after a failed Guix pull
+
+The first Nonguix attempt failed while building `guix-packages-base.drv` with signal 11 (SIGSEGV), before any `guix system reconfigure`. The failure does not tell us whether the root cause is a Guile bug, resource pressure, or storage trouble.
+
+At the `qi` prompt, test Git using the existing Guix installation, without launching another `guix pull`:
+
+```sh
+guix shell git -- git clone --depth 1 https://github.com/qimono-repos/dotfiles.git "$HOME/qimono-dotfiles"
+```
+
+Gather the previous failure's build log, RAM, storage and kernel diagnostics in a single command:
+
+```sh
+sudo bash "$HOME/qimono-dotfiles/lobby-files/inspect-guix-failure.sh"
+```
+
+The inspector prints the last `guix-packages-base` build-log messages, relevant kernel events, and saves its transcript under `/tmp/qimono-guix-failure-*.log`. It neither builds nor reconfigures anything.
+
+The network bootstrap script is now `v1.1.1`. It detects local files from the checkout, logs diagnostics on errors, and bounds `guix pull` to one build job and one core by default. Once the previous failure is inspected, retry from the local checkout with:
+
+```sh
+bash "$HOME/qimono-dotfiles/lobby-files/setup-network-in-guix.sh"
+```
+
+For an experiment that bypasses grafting of the Guix pull result:
+
+```sh
+QIMONO_PULL_NO_GRAFTS=1 bash "$HOME/qimono-dotfiles/lobby-files/setup-network-in-guix.sh"
+```
+
+That is a different build mode, not a guaranteed cure for SIGSEGV. The script records the selected mode in its log.
+
 ## Stage 1: wireless network
 
 Run as `qi` while Ethernet is available:
