@@ -141,14 +141,8 @@ guix system init /mnt/etc/config.scm /mnt
 - **If it fails with “No space left on device”:** the 7.5G target may be too small for this image/config. That’s a real capacity limit (not the TUI filter) — use a larger USB drive/SSD for Drive 2.
 - **If it fails otherwise:** photo the last ~30 lines and the exact error.
 
-## 11) Set passwords (before reboot)
-```sh
-# set root password
-chroot /mnt /bin/sh -c 'passwd root'
-# set user password
-chroot /mnt /bin/sh -c 'passwd qi'
-```
-(If `chroot` path differs, try `/run/current-system/profile/bin/bash` or enter `guix shell ...` not needed; usually `passwd` works inside chroot on Guix.)
+## 11) Passwords are initialized after the first boot
+No `chroot` step is needed. A fresh Guix System has no conventional `/bin/sh` in its root filesystem, so `chroot /mnt /bin/sh -c 'passwd root'` fails with `No such file or directory`. Guix's installation manual specifies setting user passwords after booting the installed system, starting with `root` (initially empty password).
 
 ## 12) Reboot into the lobby
 ```sh
@@ -158,12 +152,24 @@ reboot
 ```
 Remove the **SD installer** if convenient. Use the machine’s **UEFI boot menu** (`Esc`/boot menu; or BIOS priority) and pick the **`qi-keydrive` / ProductCode / USB thumbdrive (UEFI)** entry. **Do not boot the NVMe** unless you intend to return to Ubuntu.
 
-## 13) After first boot (quick checks)
+## 13) After first boot: initialize passwords
+At the Guix console, log in as `root`. Its password is initially empty; press Enter if asked for one.
+
 ```sh
-lsblk -o NAME,MODEL,SIZE,LABEL,MOUNTPOINT
+passwd root
+passwd qi
+```
+
+Each `passwd` command prompts interactively for the new password and confirmation.
+
+Then, if you want to check network and Guix version:
+
+```sh
 ip -br a
 guix --version
 ```
+
+Reference: [GNU Guix manual, Proceeding with the Installation](https://guix.gnu.org/manual/en/html_node/Proceeding-with-the-Installation.html).
 
 ---
 
