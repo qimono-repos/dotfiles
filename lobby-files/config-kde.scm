@@ -1,6 +1,6 @@
-;; QIMONO-LOBBY-CONFIG-VERSION: v1.2.0
+;; QIMONO-LOBBY-CONFIG-VERSION: v1.3.0
 ;; Flavor: plasma-bluetooth-nonguix
-;; Change: Plasma + SDDM + BlueZ atop Nonguix Linux; preserve portable boot layout.
+;; Change: Add Plasma, SDDM and BlueZ on the firmware-enabled lobby.
 ;; Source: qimono-repos/dotfiles/lobby-files/
 
 (use-modules (gnu) (gnu system nss) (srfi srfi-1)
