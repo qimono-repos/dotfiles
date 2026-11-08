@@ -171,6 +171,40 @@ guix --version
 
 Reference: [GNU Guix manual, Proceeding with the Installation](https://guix.gnu.org/manual/en/html_node/Proceeding-with-the-Installation.html).
 
+
+## 14) Post-install: automate Wi-Fi, development agents and KDE
+
+The post-install implementation and versioned Guix System variants are under [`lobby-files/`](./lobby-files/README.md). Download the scripts one by one; they use Guix services and `guix system reconfigure` rather than `systemctl`.
+
+From the logged-in `qi` account:
+
+```sh
+wget -O setup-network-in-guix.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/setup-network-in-guix.sh
+bash setup-network-in-guix.sh
+```
+
+After the network reconfiguration, reboot to load the new kernel if Nonguix firmware was selected. Once wireless is available:
+
+```sh
+nmcli --ask device wifi connect '<SSID>'
+```
+
+Development agents (install as `qi`):
+
+```sh
+wget -O install-codex-opencode.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/install-codex-opencode.sh
+bash install-codex-opencode.sh
+```
+
+Plasma and Bluetooth (the larger optional desktop stage):
+
+```sh
+wget -O install-kde-by.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files/install-kde-by.sh
+bash install-kde-by.sh
+```
+
+The agents script sources `~/.guix-profile/etc/profile` to repair the command PATH in new shells. See the [post-install automation guide](./lobby-files/README.md) for variants, logs, environment overrides, and current version markers.
+
 ---
 
 ## Common mistakes / safety checklist
