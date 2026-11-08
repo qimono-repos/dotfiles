@@ -90,8 +90,8 @@ bluetoothctl scan on
 |---|---|---|
 | `config.scm` | `v1.0.2` | minimal lobby originally installed |
 | `config-network.scm` | `v1.1.0` | network manager and wireless, Linux-libre |
-| `config-network-nonguix.scm` | `v1.1.1` | network plus non-libre kernel and firmware |
-| `config-kde.scm` | `v1.2.0` | KDE/SDDM/Bluetooth with Nonguix |
+| `config-network-nonguix.scm` | `v1.2.0` | network plus non-libre kernel and firmware |
+| `config-kde.scm` | `v1.3.0` | KDE/SDDM/Bluetooth with Nonguix |
 
 Every variant prints its marker before reconfiguration. For each later change, increment the corresponding version marker and `Change:` comment in the repository.
 
