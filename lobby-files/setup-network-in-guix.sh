@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QIMONO GUIX LOBBY | network bootstrap | v1.1.0
+# QIMONO GUIX LOBBY | network bootstrap | v1.1.1
 # Apply the versioned Guix networking config and prepare wireless networking.
 # Run as qi: bash setup-network-in-guix.sh
 # Overrides: QIMONO_FIRMWARE=auto|libre|nonguix, QIMONO_WIFI_SSID="My SSID"
@@ -8,7 +8,7 @@ set -Eeuo pipefail
 PROJECT="qimono-network"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_RAW="https://raw.githubusercontent.com/qimono-repos/dotfiles/main/lobby-files"
-RUN_VERSION="v1.1.0"
+RUN_VERSION="v1.1.1"
 BOOT_LOG="/var/log/qimono/network-$(date -u +%Y%m%dT%H%M%SZ).log"
 FIRMWARE_MODE="${QIMONO_FIRMWARE:-auto}"
 GUIX_BIN="guix"
@@ -19,11 +19,33 @@ say() { printf '\n[%s] %s\n' "$PROJECT" "$*"; }
 fail() { printf '[%s] ERROR: %s\n' "$PROJECT" "$*" >&2; exit 1; }
 cleanup() { rm -f "$STAGED" "$SIGNING_KEY"; }
 trap cleanup EXIT
-trap 'printf "\n[%s] FAILED at line %s (status %s)\n" "$PROJECT" "$LINENO" "$?" >&2' ERR
+on_error() {
+  local code="$1" line="$2" log=""
+  trap - ERR
+  printf '\n[%s] FAILED at line %s (status %s)\n' "$PROJECT" "$line" "$code" >&2
+  printf '[%s] Resource snapshot at failure:\n' "$PROJECT" >&2
+  free -h >&2 || true
+  df -h / /gnu/store /tmp >&2 || true
+  if [[ -d /var/log/guix/drvs ]]; then
+    log="$(find /var/log/guix/drvs -type f -name '*guix-packages-base.drv*' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2- || true)"
+    if [[ -n "$log" && -f "$log" ]]; then
+      printf '[%s] Most recent Guix packages-base build log: %s\n' "$PROJECT" "$log" >&2
+      case "$log" in
+        *.gz) gzip -dc "$log" 2>/dev/null | tail -n 65 >&2 || true ;;
+        *.bz2) bzip2 -dc "$log" 2>/dev/null | tail -n 65 >&2 || true ;;
+        *.xz) xz -dc "$log" 2>/dev/null | tail -n 65 >&2 || true ;;
+        *) tail -n 65 "$log" >&2 || true ;;
+      esac
+    fi
+  fi
+  printf '[%s] Full transcript: %s\n' "$PROJECT" "$BOOT_LOG" >&2
+  exit "$code"
+}
+trap 'on_error "$?" "$LINENO"' ERR
 
 if (( EUID != 0 )); then
   command -v sudo >/dev/null || fail "sudo was not found; rerun from a root shell."
-  exec sudo --preserve-env=QIMONO_FIRMWARE,QIMONO_WIFI_SSID bash "$0" "$@"
+  exec sudo --preserve-env=QIMONO_FIRMWARE,QIMONO_WIFI_SSID,QIMONO_PULL_JOBS,QIMONO_PULL_CORES,QIMONO_PULL_NO_GRAFTS bash "$0" "$@"
 fi
 
 mkdir -p /var/log/qimono /etc
@@ -87,7 +109,16 @@ if [[ "$FIRMWARE_MODE" == "nonguix" ]]; then
       fetch "$REPO_RAW/channels-nonguix.scm" /root/.config/guix/channels.scm
     fi
     say "Pulling root Guix with authenticated Nonguix channel"
-    guix pull -C /root/.config/guix/channels.scm
+    say "Guix pull concurrency: jobs=${QIMONO_PULL_JOBS:-1}, cores=${QIMONO_PULL_CORES:-1}"
+    pull_args=(
+      "--max-jobs=${QIMONO_PULL_JOBS:-1}"
+      "--cores=${QIMONO_PULL_CORES:-1}"
+    )
+    if [[ "${QIMONO_PULL_NO_GRAFTS:-0}" == "1" ]]; then
+      say "Guix pull: skipping grafts for this diagnostic retry"
+      pull_args+=(--no-grafts)
+    fi
+    guix pull -C /root/.config/guix/channels.scm "${pull_args[@]}"
     GUIX_BIN="/root/.config/guix/current/bin/guix"
     [[ -x "$GUIX_BIN" ]] || fail "Pulled Guix binary not found at $GUIX_BIN"
   fi
