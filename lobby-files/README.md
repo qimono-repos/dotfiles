@@ -20,6 +20,18 @@ sudo bash "$HOME/qimono-dotfiles/lobby-files/inspect-guix-failure.sh"
 
 The inspector prints the last `guix-packages-base` build-log messages, relevant kernel events, and saves its transcript under `/tmp/qimono-guix-failure-*.log`. It neither builds nor reconfigures anything.
 
+If `guix shell git` itself fails because a substitute download stalls (for example `python-minimal-3.11.14`), bootstrap the repository as a GitHub source snapshot instead. This uses only the existing `wget` and `tar` commands; it does not invoke Guix's package installer:
+
+```sh
+wget --tries=5 --timeout=60 -O /tmp/qimono-dotfiles-main.tar.gz \
+  https://github.com/qimono-repos/dotfiles/archive/refs/heads/main.tar.gz
+tar -tzf /tmp/qimono-dotfiles-main.tar.gz >/dev/null &&
+  mkdir -p "$HOME/qimono-dotfiles" &&
+  tar -xzf /tmp/qimono-dotfiles-main.tar.gz --strip-components=1 -C "$HOME/qimono-dotfiles"
+```
+
+The resulting directory contains the same working-tree files but is not a Git checkout; updates require downloading another archive until Git is available. Do not retry package installation just to read a diagnostic script. The archive path provides an independent way to continue investigating the original `guix pull` SIGSEGV and unstable Guix substitutes.
+
 The network bootstrap script is now `v1.1.1`. It detects local files from the checkout, logs diagnostics on errors, and bounds `guix pull` to one build job and one core by default. Once the previous failure is inspected, retry from the local checkout with:
 
 ```sh
