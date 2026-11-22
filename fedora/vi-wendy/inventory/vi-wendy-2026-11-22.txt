@@ -1,0 +1,255 @@
+Public-repo snapshot: machine, boot, LAN, Wi-Fi, and MAC identifiers are redacted.
+
+======== Identity ========
+2026-11-22T20:09:17-03:00
+vi-wendy
+ Static hostname: vi-wendy
+       Icon name: computer-laptop
+         Chassis: laptop
+      Machine ID: <redacted-machine-id>
+         Boot ID: <redacted-boot-id>
+Operating System: Fedora Linux 35 (Workstation Edition)
+     CPE OS Name: cpe:/o:fedoraproject:fedora:35
+          Kernel: Linux 5.18.5-100.fc35.x86_64
+    Architecture: x86-64
+ Hardware Vendor: EXO S.A.
+  Hardware Model: Smart E16Plus
+uid=1000(wendy) gid=1000(wendy) groups=1000(wendy),10(wheel) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+
+======== OS ========
+NAME="Fedora Linux"
+VERSION="35 (Workstation Edition)"
+ID=fedora
+VERSION_ID=35
+VERSION_CODENAME=""
+PLATFORM_ID="platform:f35"
+PRETTY_NAME="Fedora Linux 35 (Workstation Edition)"
+ANSI_COLOR="0;38;2;60;110;180"
+LOGO=fedora-logo-icon
+CPE_NAME="cpe:/o:fedoraproject:fedora:35"
+HOME_URL="https://fedoraproject.org/"
+DOCUMENTATION_URL="https://docs.fedoraproject.org/en-US/fedora/f35/system-administrators-guide/"
+SUPPORT_URL="https://ask.fedoraproject.org/"
+BUG_REPORT_URL="https://bugzilla.redhat.com/"
+REDHAT_BUGZILLA_PRODUCT="Fedora"
+REDHAT_BUGZILLA_PRODUCT_VERSION=35
+REDHAT_SUPPORT_PRODUCT="Fedora"
+REDHAT_SUPPORT_PRODUCT_VERSION=35
+PRIVACY_POLICY_URL="https://fedoraproject.org/wiki/Legal:PrivacyPolicy"
+VARIANT="Workstation Edition"
+VARIANT_ID=workstation
+Linux vi-wendy 5.18.5-100.fc35.x86_64 #1 SMP PREEMPT_DYNAMIC Thu Jun 16 14:44:38 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+
+======== CPU / arch ========
+x86_64
+Architecture:                    x86_64
+CPU op-mode(s):                  32-bit, 64-bit
+Address sizes:                   36 bits physical, 48 bits virtual
+Byte Order:                      Little Endian
+CPU(s):                          4
+On-line CPU(s) list:             0-3
+Vendor ID:                       GenuineIntel
+Model name:                      Intel(R) Atom(TM) x5-Z8350  CPU @ 1.44GHz
+CPU family:                      6
+Model:                           76
+Thread(s) per core:              1
+Core(s) per socket:              4
+Socket(s):                       1
+Stepping:                        4
+CPU max MHz:                     1920,0000
+CPU min MHz:                     480,0000
+BogoMIPS:                        2880.00
+Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 movbe popcnt tsc_deadline_timer aes rdrand lahf_lm 3dnowprefetch epb pti ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid tsc_adjust smep erms dtherm ida arat md_clear
+Virtualization:                  VT-x
+L1d cache:                       96 KiB (4 instances)
+L1i cache:                       128 KiB (4 instances)
+L2 cache:                        2 MiB (2 instances)
+NUMA node(s):                    1
+NUMA node0 CPU(s):               0-3
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Mitigation; Clear CPU buffers; SMT disabled
+Vulnerability Meltdown:          Mitigation; PTI
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Spec store bypass: Not affected
+Vulnerability Spectre v1:        Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Retpolines, IBPB conditional, IBRS_FW, STIBP disabled, RSB filling
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+/dev/kvm: present
+
+======== Memory ========
+               total        used        free      shared  buff/cache   available
+Mem:           3,7Gi       2,0Gi       270Mi       192Mi       1,4Gi       1,2Gi
+Swap:          3,7Gi       732Mi       2,9Gi
+some avg10=6.20 avg60=5.69 avg300=3.20 total=233364370
+full avg10=0.00 avg60=0.00 avg300=0.00 total=0
+some avg10=0.02 avg60=0.10 avg300=0.03 total=13063859
+full avg10=0.00 avg60=0.03 avg300=0.00 total=10222982
+some avg10=0.19 avg60=0.40 avg300=0.15 total=31847094
+full avg10=0.06 avg60=0.14 avg300=0.04 total=17861727
+
+======== Storage ========
+NAME          SIZE TYPE FSTYPE MODEL TRAN LABEL                 UUID                                 MOUNTPOINT
+mmcblk1      29,1G disk
+├─mmcblk1p1   600M part vfat                                    20F7-251D                            /boot/efi
+├─mmcblk1p2     1G part ext4                                    15dc8b5f-a155-42c7-b7e0-689bbb97ee4e /boot
+└─mmcblk1p3  27,5G part btrfs             fedora_localhost-live 5db7519a-810f-4531-88b8-76137c07b1be /home
+mmcblk1boot0    4M disk
+mmcblk1boot1    4M disk
+zram0         3,7G disk                                                                              [SWAP]
+TARGET                         SOURCE                FSTYPE          OPTIONS
+/                              /dev/mmcblk1p3[/root] btrfs           rw,relatime,seclabel,compress=zstd:1,ssd,space_cache,subvolid=257,subvol=/root
+├─/proc                        proc                  proc            rw,nosuid,nodev,noexec,relatime
+│ └─/proc/sys/fs/binfmt_misc   systemd-1             autofs          rw,relatime,fd=31,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=18899
+│   └─/proc/sys/fs/binfmt_misc binfmt_misc           binfmt_misc     rw,nosuid,nodev,noexec,relatime
+├─/sys                         sysfs                 sysfs           rw,nosuid,nodev,noexec,relatime,seclabel
+│ ├─/sys/kernel/security       securityfs            securityfs      rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/fs/cgroup             cgroup2               cgroup2         rw,nosuid,nodev,noexec,relatime,seclabel,nsdelegate,memory_recursiveprot
+│ ├─/sys/fs/pstore             pstore                pstore          rw,nosuid,nodev,noexec,relatime,seclabel
+│ ├─/sys/firmware/efi/efivars  efivarfs              efivarfs        rw,nosuid,nodev,noexec,relatime
+│ ├─/sys/fs/bpf                bpf                   bpf             rw,nosuid,nodev,noexec,relatime,mode=700
+│ ├─/sys/fs/selinux            selinuxfs             selinuxfs       rw,nosuid,noexec,relatime
+│ ├─/sys/kernel/debug          debugfs               debugfs         rw,nosuid,nodev,noexec,relatime,seclabel
+│ ├─/sys/kernel/tracing        tracefs               tracefs         rw,nosuid,nodev,noexec,relatime,seclabel
+│ ├─/sys/fs/fuse/connections   fusectl               fusectl         rw,nosuid,nodev,noexec,relatime
+│ └─/sys/kernel/config         configfs              configfs        rw,nosuid,nodev,noexec,relatime
+├─/dev                         devtmpfs              devtmpfs        rw,nosuid,seclabel,size=4096k,nr_inodes=131072,mode=755,inode64
+│ ├─/dev/shm                   tmpfs                 tmpfs           rw,nosuid,nodev,seclabel,inode64
+│ ├─/dev/pts                   devpts                devpts          rw,nosuid,noexec,relatime,seclabel,gid=5,mode=620,ptmxmode=000
+│ ├─/dev/mqueue                mqueue                mqueue          rw,nosuid,nodev,noexec,relatime,seclabel
+│ └─/dev/hugepages             hugetlbfs             hugetlbfs       rw,relatime,seclabel,pagesize=2M
+├─/run                         tmpfs                 tmpfs           rw,nosuid,nodev,seclabel,size=767008k,nr_inodes=819200,mode=755,inode64
+│ └─/run/user/1000             tmpfs                 tmpfs           rw,nosuid,nodev,relatime,seclabel,size=383504k,nr_inodes=95876,mode=700,uid=1000,gid=1000,inode64
+│   ├─/run/user/1000/doc       portal                fuse.portal     rw,nosuid,nodev,relatime,user_id=1000,group_id=1000
+│   └─/run/user/1000/gvfs      gvfsd-fuse            fuse.gvfsd-fuse rw,nosuid,nodev,relatime,user_id=1000,group_id=1000
+├─/tmp                         tmpfs                 tmpfs           rw,nosuid,nodev,seclabel,nr_inodes=1048576,inode64
+├─/boot                        /dev/mmcblk1p2        ext4            rw,relatime,seclabel
+│ └─/boot/efi                  /dev/mmcblk1p1        vfat            rw,relatime,fmask=0077,dmask=0077,codepage=437,iocharset=ascii,shortname=winnt,errors=remount-ro
+├─/home                        /dev/mmcblk1p3[/home] btrfs           rw,relatime,seclabel,compress=zstd:1,ssd,space_cache,subvolid=256,subvol=/home
+└─/var/lib/nfs/rpc_pipefs      sunrpc                rpc_pipefs      rw,relatime
+Filesystem     Type      Size  Used Avail Use% Mounted on
+devtmpfs       devtmpfs  4,0M     0  4,0M   0% /dev
+tmpfs          tmpfs     1,9G   16M  1,9G   1% /dev/shm
+tmpfs          tmpfs     750M  2,0M  748M   1% /run
+/dev/mmcblk1p3 btrfs      28G   18G  9,4G  66% /
+tmpfs          tmpfs     1,9G   87M  1,8G   5% /tmp
+/dev/mmcblk1p3 btrfs      28G   18G  9,4G  66% /home
+/dev/mmcblk1p2 ext4      974M  203M  704M  23% /boot
+/dev/mmcblk1p1 vfat      599M   14M  585M   3% /boot/efi
+tmpfs          tmpfs     375M  172K  375M   1% /run/user/1000
+mmc device name: HBG4a2
+
+======== Firmware / boot ========
+firmware: UEFI
+BootCurrent: 0001
+Timeout: 3 seconds
+BootOrder: 0001,0003,0005,0004,0002,0006,0007
+Boot0001* Fedora	HD(1,GPT,c59b108e-cc14-4715-976a-a2ede46c07cc,0x800,0x12c000)/File(\EFI\FEDORA\SHIMX64.EFI)
+Boot0002* UEFI:CD/DVD Drive	BBS(129,,0x0)
+Boot0003* UEFI: Built-in EFI Shell	VenMedia(5023b95c-db26-429b-a648-bd47664c8012)..BO
+Boot0004* Android-IA	VenHw(99e275e7-75a0-4b37-a2e6-c5385e6c00cb)
+Boot0005* Android-IA	HD(1,GPT,c59b108e-cc14-4715-976a-a2ede46c07cc,0x800,0x12c000)/File(\EFI\BOOT\BOOTX64.EFI)
+Boot0006* UEFI:Removable Device	BBS(130,,0x0)
+Boot0007* UEFI:Network Device	BBS(131,,0x0)
+SecureBoot disabled
+Platform is in Setup Mode
+Smart E16Plus
+│
+└─HBG4a2:
+      Device ID:          c75df8e3cef4de8f9b217a6a93622a9efeb889ad
+      Current version:    0xa500000000000000
+      Vendor:             EMMC:0x000090
+      GUIDs:              45744b51-defa-5c66-b373-8990d6673b04
+                          255568e7-b6dd-5b95-bba3-f3416287a2b4
+                          acbf6649-b8da-5827-b992-b2e764126e7d
+      Device Flags:       • Internal device
+                          • Updatable
+
+
+======== Network ========
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+wlan0            UP             <redacted-lan-ip>/24 <redacted-ipv6-link-local>/64
+default via <redacted-gateway> dev wlan0 proto dhcp metric 600
+<redacted-lan-subnet>/24 dev wlan0 proto kernel scope link src <redacted-lan-ip> metric 600
+phy#0
+	Interface wlan0
+		ifindex 2
+		wdev 0x1
+		addr <redacted-mac>
+		ssid <redacted-ssid>
+		type managed
+		channel 1 (2412 MHz), width: 20 MHz, center1: 2412 MHz
+		txpower 12.00 dBm
+Global
+       Protocols: LLMNR=resolve -mDNS -DNSOverTLS DNSSEC=no/unsupported
+resolv.conf mode: stub
+
+Link 2 (wlan0)
+    Current Scopes: DNS LLMNR/IPv4 LLMNR/IPv6
+         Protocols: +DefaultRoute +LLMNR -mDNS -DNSOverTLS DNSSEC=no/unsupported
+Current DNS Server: <redacted-gateway>
+       DNS Servers: <redacted-gateway>
+
+======== Services ========
+inactive
+active
+disabled
+enabled
+running
+FedoraWorkstation (active)
+  target: default
+  icmp-block-inversion: no
+  interfaces: wlan0
+  sources:
+  services: dhcpv6-client mdns samba-client ssh
+  ports: 1025-65535/udp 1025-65535/tcp
+  protocols:
+  forward: no
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:
+
+======== Tooling ========
+  --  guix
+  --  apt
+  OK  dnf        -> /usr/bin/dnf
+  OK  snap       -> /usr/bin/snap
+  OK  podman     -> /usr/bin/podman
+  --  nix
+  --  docker
+  --  stow
+  --  uv
+  OK  python3    -> /usr/bin/python3
+  --  dotnet
+  --  cargo
+  OK  flatpak    -> /usr/bin/flatpak
+  OK  gh         -> /home/wendy/.local/bin/gh
+  OK  ssh        -> /usr/bin/ssh
+
+======== Top processes ========
+    PID USER     %CPU %MEM   RSS COMMAND
+   3676 wendy    25.3 16.5 634464 opencode
+   7819 wendy    12.6  5.4 209308 chrome
+   8318 wendy    12.7  5.0 194036 chrome
+   8208 wendy     1.8  4.2 164200 chrome
+   1683 wendy    17.1  4.1 157948 gnome-shell
+   1155 root      1.9  3.9 153244 packagekitd
+   7870 wendy    17.0  3.5 134848 chrome
+   7871 wendy     1.6  2.6 102516 chrome
+   8051 wendy     0.1  2.4 92752 chrome
+   8335 wendy     0.0  1.4 55380 chrome
+   7843 wendy     0.0  1.4 55088 chrome
+   2044 wendy     2.1  1.3 52912 gnome-software
+   7842 wendy     0.0  1.3 51996 chrome
+   8672 wendy     0.4  1.1 43468 gh
+   7881 wendy     0.0  1.0 40252 chrome
+   2310 wendy     1.0  1.0 40200 Xwayland
+   3259 wendy    15.2  1.0 39452 gnome-terminal-
+   1807 wendy     0.0  0.9 35492 goa-daemon
+   9074 root     21.7  0.8 32340 fwupd
+
+======== Done ========
+machine-discovery finished OK

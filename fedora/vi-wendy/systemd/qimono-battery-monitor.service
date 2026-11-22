@@ -1,0 +1,12 @@
+[Unit]
+Description=Qimono vi-wendy battery discharge monitor
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/source/repos/qimono-repos/dotfiles/fedora/vi-wendy/scripts/battery-monitor.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
