@@ -17,10 +17,10 @@ The user-owned installer and config were removed already. The package and servic
 
 ## Root cleanup
 
-From the repo root:
+Use an absolute path with `sudo bash` so the current directory and executable bit cannot break the command:
 
 ```bash
-sudo ./fedora/vi-wendy/scripts/remove-teamviewer.sh
+sudo bash /home/wendy/source/repos/qimono-repos/dotfiles/fedora/vi-wendy/scripts/remove-teamviewer.sh
 ```
 
 The script stops and disables the service, removes the package, cleans known residual paths, reloads systemd, and prints verification output. It disables the two broken third-party repos seen on this host during `dnf` metadata refresh.

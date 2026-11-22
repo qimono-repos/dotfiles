@@ -12,7 +12,7 @@
 ## U2 — TeamViewer removal
 
 - [ ] Read `../TEAMVIEWER-REMOVAL.md`.
-- [ ] Run `sudo ./fedora/vi-wendy/scripts/remove-teamviewer.sh`.
+- [ ] Run `sudo bash /home/wendy/source/repos/qimono-repos/dotfiles/fedora/vi-wendy/scripts/remove-teamviewer.sh`.
 - [ ] `rpm -qa '*teamviewer*'` is empty.
 - [ ] `systemctl status teamviewerd.service` shows not found or inactive.
 - [ ] No TeamViewer listener remains in `ss -tulpen`.
