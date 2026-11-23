@@ -15,7 +15,7 @@ Configuration files for macOS, Linux, and Windows.
 | `ubuntu/` | Generic Ubuntu / VPS | apt lists, nginx, server scripts (archive; not this mini-PC’s live pack) |
 | `gnu-guix/` | Guix recipes & channels | shared across Guix hosts |
 | `fedora/` | Fedora host history | |
-| [`fedora/vi-wendy/`](./fedora/vi-wendy/) | `vi-wendy` (EXO Smart E16Plus / Intel Atom x5-Z8350) | legacy Fedora lab host · GitHub SSH verified · battery discharge monitor · not a server candidate |
+| [`fedora/vi-wendy/`](./fedora/vi-wendy/) | `vi-wendy` (EXO Smart E16Plus / Intel Atom x5-Z8350) | legacy Fedora lab host · GitHub SSH verified · battery monitor · `too` bash port · Guix 1.5 ISO staged · destructive migration pending |
 
 **Package manager ranking (Linux laptops):** 1 **guix** · 2 **apt** · 3 **snap** · 4 **podman** · 5 **nix**
 

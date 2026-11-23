@@ -33,6 +33,15 @@
 - [ ] Do not reboot or plug in AC while measuring unplugged runtime.
 - [ ] After shutdown at 0%, copy the CSV into the inventory folder or summarize the measured runtime.
 
+## U6 — `too` / `powerofff`
+
+- [x] `~/.bashrc.d/50-power.sh` exists and is sourced from `~/.bashrc`.
+- [x] A new bash shell reports `too` and `powerofff` as functions via `type`.
+- [x] Run `sudo bash /home/wendy/source/repos/qimono-repos/dotfiles/fedora/vi-wendy/scripts/install-too.sh`.
+- [ ] `visudo -cf /etc/sudoers.d/qimono-power` reports valid.
+- [x] `sudo -n -l | grep systemctl` shows only reboot/poweroff entries for `wendy`.
+- [ ] Do not invoke `too` while the battery runtime measurement is active.
+
 ## U4 — Role boundary
 
 - [ ] Do not enable `sshd` for production until OS/network/firewall gates are met.
