@@ -4,7 +4,7 @@ This is the standalone install card for this machine. Use it when there is no as
 
 Status: the user has explicitly authorized destructive migration of this laptop and wiping the current `QI-DRIVE` USB stick for the Guix installer. No personal data is expected on the laptop. Do **not** use these instructions on another machine without re-checking every device name.
 
-Important clarification: Wi‑Fi hardware works on this laptop right now under Fedora. This runbook is **not** claiming the laptop has no Wi‑Fi, that the credentials are wrong, or that the router is unavailable. The narrower problem is that the official Guix installer uses the libre kernel and may not load the nonfree Realtek firmware that Fedora already loads. The same hardware can therefore work in Fedora and still show no `wlan0` inside the official Guix installer.
+Important clarification (2026-11-23 live-installer evidence): Wi-Fi works under Fedora. The **official Guix installer DID expose `wlan0`**, initially `DOWN`, while `rfkill` reported **soft blocked: yes / hard blocked: no**. Its kernel also reported `hci0: Missing Free firmware (non-Free firmware loading is disabled)`, plus a Realtek Bluetooth firmware failure and missing Intel SOF audio firmware. Those displayed firmware errors specifically name Bluetooth/audio; the Wi-Fi firmware diagnosis comes from the known RTL8723BS hardware and Fedora's working firmware. **An interface existing does not establish that Wi-Fi can actually initialize or associate.** The next planned installer is Nonguix, with a firmware-capable standard Linux kernel.
 
 ## Critical command bundle
 
@@ -19,7 +19,7 @@ Interpretation:
 - A usable Wi‑Fi interface such as `wlan0`, `wlp2s0`, or similar must appear in `ip -o link` before `wpa_supplicant` can work.
 - If no wireless interface appears, the problem is driver/firmware, not the Wi‑Fi password.
 - This machine uses Realtek `rtl8723bs` SDIO Wi‑Fi. Fedora loads nonfree firmware `rtlwifi/rtl8723bs_nic.bin`. The official Guix ISO has `wpa_supplicant` tools and the `r8723bs` staging module, but no visible `rtl8723bs_nic.bin` firmware.
-- If the official ISO gives no `wlan0`, use a Nonguix/firmware-capable installer image, or use phone USB tethering as a fallback.
+- If `wlan0` is present but radio activation or association fails, inspect the kernel messages; a visible interface is not proof of functioning firmware. Switch to Nonguix when the stock Linux-libre environment cannot initialize the radio.
 
 ## 0. Before the critical moment
 
@@ -27,7 +27,7 @@ Interpretation:
 - Have the Wi‑Fi SSID and passphrase available, but do not write the passphrase into this repo or chat.
 - Decide which image to boot:
   - Official Guix 1.5.0 ISO: already staged, libre kernel, likely missing this Wi‑Fi firmware.
-  - Nonguix installer image: preferred if official ISO has no `wlan0`; includes full Linux kernel and firmware support.
+  - Nonguix x86_64 installer image: **selected path after the 2026-11-23 attempt**; uses the standard Linux kernel and makes nonfree firmware available.
 - Keep this file open or printed.
 - Accept that this install replaces Fedora on the internal eMMC.
 - Remember: `too` and `powerofff` do **not** exist in the Guix installer. Use `reboot` or `poweroff`.
@@ -107,7 +107,7 @@ Useful interpretations:
 - `ip -o link` or `ifconfig -a` gives the interface name to use below.
 - `dmesg` shows whether the driver loaded and whether firmware failed.
 - If the interface name is long, use that exact name. Do not assume `wlan0`.
-- If there is no wireless interface, go to section 6.
+- If `wlan0` is shown but remains unusable, note whether `ip link set wlan0 up` fails and inspect recent `dmesg` messages; then use section 6.
 
 ## 5. Wi‑Fi path when a wireless interface exists
 
@@ -161,32 +161,54 @@ wpa_supplicant -i "$IFACE" -c /tmp/guix-wifi.conf -d
 
 Capture the last error lines before trying anything else.
 
-## 6. No wireless interface: driver/firmware path
+## 6. Firmware diagnosis and Nonguix installation route (current plan)
 
-Try loading the staging driver:
+### What the official installer actually reported on 2026-11-23
 
-```sh
-modprobe r8723bs
-ip -o link
-dmesg | grep -Ei 'r8723bs|firmware|wlan'
+```text
+2: wlan0: <BROADCAST,MULTICAST> ... state DOWN
+rfkill: Wireless LAN / Soft blocked: yes / Hard blocked: no
+hci0: Missing Free firmware (non-Free firmware loading is disabled)
+Bluetooth: hci0: RTL: firmware file /(DEBLOBBED)/ not found
+sof-audio-acpi-intel-byt: SOF firmware and/or topology file not found
+r8723bs: module is from the staging directory
 ```
 
-If `wlan0` or another wireless interface now exists, return to section 5.
+Interpretation:
 
-If it still does not exist, the official Guix ISO is missing the nonfree firmware. Choose one of these workarounds:
+- `wlan0` exists. This **does not** mean Wi-Fi is operational; the radio was soft-blocked and the Realtek staging module was present.
+- `rfkill unblock wifi` clears a software radio block. It does **not** enable restricted firmware loading.
+- The message about non-Free firmware loading reflects the Linux-libre kernel's firmware policy. There is **no ordinary `rfkill` command, kernel parameter or runtime toggle** that converts the official installer into a nonfree-firmware-capable Linux kernel.
+- The explicit firmware errors visible above involve Bluetooth and Intel audio. The Wi-Fi chipset is RTL8723BS; Fedora uses `rtlwifi/rtl8723bs_nic.bin`. If Wi-Fi initialization fails on the official installer, a firmware-capable kernel plus that firmware is the practical path.
+- The installed Guix System requires its **own** nonfree kernel/firmware configuration. Booting a Nonguix installation image alone does not guarantee wireless networking after installation.
 
-### Workaround A — Nonguix installer image, preferred for Wi‑Fi
+### Selected sequence: Nonguix x86_64 installer → full Guix System
 
-Reflash the USB with a Nonguix installer image that uses the full Linux kernel and firmware, boot it, then repeat sections 4 and 5.
+1. Download a **Nonguix x86_64 installation image** from the [Nonguix project](https://gitlab.com/nonguix/nonguix) / its [releases](https://gitlab.com/nonguix/nonguix/-/releases). Choose an installer image, not a boot image for a different architecture. Record the image filename and its published checksum, when available.
+2. Flash that image with Balena Etcher onto the **whole** `QI-DRIVE` USB device. The known Fedora-era USB was `/dev/sda` (114.6 GiB); the internal eMMC was `/dev/mmcblk1` (29.1 GB, `HBG4a2`). Etcher's selected drive must be the USB, not the eMMC.
+3. Reboot vi-wendy into the Nonguix USB installer and open its shell.
+4. Bring up the radio and inspect its status:
+   ```sh
+   rfkill unblock wifi
+   ip link set wlan0 up
+   ip -br link show wlan0
+   dmesg | grep -Ei 'r8723bs|rtl8723bs|firmware|wlan'
+   ```
+   If the interface is named differently, replace `wlan0` with the actual name from `ip -o link`.
+5. Authenticate to Wi-Fi and obtain DHCP using **section 5**. Verify connectivity with both an IP address and a DNS hostname.
+6. Install Guix onto vi-wendy's internal **29.1 GB `HBG4a2` eMMC**, replacing Fedora, following section 7's disk mapping and the chosen installer flow.
+7. Before the installer's final system-generation step, ensure its `operating-system` definition uses the standard Nonguix `linux` kernel and compatible firmware (in particular the RTL8723BS firmware, supplied by the selected firmware package). The Nonguix channel must be available to evaluate those package references. Verify that the selected configuration actually includes these components rather than assuming the installer image automatically supplies them to the installed system.
+8. Boot the installed system from eMMC, not the USB. Confirm `wlan0`, firmware loading and Wi-Fi connectivity again after the first reboot.
 
-Gotcha: a Nonguix **installer** does not automatically make the **installed system** nonfree. The installed Guix system still needs a system configuration that uses Nonguix/Linux firmware if Wi‑Fi must work after reboot.
+Firmware-capable Guix System configurations generally add `(nongnu packages linux)` and `(nongnu system linux-initrd)` imports and configure `(kernel linux)`, `(initrd microcode-initrd)`, and appropriate `(firmware ...)` packages. The exact Scheme should be derived from the Nonguix installer/channel version in use; do not blindly paste an unverified configuration into the final system.
 
-### Workaround B — phone USB tethering, fallback only
+### Alternative: phone USB tethering
 
-Plug the phone into USB and enable USB tethering. The interface may be `usb0`, `enp0s20f0u1`, `enx...`, or similar.
+USB tethering can provide temporary internet access when the current live installer cannot associate over Wi-Fi. It does **not** enable the Realtek Wi-Fi firmware in the installed OS.
 
 ```sh
 ip -o link
+# Set IFACE to the USB networking interface discovered above:
 IFACE=usb0
 ip link set "$IFACE" up
 dhclient -v "$IFACE"
@@ -194,7 +216,7 @@ ip addr show "$IFACE"
 ping -c 3 guix.gnu.org
 ```
 
-Replace `usb0` with the interface that appeared after tethering.
+Replace `usb0` with the actual interface name.
 
 ## 7. Disk target gate inside the installer
 
@@ -264,8 +286,8 @@ ip -o link; rfkill list; dmesg | grep -Ei 'r8723bs|firmware|wlan'
 - No LAN port and no USB-to-LAN adapter are available.
 - Having Wi‑Fi hardware is not enough; the interface must exist before `wpa_supplicant` can work.
 - `wpa_supplicant` failing is often a missing interface/firmware problem, not a password problem.
-- The official Guix ISO has Wi‑Fi tools but likely lacks `rtl8723bs_nic.bin`.
-- Nonguix installer fixes installer Wi‑Fi; installed-system Wi‑Fi still requires the right system config.
+- Official Guix 1.5.0 exposed `wlan0` in the live test, but that alone did not prove the radio was usable. Linux-libre disables nonfree firmware loading.
+- Nonguix is the next selected installer for the RTL8723BS hardware; verify radio operation there. Installed-system Wi-Fi still requires the right Nonguix kernel/firmware configuration.
 - Long interface names are normal; always copy the exact name from `ip -o link`.
 - `mmcblk1` is the internal eMMC under Fedora; it may be renamed in the installer.
 - The USB installer is not the target for `guix system init`.
