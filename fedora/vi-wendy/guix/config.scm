@@ -1,5 +1,5 @@
-;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.2
-;; Change: Set qi as SLiM default user and StumpWM as X session fallback.
+;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.3
+;; Change: Set installed hostname to Qimono (login remains qi; StumpWM remains default).
 ;; Base: Nonguix Linux, Realtek firmware, UEFI, swap and ext4.
 ;; Machine: EXO Smart E16Plus / Atom x5-Z8350 / 29.1 GiB HBG4a2 eMMC.
 ;; Installed by: fedora/vi-wendy/guix/install-guix.sh
@@ -16,7 +16,7 @@
                      wm xorg vim)
 
 (operating-system
-  (host-name "vi-wendy")
+  (host-name "Qimono")
   (timezone "America/Argentina/Cordoba")
   (locale "en_US.utf8")
 
