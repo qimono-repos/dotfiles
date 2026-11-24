@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# QIMONO VI-WENDY | full Guix System installer | v1.1.0
+# QIMONO VI-WENDY | full Guix System installer | v1.1.1
 # Run as root from the firmware-enabled x86_64 Nonguix live installer.
 # Detect internal HBG4a2 eMMC by hardware identity, not device numbering.
 # Deploy the versioned Scheme configuration; no manual Scheme edits.
 set -Eeuo pipefail
 
-VERSION=v1.1.0
+VERSION=v1.1.1
 RAW=https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fedora/vi-wendy/guix
 CONFIG=/tmp/vi-wendy-config-$.scm
 CHANNEL=/tmp/vi-wendy-channels-$.scm
@@ -108,8 +108,7 @@ say "Bootstrap Nonguix packages before evaluating the system config"
 # Reuse a prior successful pull on retry rather than repeating it.
 GUIX_CURRENT=/root/.config/guix/current/bin/guix
 if [[ -x "$GUIX_CURRENT" ]] &&
-   "$GUIX_CURRENT" describe --format=channels 2>/dev/null |
-     grep -Fq "(name 'nonguix)"; then
+   [[ "$("$GUIX_CURRENT" describe --format=channels 2>/dev/null || true)" == *"(name 'nonguix)"* ]]; then
   say "Existing pulled Guix profile already contains the Nonguix channel"
 else
   say "Running guix pull with authenticated Nonguix and 1 job/core"
@@ -122,7 +121,8 @@ fi
 export PATH="/root/.config/guix/current/bin:$PATH"
 hash -r
 say "Active Guix: $(command -v guix)"
-guix describe --format=channels | grep -Fq "(name 'nonguix)" ||
+ACTIVE_CHANNELS="$(guix describe --format=channels)"
+[[ "$ACTIVE_CHANNELS" == *"(name 'nonguix)"* ]] ||
   fail "Active Guix does not include Nonguix; eMMC unchanged"
 
 say "Evaluate configuration with Nonguix enabled before partitioning"
