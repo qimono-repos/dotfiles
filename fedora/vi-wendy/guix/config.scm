@@ -1,6 +1,6 @@
-;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.0.0
-;; Change: First full-house Guix installation (Nonguix Linux, Realtek Wi-Fi,
-;;         light Xfce desktop, SLiM, EFI, 2 GiB swap and ext4).
+;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.0.1
+;; Change: Import xterm from xorg and both certs/nss packages for Guix versions.
+;; Base: First full-house Guix with Nonguix Linux, Xfce, SLiM, EFI, swap.
 ;; Machine: EXO Smart E16Plus / Atom x5-Z8350 / 29.1 GiB HBG4a2 eMMC.
 ;; Installed by: fedora/vi-wendy/guix/install-guix.sh
 ;;
@@ -12,8 +12,8 @@
              (nongnu packages linux)
              (nongnu system linux-initrd))
 (use-service-modules desktop xorg)
-(use-package-modules certs admin version-control wget curl
-                     terminals vim)
+(use-package-modules certs nss version-control wget curl
+                     xorg vim)
 
 (operating-system
   (host-name "vi-wendy")
