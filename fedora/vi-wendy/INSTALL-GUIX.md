@@ -4,7 +4,7 @@ This is the standalone install card for this machine. Use it when there is no as
 
 Status: the user has explicitly authorized destructive migration of this laptop and wiping the current `QI-DRIVE` USB stick for the Guix installer. No personal data is expected on the laptop. Do **not** use these instructions on another machine without re-checking every device name.
 
-Important clarification (2026-11-23 live-installer evidence): Wi-Fi works under Fedora. The **official Guix installer DID expose `wlan0`**, initially `DOWN`, while `rfkill` reported **soft blocked: yes / hard blocked: no**. Its kernel also reported `hci0: Missing Free firmware (non-Free firmware loading is disabled)`, plus a Realtek Bluetooth firmware failure and missing Intel SOF audio firmware. Those displayed firmware errors specifically name Bluetooth/audio; the Wi-Fi firmware diagnosis comes from the known RTL8723BS hardware and Fedora's working firmware. **An interface existing does not establish that Wi-Fi can actually initialize or associate.** The next planned installer is Nonguix, with a firmware-capable standard Linux kernel.
+Important clarification (2026-11-23 live-installer evidence): Wi-Fi works under Fedora. The **official Guix installer DID expose `wlan0`**, initially `DOWN`, while `rfkill` reported **soft blocked: yes / hard blocked: no**. Its kernel also reported `hci0: Missing Free firmware (non-Free firmware loading is disabled)`, plus a Realtek Bluetooth firmware failure and missing Intel SOF audio firmware. Those displayed firmware errors specifically name Bluetooth/audio; the Wi-Fi firmware diagnosis comes from the known RTL8723BS hardware and Fedora's working firmware. **An interface existing does not establish that Wi-Fi can actually initialize or associate.** **The Nonguix installer has now successfully brought `wlan0` online and reached `www.gnu.org` (4/4 replies, 0% packet loss).**
 
 ## Critical command bundle
 
@@ -111,6 +111,10 @@ Useful interpretations:
 
 ## 5. Wi‑Fi path when a wireless interface exists
 
+**Nonguix live test: SUCCESS.** After `rfkill unblock wifi`, `ip link set wlan0 up`, `wpa_passphrase` and `wpa_supplicant`, `dhclient -v wlan0` received a DHCP lease and `ping www.gnu.org` returned 4/4 replies (0% loss). The `wpa_cli` control-socket query did report `No such file or directory`, but it did not prevent Wi-Fi connection, DHCP or DNS resolution; investigate its monitoring socket separately, not as proof that connection failed.
+
+
+
 Set `IFACE` to the exact interface name from `ip -o link`, for example `wlan0`.
 
 ```sh
@@ -161,7 +165,16 @@ wpa_supplicant -i "$IFACE" -c /tmp/guix-wifi.conf -d
 
 Capture the last error lines before trying anything else.
 
-## 6. Firmware diagnosis and Nonguix installation route (current plan)
+## 6. Firmware diagnosis and Nonguix installation route (Wi-Fi confirmed; installation next)
+
+### Confirmed Nonguix installer result (subsequent live session)
+
+- `iwlist wlan0 scanning` discovered wireless networks.
+- `wpa_supplicant` initialized and the laptop associated successfully.
+- `dhclient -v wlan0` acquired a DHCP address.
+- `ping www.gnu.org`: four responses, zero packet loss.
+- No network credential, Wi-Fi SSID, generated PSK or local IP is recorded in this public runbook.
+- Next phase: install onto the internal eMMC, retaining the Nonguix Linux kernel and necessary firmware in the **installed** operating-system configuration.
 
 ### What the official installer actually reported on 2026-11-23
 
