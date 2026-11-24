@@ -14,7 +14,7 @@ This pack records what the host actually is, what it is fit for, and how to refr
 - Battery discharge monitor active as a user service; see [`BATTERY-MONITOR.md`](./BATTERY-MONITOR.md).
 - TeamViewer removed; see [`TEAMVIEWER-REMOVAL.md`](./TEAMVIEWER-REMOVAL.md).
 - `too` / `powerofff` available as bash functions; see [`TOO.md`](./TOO.md).
-- Guix System 1.5.0 ISO + Etcher staged for first-citizen migration; installer networking needs USB tethering or Nonguix because the Realtek firmware is nonfree; see [`GUIX-MIGRATION.md`](./GUIX-MIGRATION.md).
+- Guix System 1.5.0 ISO + Etcher staged for first-citizen migration; installer Wi-Fi needs a firmware-capable image such as Nonguix because the Realtek firmware is nonfree; see [`GUIX-MIGRATION.md`](./GUIX-MIGRATION.md).
 - Recommended role: Guix System first-citizen candidate; Fedora remains until the installer overwrites it.
 
 ## Layout

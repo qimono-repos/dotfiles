@@ -64,23 +64,23 @@ Do not flash until the target USB device is identified and confirmed.
 
 ## Installer networking without Ethernet
 
-- `vi-wendy` has no LAN port and no USB-to-LAN adapter is available.
+- `vi-wendy` has Wi-Fi but no LAN port and no USB-to-LAN adapter is currently available.
+- The goal is to bring up `wlan0` from the Guix installer shell; no Ethernet is required if the Wi-Fi firmware loads.
 - The Wi-Fi hardware is Realtek `rtl8723bs` on SDIO; Fedora uses staging driver `r8723bs` and loads nonfree firmware `rtlwifi/rtl8723bs_nic.bin`.
-- The staged official Guix ISO contains `wpa_supplicant`, `dhclient`, `iwlist`, and the `r8723bs` staging module, but no visible `rtl8723bs_nic.bin` firmware. Vanilla Guix may therefore show no usable `wlan0`.
-- Recommended workaround: use an Android phone in USB tethering mode. From the Guix installer shell:
+- The staged official Guix ISO contains `wpa_supplicant`, `wpa_passphrase`, `dhclient`, `iwlist`, and the `r8723bs` staging module, but no visible `rtl8723bs_nic.bin` firmware. If previous `wpa_supplicant` attempts failed, the likely cause is that there was no usable `wlan0`, not that `wpa_supplicant` is absent.
+
+First diagnose from the Guix installer shell:
 
 ```sh
 ip -o link
-ip link set <usb-iface> up
-dhclient -v <usb-iface>
-ping -c 3 guix.gnu.org
+rfkill list
+dmesg | grep -Ei 'r8723bs|firmware|wlan'
 ```
 
-- If a Nonguix installer image or another image with the firmware is used, Wi-Fi can be configured from the shell:
+If `wlan0` exists, configure Wi-Fi:
 
 ```sh
 rfkill unblock all
-ip link
 ip link set wlan0 up
 wpa_passphrase 'SSID' > /tmp/guix-wifi.conf
 wpa_supplicant -B -i wlan0 -c /tmp/guix-wifi.conf
@@ -88,8 +88,17 @@ dhclient -v wlan0
 ping -c 3 guix.gnu.org
 ```
 
-- If `ip link` shows no `wlan0`, do not keep fighting `wpa_supplicant`; use USB tethering or a Nonguix image.
-- Never store the Wi-Fi passphrase in this repository.
+`wpa_passphrase` prompts for the password, so the secret is not placed in shell history. Do not store the passphrase in this repository.
+
+If `wlan0` does not exist, try loading the staging driver:
+
+```sh
+modprobe r8723bs
+ip -o link
+dmesg | grep -Ei 'r8723bs|firmware|wlan'
+```
+
+If it still does not exist, the official Guix ISO is missing the nonfree firmware. The clean Wi-Fi fix is a Nonguix installer image or another Guix image that includes `rtlwifi/rtl8723bs_nic.bin`; then repeat the `wpa_supplicant` steps. Phone USB tethering remains a fallback, not the preferred path, because it avoids the Wi-Fi firmware problem entirely.
 
 ## Recovery notes
 
