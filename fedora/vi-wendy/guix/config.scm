@@ -1,5 +1,5 @@
-;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.1
-;; Change: Rename first-login account to qi; retain StumpWM and SLiM.
+;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.2
+;; Change: Set qi as SLiM default user and StumpWM as X session fallback.
 ;; Base: Nonguix Linux, Realtek firmware, UEFI, swap and ext4.
 ;; Machine: EXO Smart E16Plus / Atom x5-Z8350 / 29.1 GiB HBG4a2 eMMC.
 ;; Installed by: fedora/vi-wendy/guix/install-guix.sh
@@ -59,7 +59,7 @@
           %base-user-accounts))
 
   ;; StumpWM is a Common Lisp X11 window manager, not a desktop environment.
-  ;; SLiM launches ~/.xsession, provisioned by install-guix.sh for qi.
+  ;; SLiM starts StumpWM directly, without an imperative ~/.xsession file.
   (packages
     (append
       (list nss-certs git wget curl vim xterm stumpwm)
@@ -68,7 +68,11 @@
   ;; Desktop services include NetworkManager, WPA supplicant, D-Bus,
   ;; elogind, polkit and Bluetooth. Replace GDM with lightweight SLiM.
   (services
-    (cons (service slim-service-type)
+    (cons (service slim-service-type
+                   (slim-configuration
+                     (default-user "qi")
+                     (auto-login-session
+                       (file-append stumpwm "/bin/stumpwm"))))
           (modify-services %desktop-services
             (delete gdm-service-type))))
 
