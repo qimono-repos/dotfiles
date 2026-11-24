@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# QIMONO VI-WENDY | full Guix System installer | v1.0.0
+# QIMONO VI-WENDY | full Guix System installer | v1.0.1
 # Run as root from the firmware-enabled x86_64 Nonguix live installer.
 # Detect internal HBG4a2 eMMC by hardware identity, not device numbering.
 # Deploy the versioned Scheme configuration; no manual Scheme edits.
 set -Eeuo pipefail
 
-VERSION=v1.0.0
+VERSION=v1.0.1
 RAW=https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fedora/vi-wendy/guix
 CONFIG=/tmp/vi-wendy-config-$$.scm
 KEY=/tmp/vi-wendy-nonguix-$$.pub
@@ -40,7 +40,7 @@ label() { blkid -s LABEL -o value "$1" 2>/dev/null || true; }
 (( EUID == 0 )) || fail "Run as root in the Nonguix live installer"
 exec > >(tee -a "$LOG") 2>&1
 say "Starting installer $VERSION at $(date -u --iso-8601=seconds)"
-say "Full Guix System with login qi, StumpWM and Nonguix firmware."
+say "Full Guix System with hostname Qimono, login qi, StumpWM and Nonguix firmware."
 say "Target: internal HBG4a2 eMMC, replacing the previous Fedora installation."
 [[ -d /sys/firmware/efi/efivars ]] || fail "Installer must boot via UEFI"
 
@@ -86,6 +86,8 @@ grep -q '^;; QIMONO-VI-WENDY-CONFIG-VERSION:' "$CONFIG" ||
   fail "Downloaded config has no version marker"
 grep -q '(name "qi")' "$CONFIG" ||
   fail "Downloaded config does not configure login account qi"
+grep -q '(host-name "Qimono")' "$CONFIG" ||
+  fail "Downloaded config does not configure hostname Qimono"
 
 say "Evaluate configuration with Nonguix enabled before partitioning"
 guix system build --dry-run "$CONFIG" ||
@@ -196,6 +198,6 @@ cp "$LOG" "$ROOT/var/log/qimono/$(basename "$LOG")"
 chmod 0600 "$ROOT/var/log/qimono/$(basename "$LOG")"
 sync
 say "Guix System installed successfully on $DISK"
-say "Hostname vi-wendy, login account qi, StumpWM window manager"
+say "Hostname Qimono, login account qi, StumpWM window manager"
 say "Next: unmount -R /mnt; reboot to internal eMMC"
 say "First boot: use a TTY as root to run passwd root and passwd qi"
