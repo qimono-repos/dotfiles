@@ -45,5 +45,6 @@
 ## U4 — Role boundary
 
 - [ ] Do not enable `sshd` for production until OS/network/firewall gates are met.
-- [ ] Do not install Guix System directly onto the eMMC.
+- [x] Destructive Guix migration onto the eMMC is explicitly authorized by the user.
+- [ ] Use [`../INSTALL-GUIX.md`](../INSTALL-GUIX.md) for the critical-moment install and re-check the target disk inside the installer.
 - [ ] Use removable media for Guix lobby experiments.

@@ -2,6 +2,8 @@
 
 Goal: make GNU Guix System the primary OS on `vi-wendy`, replacing the legacy Fedora 35 eMMC install. The user has explicitly accepted a destructive migration and confirmed there is no personal information on this laptop.
 
+For the standalone critical-moment procedure, use [`INSTALL-GUIX.md`](./INSTALL-GUIX.md).
+
 No disk has been erased by the agent. The user has explicitly authorized wiping the current `QI-DRIVE` USB stick and using it for the Guix installer; flash completion is still unconfirmed. This document records the staged installer assets, the next gates, and installer networking workarounds.
 
 ## Host facts

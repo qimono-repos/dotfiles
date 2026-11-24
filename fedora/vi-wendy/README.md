@@ -15,6 +15,7 @@ This pack records what the host actually is, what it is fit for, and how to refr
 - TeamViewer removed; see [`TEAMVIEWER-REMOVAL.md`](./TEAMVIEWER-REMOVAL.md).
 - `too` / `powerofff` available as bash functions; see [`TOO.md`](./TOO.md).
 - Guix System 1.5.0 ISO + Etcher staged for first-citizen migration; installer Wi-Fi needs a firmware-capable image such as Nonguix because the Realtek firmware is nonfree; see [`GUIX-MIGRATION.md`](./GUIX-MIGRATION.md).
+- Critical-moment install card: [`INSTALL-GUIX.md`](./INSTALL-GUIX.md).
 - Recommended role: Guix System first-citizen candidate; Fedora remains until the installer overwrites it.
 
 ## Layout
@@ -27,6 +28,7 @@ fedora/vi-wendy/
   BATTERY-MONITOR.md           unplugged runtime measurement
   TEAMVIEWER-REMOVAL.md        sudo cleanup + verification
   GUIX-MIGRATION.md            staged Guix 1.5 ISO + Etcher, flashing gate
+  INSTALL-GUIX.md              standalone critical-moment install runbook
   TOO.md                       bash port of the emergency too/powerofff commands
   shell/50-power.sh            bash functions sourced from ~/.bashrc.d
   scripts/machine-discovery.sh read-only host probe
@@ -51,7 +53,7 @@ The discovery script is read-only: no mounts, package installs, writes outside i
 
 ## Safety boundaries
 
-- Do not install Guix System over this Fedora/eMMC install without the explicit destructive-migration gate. Use removable media first.
+- Destructive migration onto the eMMC is explicitly authorized; use removable media first and re-check the install target inside the installer.
 - Do not enable `sshd` for a production role until the OS is supported and firewall rules are reviewed.
 - Do not reuse root `sat-*` aliases from `../../ssh/config` without documenting the hosts.
 - Do not treat `/dev/kvm` as permission to run heavy VMs on 3.7 GiB RAM.

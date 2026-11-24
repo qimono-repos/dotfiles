@@ -44,8 +44,8 @@ Snapshot of the host this pack targets. Refresh after major hardware/OS changes.
 | Proposed role | Verdict | Reason |
 |---------------|---------|--------|
 | SSH server / server-manager host | **No** | No `sshd`, no wired network, EOL OS, DHCP-only Wi‑Fi, laptop power profile, broad firewall ports, and very little RAM headroom. |
-| First 100% bare-metal Guix System | **No** | 3.7 GiB RAM and ~9.4 GiB free are below a comfortable Guix/Nonguix build envelope; the repo already records SIGSEGV/resource concerns in `lobby-files/README.md:5-7`. |
-| Portable Guix lobby client / diagnostic canary | **Yes** | x86_64 UEFI with removable boot support; use an external USB SSD and keep Fedora/eMMC untouched. See `../../GUIX-OS-AS-LOBBY.md:3,9-11`. |
+| First 100% bare-metal Guix System | **Authorized but constrained** | User explicitly accepted destructive migration. 3.7 GiB RAM and ~9.4 GiB free are below a comfortable Guix/Nonguix build envelope; expect slow substitutes and consult `../../lobby-files/README.md:5-7` for resource/SIGSEGV concerns. |
+| Portable Guix lobby client / diagnostic canary | **Yes** | x86_64 UEFI with removable boot support; use an external USB SSD for experiments. See `../../GUIX-OS-AS-LOBBY.md:3,9-11`. |
 | Low-priority SSH client to manager hosts | **Yes** | SSH client and key auth work; GitHub SSH access is verified. |
 | Heavy quantum/LLM/container host | **No** | Atom CPU, 3.7 GiB RAM, eMMC storage, and 2.4 GHz Wi‑Fi. |
 
@@ -69,7 +69,7 @@ Do not assign this host a server role until all are true:
 | HP ProBook (`ubuntu-hp-pro`) | 30 GiB | daily driver; roomiest x86_64 node |
 | ARM Yoga (`ubuntu-len-yog-ARM64`) | 30 GiB | aarch64 Guix-first sibling |
 | VPS (`vps-ubuntu`) | 3.8 GiB | server-native Guix-first pack |
-| **vi-wendy (this)** | **3.7 GiB** | legacy Fedora lab host; lobby client / diagnostics only |
+| **vi-wendy (this)** | **3.7 GiB** | legacy Fedora lab host; authorized Guix first-citizen migration target |
 
 ## Refresh commands
 
