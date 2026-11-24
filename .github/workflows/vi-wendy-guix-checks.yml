@@ -55,6 +55,10 @@ jobs:
           grep -Fq 'GUIX_CURRENT=/root/.config/guix/current/bin/guix' "$script"
           grep -Fq 'QIMONO_PREFLIGHT_ONLY' "$script"
           grep -Fq "897c1a470da759236cc11798f4e0a5f7d4d59fbc" "$channels"
+          grep -Fq 'https://codeberg.org/guix/guix.git' "$channels"
+          grep -Fq 'inherit upstream-channel' "$channels"
+          grep -Fq 'SCRIPT_DIR=' "$script"
+          grep -Fq 'Using versioned files from local Git checkout' "$script"
           # The first destructive disk operation must appear after Guix evaluation.
           python3 - <<'PY'
           from pathlib import Path
