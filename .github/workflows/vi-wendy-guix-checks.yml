@@ -27,11 +27,13 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq guile-3.0
-          guile -c '(call-with-input-file (cadr (command-line))
-            (lambda (port)
-              (let loop ((form (read port)))
-                (unless (eof-object? form)
-                  (loop (read port))))))' fedora/vi-wendy/guix/config.scm
+          for scm in fedora/vi-wendy/guix/*.scm; do
+            guile -c '(call-with-input-file (cadr (command-line))
+              (lambda (port)
+                (let loop ((form (read port)))
+                  (unless (eof-object? form)
+                    (loop (read port))))))' "$scm"
+          done
       - name: Assert deployed user, hostname, and window manager agree
         run: |
           set -euo pipefail
@@ -44,3 +46,19 @@ jobs:
           grep -Fq 'QIMONO-VI-WENDY-CONFIG-VERSION:' "$config"
           grep -Fq '(host-name "Qimono")' "$script"
           grep -Fq '(name "qi")' "$script"
+      - name: Assert authenticated channel bootstrap runs before disk partitioning
+        run: |
+          set -euo pipefail
+          script=fedora/vi-wendy/guix/install-guix.sh
+          channels=fedora/vi-wendy/guix/channels.scm
+          grep -Fq 'guix pull --channels="$CHANNEL"' "$script"
+          grep -Fq 'GUIX_CURRENT=/root/.config/guix/current/bin/guix' "$script"
+          grep -Fq 'QIMONO_PREFLIGHT_ONLY' "$script"
+          grep -Fq "897c1a470da759236cc11798f4e0a5f7d4d59fbc" "$channels"
+          # The first destructive disk operation must appear after Guix evaluation.
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path("fedora/vi-wendy/guix/install-guix.sh").read_text()
+          assert s.index("guix pull --channels=") < s.index("guix system build --dry-run")
+          assert s.index("guix system build --dry-run") < s.index('wipefs -a "$DISK"')
+          PY
