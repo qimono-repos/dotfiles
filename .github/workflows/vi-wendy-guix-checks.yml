@@ -1,0 +1,46 @@
+name: vi-wendy Guix installer checks
+
+on:
+  push:
+    paths:
+      - 'fedora/vi-wendy/guix/**'
+      - '.github/workflows/vi-wendy-guix-checks.yml'
+  pull_request:
+    paths:
+      - 'fedora/vi-wendy/guix/**'
+      - '.github/workflows/vi-wendy-guix-checks.yml'
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Shell syntax and lint
+        run: |
+          set -euo pipefail
+          bash -n fedora/vi-wendy/guix/install-guix.sh
+          shellcheck --severity=warning fedora/vi-wendy/guix/install-guix.sh
+      - name: Scheme reader syntax
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq guile-3.0
+          guile -c '(call-with-input-file (cadr (command-line))
+            (lambda (port)
+              (let loop ((form (read port)))
+                (unless (eof-object? form)
+                  (loop (read port))))))' fedora/vi-wendy/guix/config.scm
+      - name: Assert deployed user, hostname, and window manager agree
+        run: |
+          set -euo pipefail
+          config=fedora/vi-wendy/guix/config.scm
+          script=fedora/vi-wendy/guix/install-guix.sh
+          grep -Fq '(host-name "Qimono")' "$config"
+          grep -Fq '(name "qi")' "$config"
+          grep -Fq 'stumpwm' "$config"
+          grep -Fq 'slim-service-type' "$config"
+          grep -Fq 'QIMONO-VI-WENDY-CONFIG-VERSION:' "$config"
+          grep -Fq '(host-name "Qimono")' "$script"
+          grep -Fq '(name "qi")' "$script"
