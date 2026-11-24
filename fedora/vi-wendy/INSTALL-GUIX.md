@@ -231,6 +231,35 @@ ping -c 3 guix.gnu.org
 
 Replace `usb0` with the actual interface name.
 
+## One-command full-house deployment (Nonguix live shell)
+
+With the verified Nonguix Wi-Fi connection active, the integrated installer lives at
+[`fedora/vi-wendy/guix/install-guix.sh`](./guix/install-guix.sh), backed by
+[`config.scm`](./guix/config.scm).
+
+It installs **Guix System** to the internal HBG4a2 eMMC, not a USB lobby. The
+installed identity is **hostname `Qimono`**, login **`qi`**, StumpWM (Common Lisp),
+SLiM, NetworkManager, and standard Nonguix Linux/firmware.
+
+From the **root** shell in the Nonguix installer:
+
+```sh
+wget -O /tmp/qimono-install.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fedora/vi-wendy/guix/install-guix.sh &&
+  bash /tmp/qimono-install.sh
+```
+
+The script identifies the HBG4a2 internal eMMC by model and capacity, downloads
+the versioned Guix configuration, evaluates it before partitioning, sets up
+EFI + swap + root, builds the operating system, configures first-boot
+NetworkManager from the local Wi-Fi configuration when available, and prints the
+first-boot instructions. Re-running it with matching Qimono filesystem labels
+reuses the partitions rather than formatting again.
+
+Current source revisions: `config.scm v1.1.3`; `install-guix.sh v1.0.1`.
+The installer checks for the exact `Qimono` hostname and `qi` user in the downloaded config.
+Static CI checks live in [`vi-wendy-guix-checks.yml`](../../.github/workflows/vi-wendy-guix-checks.yml).
+A Guix evaluation/build in the live environment remains the integration test.
+
 ## 7. Disk target gate inside the installer
 
 Before any installer action that erases a disk:
