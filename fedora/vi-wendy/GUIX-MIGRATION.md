@@ -69,7 +69,9 @@ Do not flash until the target USB device is identified and confirmed.
 - `vi-wendy` has Wi-Fi but no LAN port and no USB-to-LAN adapter is currently available.
 - The goal is to bring up `wlan0` from the Guix installer shell; no Ethernet is required if the Wi-Fi firmware loads.
 - The Wi-Fi hardware is Realtek `rtl8723bs` on SDIO; Fedora uses staging driver `r8723bs` and loads nonfree firmware `rtlwifi/rtl8723bs_nic.bin`.
-- The staged official Guix ISO contains `wpa_supplicant`, `wpa_passphrase`, `dhclient`, `iwlist`, and the `r8723bs` staging module, but no visible `rtl8723bs_nic.bin` firmware. If previous `wpa_supplicant` attempts failed, the likely cause is that there was no usable `wlan0`, not that `wpa_supplicant` is absent.
+- The staged official Guix ISO contains `wpa_supplicant`, `wpa_passphrase`, `dhclient`, `iwlist`, and the `r8723bs` staging module, but no visible `rtl8723bs_nic.bin` firmware.
+- Wi‑Fi works on this laptop under Fedora, so this is not a hardware, credential, or router problem. The narrower issue is that the official Guix installer may not create a usable `wlan0` because its libre kernel lacks the nonfree firmware Fedora already loads.
+- If previous `wpa_supplicant` attempts failed, the likely cause is that there was no usable `wlan0`, not that `wpa_supplicant` is absent.
 
 First diagnose from the Guix installer shell:
 

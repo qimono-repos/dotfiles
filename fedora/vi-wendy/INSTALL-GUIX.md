@@ -4,6 +4,8 @@ This is the standalone install card for this machine. Use it when there is no as
 
 Status: the user has explicitly authorized destructive migration of this laptop and wiping the current `QI-DRIVE` USB stick for the Guix installer. No personal data is expected on the laptop. Do **not** use these instructions on another machine without re-checking every device name.
 
+Important clarification: Wi‑Fi hardware works on this laptop right now under Fedora. This runbook is **not** claiming the laptop has no Wi‑Fi, that the credentials are wrong, or that the router is unavailable. The narrower problem is that the official Guix installer uses the libre kernel and may not load the nonfree Realtek firmware that Fedora already loads. The same hardware can therefore work in Fedora and still show no `wlan0` inside the official Guix installer.
+
 ## Critical command bundle
 
 Run this first inside the Guix installer shell and keep the output:
