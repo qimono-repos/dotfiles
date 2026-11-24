@@ -1,5 +1,5 @@
-;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.0
-;; Change: Select Lisp-native StumpWM instead of Xfce; retain lightweight SLiM.
+;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.1
+;; Change: Rename first-login account to qi; retain StumpWM and SLiM.
 ;; Base: Nonguix Linux, Realtek firmware, UEFI, swap and ext4.
 ;; Machine: EXO Smart E16Plus / Atom x5-Z8350 / 29.1 GiB HBG4a2 eMMC.
 ;; Installed by: fedora/vi-wendy/guix/install-guix.sh
@@ -51,15 +51,15 @@
 
   (users
     (cons (user-account
-            (name "wendy")
-            (comment "vi-wendy regular user")
+            (name "qi")
+            (comment "Qimono regular user on vi-wendy")
             (group "users")
             (supplementary-groups
               '("wheel" "netdev" "audio" "video" "lp")))
           %base-user-accounts))
 
   ;; StumpWM is a Common Lisp X11 window manager, not a desktop environment.
-  ;; SLiM launches ~/.xsession, provisioned by install-guix.sh for wendy.
+  ;; SLiM launches ~/.xsession, provisioned by install-guix.sh for qi.
   (packages
     (append
       (list nss-certs git wget curl vim xterm stumpwm)
