@@ -255,7 +255,44 @@ NetworkManager from the local Wi-Fi configuration when available, and prints the
 first-boot instructions. Re-running it with matching Qimono filesystem labels
 reuses the partitions rather than formatting again.
 
-Current source revisions: `config.scm v1.1.3`; `install-guix.sh v1.0.1`.
+### Nonguix module bootstrap fix (2026-11-24)
+
+First integrated run successfully confirmed the **HBG4a2 internal eMMC as
+`/dev/mmcblk2`** (28–35 GiB hardware gate) and downloaded the Scheme config,
+but stopped at the pre-partition configuration check:
+
+```text
+guix system: error: failed to load ... config.scm:
+no code for module (nongnu packages linux)
+```
+
+No partition commands executed, so Fedora was not replaced by that attempt.
+
+**Cause:** the Nonguix live ISO can boot standard Linux and load Realtek
+firmware while its `guix` package-manager command still lacks the Nonguix
+channel's Scheme modules. Official [Nonguix installation instructions](https://gitlab.com/nonguix/nonguix)
+require `guix pull` after adding the authenticated channel.
+
+**Fixed installer sequence (v1.1.1):** download `config.scm` and authenticated
+`channels.scm`; authorize the Nonguix substitute key; execute `guix pull`
+with one job and one core if the root Guix profile lacks Nonguix; run the
+**pulled Guix binary** from `/root/.config/guix/current/bin`; validate the
+system config via `guix system build --dry-run` **before any eMMC erase**;
+then create the EFI/swap/ext4 layout and run `guix system init`.
+
+A successful channel pull is reused on later installer retries. The
+first pull can consume substantial RAM, storage and network bandwidth.
+If it fails, capture the output; the script will still not have partitioned
+the internal disk. For a bootstrapping-only trial without any disk writes:
+
+```sh
+QIMONO_PREFLIGHT_ONLY=1 bash /tmp/qimono-install.sh
+```
+
+If the downloaded `/tmp/qimono-install.sh` is the previous version, fetch
+the latest script from the raw GitHub URL above before retrying.
+
+Current source revisions: `config.scm v1.1.3`; `install-guix.sh v1.1.1`; `channels.scm v1.0.0`.
 The installer checks for the exact `Qimono` hostname and `qi` user in the downloaded config.
 Static CI checks live in [`vi-wendy-guix-checks.yml`](../../.github/workflows/vi-wendy-guix-checks.yml).
 A Guix evaluation/build in the live environment remains the integration test.
