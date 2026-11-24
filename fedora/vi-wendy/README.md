@@ -2,7 +2,7 @@
 
 Machine pack for the legacy Fedora notebook **`vi-wendy`** (EXO Smart E16Plus, Intel Atom x5-Z8350, x86_64).
 
-This pack records what the host actually is, what it is fit for, and how to refresh the evidence. It deliberately does **not** claim this notebook is a server or a full Guix System candidate.
+This pack records what the host actually is, what it is fit for, and how to refresh the evidence. It does **not** claim this notebook is a server; it is being prepared as a Guix System first-citizen host.
 
 ## Current status
 
@@ -14,7 +14,7 @@ This pack records what the host actually is, what it is fit for, and how to refr
 - Battery discharge monitor active as a user service; see [`BATTERY-MONITOR.md`](./BATTERY-MONITOR.md).
 - TeamViewer removed; see [`TEAMVIEWER-REMOVAL.md`](./TEAMVIEWER-REMOVAL.md).
 - `too` / `powerofff` available as bash functions; see [`TOO.md`](./TOO.md).
-- Guix System 1.5.0 ISO + Etcher staged for first-citizen migration; see [`GUIX-MIGRATION.md`](./GUIX-MIGRATION.md).
+- Guix System 1.5.0 ISO + Etcher staged for first-citizen migration; installer networking needs USB tethering or Nonguix because the Realtek firmware is nonfree; see [`GUIX-MIGRATION.md`](./GUIX-MIGRATION.md).
 - Recommended role: Guix System first-citizen candidate; Fedora remains until the installer overwrites it.
 
 ## Layout

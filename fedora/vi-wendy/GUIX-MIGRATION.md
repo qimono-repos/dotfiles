@@ -2,16 +2,16 @@
 
 Goal: make GNU Guix System the primary OS on `vi-wendy`, replacing the legacy Fedora 35 eMMC install. The user has explicitly accepted a destructive migration and confirmed there is no personal information on this laptop.
 
-Nothing destructive has been done yet. No disk has been erased, partitioned, or flashed. This document records the staged installer assets and the exact next gate before flashing.
+No disk has been erased by the agent. The user has explicitly authorized wiping the current `QI-DRIVE` USB stick and using it for the Guix installer; flash completion is still unconfirmed. This document records the staged installer assets, the next gates, and installer networking workarounds.
 
 ## Host facts
 
 - Architecture: `x86_64`.
 - CPU: Intel Atom x5-Z8350, 4 cores.
 - RAM: 3.7 GiB.
-- Internal disk: `mmcblk0`, 29.1 GB eMMC.
+- Internal disk: `mmcblk1`, 29.1 GB eMMC. Older notes used `mmcblk0`; the kernel renamed it after reboot.
 - Firmware: UEFI, Secure Boot disabled.
-- Current root: `/dev/mmcblk0p3`, Fedora 35 Workstation.
+- Current root: `/dev/mmcblk1p3`, Fedora 35 Workstation.
 - AC power: connected during download; battery state `charging`, warning `none`.
 - Observed unplugged discharge before AC: about 5.0–6.0 W, estimated full runtime about 7.4 h. No rapid-discharge evidence.
 
@@ -45,9 +45,10 @@ Note: an earlier search snippet misaligned the release checksums. The correct x8
 ## Current USB check
 
 - The stick plugged in on 2026-11-22 is `/dev/sda`, SanDisk 3.2Gen1, 114.6 GiB, with one FAT partition `/dev/sda1` labeled `QI-DRIVE`.
-- Its content is Windows ARM64 installation media: `setup.exe`, `sources/install.swm`, `bootmgr.efi`, and only `efi/boot/bootaa64.efi`.
-- It is **not** Guix media, is wrong-architecture for this x86_64 Atom, and must be preserved for other machines.
-- No write was performed to it. Another USB stick or SSD is needed for the Guix flash target.
+- Its content was Windows ARM64 installation media: `setup.exe`, `sources/install.swm`, `bootmgr.efi`, and only `efi/boot/bootaa64.efi`.
+- It was initially preserved, but the 2026-11-23 directive supersedes that: the user explicitly authorized wiping this stick and using it as the Guix installer.
+- Etcher was relaunched successfully through a GNOME desktop launcher, but flash success has not been verified.
+- When flashing, target the whole `/dev/sda`, not `/dev/sda1`, and never the internal `/dev/mmcblk1`.
 
 ## Gate before flashing
 
@@ -55,14 +56,44 @@ Do not flash until the target USB device is identified and confirmed.
 
 1. Insert the intended USB stick, at least 2 GB.
 2. Run `lsblk -o NAME,SIZE,TYPE,MOUNTPOINT,MODEL` and identify the new device, for example `sda` or `sdc`.
-3. Confirm the target is **not** `mmcblk0`; that is the internal eMMC and would destroy the current Fedora install.
-4. Launch `balena-etcher`, select the staged ISO, select the confirmed USB device, and flash.
-5. Boot from the USB stick via the firmware boot menu with Secure Boot disabled.
-6. Use the Guix System installer to install onto the internal eMMC only after the installer's own device confirmation.
+3. Confirm the target is **not** `mmcblk1`; that is the internal eMMC and would destroy the current Fedora install.
+4. Unmount any mounted partition on the target, such as `/run/media/wendy/QI-DRIVE`.
+5. Launch `balena-etcher`, select the staged ISO, select the confirmed whole USB device, and flash.
+6. Boot from the USB stick via the firmware boot menu with Secure Boot disabled.
+7. Use the Guix System installer to install onto the internal eMMC only after the installer's own device confirmation.
+
+## Installer networking without Ethernet
+
+- `vi-wendy` has no LAN port and no USB-to-LAN adapter is available.
+- The Wi-Fi hardware is Realtek `rtl8723bs` on SDIO; Fedora uses staging driver `r8723bs` and loads nonfree firmware `rtlwifi/rtl8723bs_nic.bin`.
+- The staged official Guix ISO contains `wpa_supplicant`, `dhclient`, `iwlist`, and the `r8723bs` staging module, but no visible `rtl8723bs_nic.bin` firmware. Vanilla Guix may therefore show no usable `wlan0`.
+- Recommended workaround: use an Android phone in USB tethering mode. From the Guix installer shell:
+
+```sh
+ip -o link
+ip link set <usb-iface> up
+dhclient -v <usb-iface>
+ping -c 3 guix.gnu.org
+```
+
+- If a Nonguix installer image or another image with the firmware is used, Wi-Fi can be configured from the shell:
+
+```sh
+rfkill unblock all
+ip link
+ip link set wlan0 up
+wpa_passphrase 'SSID' > /tmp/guix-wifi.conf
+wpa_supplicant -B -i wlan0 -c /tmp/guix-wifi.conf
+dhclient -v wlan0
+ping -c 3 guix.gnu.org
+```
+
+- If `ip link` shows no `wlan0`, do not keep fighting `wpa_supplicant`; use USB tethering or a Nonguix image.
+- Never store the Wi-Fi passphrase in this repository.
 
 ## Recovery notes
 
-- Until the Guix installer overwrites it, Fedora remains on `mmcblk0`.
+- Until the Guix installer overwrites it, Fedora remains on `mmcblk1`.
 - `too` and `powerofff` are bash functions for immediate reboot/poweroff; see [`TOO.md`](./TOO.md).
 - The battery monitor user service survives logout because linger is enabled; see [`BATTERY-MONITOR.md`](./BATTERY-MONITOR.md).
 - If the red battery LED flickers but `upower` reports `state: charging`, `online: yes`, and `warning-level: none`, trust `upower` and keep AC connected during flashing/install.
