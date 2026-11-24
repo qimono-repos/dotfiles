@@ -22,6 +22,20 @@ jobs:
           set -euo pipefail
           bash -n fedora/vi-wendy/guix/install-guix.sh
           shellcheck --severity=warning fedora/vi-wendy/guix/install-guix.sh
+      - name: Check both installer channel manifests use a direct Guix URL
+        run: |
+          set -euo pipefail
+          for file in fedora/vi-wendy/guix/channels.scm lobby-files/channels-nonguix.scm; do
+            grep -Fq 'https://codeberg.org/guix/guix.git' "$file"
+            grep -Fq '(inherit upstream-channel)' "$file"
+            grep -Fq '897c1a470da759236cc11798f4e0a5f7d4d59fbc' "$file"
+          done
+      - name: Smoke-test current Guix Git endpoint without redirects
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          timeout 75 git -c http.followRedirects=false ls-remote \
+            https://codeberg.org/guix/guix.git HEAD
       - name: Scheme reader syntax
         run: |
           set -euo pipefail
