@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# QIMONO VI-WENDY | full Guix System installer | v1.0.1
+# QIMONO VI-WENDY | full Guix System installer | v1.1.0
 # Run as root from the firmware-enabled x86_64 Nonguix live installer.
 # Detect internal HBG4a2 eMMC by hardware identity, not device numbering.
 # Deploy the versioned Scheme configuration; no manual Scheme edits.
 set -Eeuo pipefail
 
-VERSION=v1.0.1
+VERSION=v1.1.0
 RAW=https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fedora/vi-wendy/guix
-CONFIG=/tmp/vi-wendy-config-$$.scm
+CONFIG=/tmp/vi-wendy-config-$.scm
+CHANNEL=/tmp/vi-wendy-channels-$.scm
 KEY=/tmp/vi-wendy-nonguix-$$.pub
 LOG=/tmp/vi-wendy-install-$(date -u +%Y%m%dT%H%M%SZ).log
 ROOT=/mnt
@@ -24,7 +25,7 @@ on_error() {
   exit "$status"
 }
 trap 'on_error "$?" "$LINENO"' ERR
-trap 'rm -f "$CONFIG" "$KEY"' EXIT
+trap 'rm -f "$CONFIG" "$CHANNEL" "$KEY"' EXIT
 
 download() {
   say "Downloading $1"
@@ -89,9 +90,49 @@ grep -q '(name "qi")' "$CONFIG" ||
 grep -q '(host-name "Qimono")' "$CONFIG" ||
   fail "Downloaded config does not configure hostname Qimono"
 
+say "Fetch authenticated Nonguix channel description"
+download "$RAW/channels.scm" "$CHANNEL"
+grep -q '^;; QIMONO-VI-WENDY-CHANNELS-VERSION:' "$CHANNEL" ||
+  fail "Downloaded channel manifest has no version marker"
+grep -q '897c1a470da759236cc11798f4e0a5f7d4d59fbc' "$CHANNEL" ||
+  fail "Missing expected Nonguix introduction commit"
+
+say "Authorize Nonguix substitute server before pulling channels"
+download https://substitutes.nonguix.org/signing-key.pub "$KEY"
+guix archive --authorize < "$KEY"
+
+say "Bootstrap Nonguix packages before evaluating the system config"
+# The live ISO provides a firmware-capable kernel, but its Guix command can
+# still lack (nongnu packages linux). Pull the authenticated channel into
+# root's Guix profile before attempting to evaluate config.scm.
+# Reuse a prior successful pull on retry rather than repeating it.
+GUIX_CURRENT=/root/.config/guix/current/bin/guix
+if [[ -x "$GUIX_CURRENT" ]] &&
+   "$GUIX_CURRENT" describe --format=channels 2>/dev/null |
+     grep -Fq "(name 'nonguix)"; then
+  say "Existing pulled Guix profile already contains the Nonguix channel"
+else
+  say "Running guix pull with authenticated Nonguix and 1 job/core"
+  guix pull --channels="$CHANNEL" --max-jobs=1 --cores=1 \
+    --substitute-urls="$SUBSTITUTES" ||
+    fail "Nonguix channel pull failed; eMMC has NOT been partitioned"
+fi
+[[ -x "$GUIX_CURRENT" ]] ||
+  fail "Guix pull did not create the updated root Guix command"
+export PATH="/root/.config/guix/current/bin:$PATH"
+hash -r
+say "Active Guix: $(command -v guix)"
+guix describe --format=channels | grep -Fq "(name 'nonguix)" ||
+  fail "Active Guix does not include Nonguix; eMMC unchanged"
+
 say "Evaluate configuration with Nonguix enabled before partitioning"
-guix system build --dry-run "$CONFIG" ||
-  fail "Guix configuration could not be evaluated in this installer"
+guix system build --dry-run --max-jobs=1 --cores=1 \
+  --substitute-urls="$SUBSTITUTES" "$CONFIG" ||
+  fail "Guix configuration could not be evaluated; eMMC unchanged"
+if [[ "${QIMONO_PREFLIGHT_ONLY:-0}" == "1" ]]; then
+  say "Preflight-only mode finished successfully; eMMC unchanged."
+  exit 0
+fi
 
 say "Check whether the target already has this exact Qimono layout"
 if [[ "$(label "$EFI")" == VIWENDYEFI &&
@@ -154,20 +195,14 @@ else
 fi
 
 install -m 0644 "$CONFIG" "$ROOT/etc/config.scm"
-say "Authorize Nonguix substitute signing key"
-download https://substitutes.nonguix.org/signing-key.pub "$KEY"
-guix archive --authorize < "$KEY"
+install -d -m 0755 "$ROOT/etc/guix"
+install -m 0644 "$CHANNEL" "$ROOT/etc/guix/channels.scm"
+say "Preserved the authenticated Nonguix channel in /etc/guix/channels.scm"
 
 say "Initialize Guix System; low concurrency for this Atom CPU"
 guix system init --max-jobs=1 --cores=1 \
   --substitute-urls="$SUBSTITUTES" \
   "$ROOT/etc/config.scm" "$ROOT"
-
-say "Copy channel manifest for future Guix maintenance (when present)"
-mkdir -p "$ROOT/etc/guix"
-if [[ -f /etc/guix/channels.scm ]]; then
-  install -m 0644 /etc/guix/channels.scm "$ROOT/etc/guix/channels.scm"
-fi
 
 say "Import current Wi-Fi connection for NetworkManager first boot"
 if [[ -f /tmp/guix-wifi.conf ]]; then
