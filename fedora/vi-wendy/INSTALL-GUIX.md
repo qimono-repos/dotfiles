@@ -267,6 +267,42 @@ NetworkManager from the local Wi-Fi configuration when available, and prints the
 first-boot instructions. Re-running it with matching Qimono filesystem labels
 reuses the partitions rather than formatting again.
 
+### Bootstrap quality gate: do not confuse checks with proof
+
+This project previously hit `guix pull` failures on the small USB Guix
+lobby as well. The recurring engineering problem was treating a
+successful *source-code lint check* as sufficient evidence for a
+resource-constrained, network-dependent Guix deployment.
+
+Use these independent acceptance levels, in order:
+
+1. **Repository CI:** Bash/Scheme reader syntax, target-identity assertions,
+   ordering of the preflight before partitioning, channel URL audit, and a
+   real Git `ls-remote` against Codeberg with redirects forbidden. This can
+   verify the **URL is reachable from GitHub Actions**, but not that the
+   installer Guix's embedded Git implementation can fetch it.
+2. **Live installer bootstrap:** `git pull --ff-only origin main`, then
+   `QIMONO_PREFLIGHT_ONLY=1 bash ./install-guix.sh`. A successful
+   authenticated `guix pull` and `guix system build --dry-run` must finish
+   **on vi-wendy itself**, before touching eMMC partitions.
+3. **Destructive install:** only when gate 2 has passed in the live session,
+   execute `bash ./install-guix.sh`, allowing the script to partition the
+   HBG4a2 target, start `cow-store`, and run `guix system init`. A dry run
+   does **not** prove that all packages will build, substitute or boot.
+4. **Boot test:** remove the USB, boot the internal eMMC, confirm SLiM,
+   StumpWM, `qi` login, NetworkManager, firmware and Wi-Fi after reboot.
+
+For this channel URL decision, prefer the GNU Guix maintainers'
+[Codeberg migration announcement](https://lists.gnu.org/archive/html/info-guix/2025-05/msg00001.html)
+and the [Nonguix upstream README](https://gitlab.com/nonguix/nonguix/blob/master/README.org),
+not old forum posts or mirror defaults.
+
+**Known capacity limit:** the live installer showed an approximately 1.9 GiB
+RAM-backed filesystem and no swap at the previous attempt. Guix pulls can
+consume substantial disk/store and memory resources; a network-only smoke
+test cannot detect this. Do not interpret slow Guix builds as proof that
+partitioning is the fix.
+
 ### Failure history and corrected channel source (2026-11-24)
 
 1. The first attempt stopped before partitioning because the live Guix
