@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# QIMONO VI-WENDY | full Guix System installer | v1.1.1
+# QIMONO VI-WENDY | full Guix System installer | v1.2.0
 # Run as root from the firmware-enabled x86_64 Nonguix live installer.
 # Detect internal HBG4a2 eMMC by hardware identity, not device numbering.
 # Deploy the versioned Scheme configuration; no manual Scheme edits.
 set -Eeuo pipefail
 
-VERSION=v1.1.1
+VERSION=v1.2.0
 RAW=https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fedora/vi-wendy/guix
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG=/tmp/vi-wendy-config-$.scm
 CHANNEL=/tmp/vi-wendy-channels-$.scm
 KEY=/tmp/vi-wendy-nonguix-$$.pub
@@ -79,9 +80,17 @@ SWAP="${DISK}p2"
 SYSTEM="${DISK}p3"
 say "Selected eMMC: $DISK"
 
-say "Verify internet access and download versioned Scheme configuration"
+say "Verify internet access and obtain Scheme configuration"
 ping -c 1 -W 5 guix.gnu.org
-download "$RAW/config.scm" "$CONFIG"
+if [[ -f "$SCRIPT_DIR/config.scm" && -f "$SCRIPT_DIR/channels.scm" ]]; then
+  say "Using versioned files from local Git checkout: $SCRIPT_DIR"
+  install -m 0644 "$SCRIPT_DIR/config.scm" "$CONFIG"
+  install -m 0644 "$SCRIPT_DIR/channels.scm" "$CHANNEL"
+else
+  say "Local configuration unavailable; downloading versioned files"
+  download "$RAW/config.scm" "$CONFIG"
+  download "$RAW/channels.scm" "$CHANNEL"
+fi
 head -n 3 "$CONFIG"
 grep -q '^;; QIMONO-VI-WENDY-CONFIG-VERSION:' "$CONFIG" ||
   fail "Downloaded config has no version marker"
@@ -90,12 +99,14 @@ grep -q '(name "qi")' "$CONFIG" ||
 grep -q '(host-name "Qimono")' "$CONFIG" ||
   fail "Downloaded config does not configure hostname Qimono"
 
-say "Fetch authenticated Nonguix channel description"
-download "$RAW/channels.scm" "$CHANNEL"
+say "Validate authenticated Guix + Nonguix channel description"
 grep -q '^;; QIMONO-VI-WENDY-CHANNELS-VERSION:' "$CHANNEL" ||
   fail "Downloaded channel manifest has no version marker"
 grep -q '897c1a470da759236cc11798f4e0a5f7d4d59fbc' "$CHANNEL" ||
   fail "Missing expected Nonguix introduction commit"
+grep -Fq '"https://codeberg.org/guix/guix.git"' "$CHANNEL" ||
+  fail "Channel manifest does not use the official Codeberg Guix repository"
+head -n 3 "$CHANNEL"
 
 say "Authorize Nonguix substitute server before pulling channels"
 download https://substitutes.nonguix.org/signing-key.pub "$KEY"
