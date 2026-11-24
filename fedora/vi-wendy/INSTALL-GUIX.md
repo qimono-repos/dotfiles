@@ -241,61 +241,68 @@ It installs **Guix System** to the internal HBG4a2 eMMC, not a USB lobby. The
 installed identity is **hostname `Qimono`**, login **`qi`**, StumpWM (Common Lisp),
 SLiM, NetworkManager, and standard Nonguix Linux/firmware.
 
-From the **root** shell in the Nonguix installer:
+From the **root** shell already inside
+`~/source/repos/qimono-repos/dotfiles/fedora/vi-wendy/guix`, use the Git
+workflow. First test channel bootstrapping and config evaluation only:
 
 ```sh
-wget -O /tmp/qimono-install.sh https://raw.githubusercontent.com/qimono-repos/dotfiles/main/fedora/vi-wendy/guix/install-guix.sh &&
-  bash /tmp/qimono-install.sh
+git pull --ff-only origin main &&
+  QIMONO_PREFLIGHT_ONLY=1 bash ./install-guix.sh
 ```
 
-The script identifies the HBG4a2 internal eMMC by model and capacity, downloads
-the versioned Guix configuration, evaluates it before partitioning, sets up
+Only after the preflight succeeds, run the actual install:
+
+```sh
+bash ./install-guix.sh
+```
+
+The script now **prefers sibling `config.scm` and `channels.scm` files from
+the Git checkout**. It downloads these from GitHub only when the sibling files
+are absent. Git pulls become the normal update mechanism.
+
+The script identifies the HBG4a2 internal eMMC by model and capacity, evaluates
+the versioned Guix configuration before partitioning, sets up
 EFI + swap + root, builds the operating system, configures first-boot
 NetworkManager from the local Wi-Fi configuration when available, and prints the
 first-boot instructions. Re-running it with matching Qimono filesystem labels
 reuses the partitions rather than formatting again.
 
-### Nonguix module bootstrap fix (2026-11-24)
+### Failure history and corrected channel source (2026-11-24)
 
-First integrated run successfully confirmed the **HBG4a2 internal eMMC as
-`/dev/mmcblk2`** (28–35 GiB hardware gate) and downloaded the Scheme config,
-but stopped at the pre-partition configuration check:
+1. The first attempt stopped before partitioning because the live Guix
+   command lacked the `(nongnu packages linux)` module.
+2. The next version downloaded the authenticated Nonguix channel, then
+   `guix pull` stopped at:
+   ```text
+   guix pull: error: Git error: cannot redirect from 'git.savannah.gnu.org'
+                     to 'https://git.savannah.gnu.org'
+   ```
+   This was **not a partitioning error**. The script had still not
+   formatted or repartitioned the HBG4a2 eMMC.
 
-```text
-guix system: error: failed to load ... config.scm:
-no code for module (nongnu packages linux)
-```
+GNU Guix migrated its Git repository to Codeberg in May 2025; the
+Guix 1.5.0 live installer inherited a Savannah URL. The authenticated
+`channels.scm v1.1.0` now uses `https://codeberg.org/guix/guix.git`
+for the official Guix channel, while inheriting the original channel
+introduction. Nonguix remains authenticated via its published fingerprint.
 
-No partition commands executed, so Fedora was not replaced by that attempt.
+`install-guix.sh v1.2.0` uses the sibling config and channel files
+from the Git checkout. It authorizes the Nonguix substitute server,
+runs `guix pull` with one build job and core, runs the pulled Guix
+binary, and performs a `guix system build --dry-run` evaluation **before
+destructive partitioning**. The preflight can still fail due to downloads,
+builds, or Scheme evaluation. A successful static CI check does not prove
+the target can complete a Guix pull.
 
-**Cause:** the Nonguix live ISO can boot standard Linux and load Realtek
-firmware while its `guix` package-manager command still lacks the Nonguix
-channel's Scheme modules. Official [Nonguix installation instructions](https://gitlab.com/nonguix/nonguix)
-require `guix pull` after adding the authenticated channel.
+Hardware from the successful preflight: internal HBG4a2 eMMC was
+`/dev/mmcblk2` (29 GiB) on that boot. Script matches model and size rather
+than hardcoding this device node.
 
-**Fixed installer sequence (v1.1.1):** download `config.scm` and authenticated
-`channels.scm`; authorize the Nonguix substitute key; execute `guix pull`
-with one job and one core if the root Guix profile lacks Nonguix; run the
-**pulled Guix binary** from `/root/.config/guix/current/bin`; validate the
-system config via `guix system build --dry-run` **before any eMMC erase**;
-then create the EFI/swap/ext4 layout and run `guix system init`.
-
-A successful channel pull is reused on later installer retries. The
-first pull can consume substantial RAM, storage and network bandwidth.
-If it fails, capture the output; the script will still not have partitioned
-the internal disk. For a bootstrapping-only trial without any disk writes:
-
-```sh
-QIMONO_PREFLIGHT_ONLY=1 bash /tmp/qimono-install.sh
-```
-
-If the downloaded `/tmp/qimono-install.sh` is the previous version, fetch
-the latest script from the raw GitHub URL above before retrying.
-
-Current source revisions: `config.scm v1.1.3`; `install-guix.sh v1.1.1`; `channels.scm v1.0.0`.
-The installer checks for the exact `Qimono` hostname and `qi` user in the downloaded config.
-Static CI checks live in [`vi-wendy-guix-checks.yml`](../../.github/workflows/vi-wendy-guix-checks.yml).
-A Guix evaluation/build in the live environment remains the integration test.
+Current source revisions: `config.scm v1.1.3`;
+`install-guix.sh v1.2.0`; `channels.scm v1.1.0`.
+Static CI checks live in
+[`vi-wendy-guix-checks.yml`](../../.github/workflows/vi-wendy-guix-checks.yml).
+Guix evaluation/build on the laptop remains the integration test.
 
 ## 7. Disk target gate inside the installer
 
