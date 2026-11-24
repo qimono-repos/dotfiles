@@ -1,6 +1,6 @@
-;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.0.1
-;; Change: Import xterm from xorg and both certs/nss packages for Guix versions.
-;; Base: First full-house Guix with Nonguix Linux, Xfce, SLiM, EFI, swap.
+;; QIMONO-VI-WENDY-CONFIG-VERSION: v1.1.0
+;; Change: Select Lisp-native StumpWM instead of Xfce; retain lightweight SLiM.
+;; Base: Nonguix Linux, Realtek firmware, UEFI, swap and ext4.
 ;; Machine: EXO Smart E16Plus / Atom x5-Z8350 / 29.1 GiB HBG4a2 eMMC.
 ;; Installed by: fedora/vi-wendy/guix/install-guix.sh
 ;;
@@ -13,7 +13,7 @@
              (nongnu system linux-initrd))
 (use-service-modules desktop xorg)
 (use-package-modules certs nss version-control wget curl
-                     xorg vim)
+                     wm xorg vim)
 
 (operating-system
   (host-name "vi-wendy")
@@ -58,18 +58,18 @@
               '("wheel" "netdev" "audio" "video" "lp")))
           %base-user-accounts))
 
-  ;; Keep the initial desktop usable on a 3.7 GiB Atom machine.
+  ;; StumpWM is a Common Lisp X11 window manager, not a desktop environment.
+  ;; SLiM launches ~/.xsession, provisioned by install-guix.sh for wendy.
   (packages
     (append
-      (list nss-certs git wget curl vim xterm)
+      (list nss-certs git wget curl vim xterm stumpwm)
       %base-packages))
 
-  ;; Desktop services provide NetworkManager, wpa_supplicant, D-Bus,
-  ;; elogind, Bluetooth and power management. Replace heavy GDM with SLiM.
+  ;; Desktop services include NetworkManager, WPA supplicant, D-Bus,
+  ;; elogind, polkit and Bluetooth. Replace GDM with lightweight SLiM.
   (services
-    (cons* (service xfce-desktop-service-type)
-           (service slim-service-type)
-           (modify-services %desktop-services
-             (delete gdm-service-type))))
+    (cons (service slim-service-type)
+          (modify-services %desktop-services
+            (delete gdm-service-type))))
 
   (name-service-switch %mdns-host-lookup-nss))
